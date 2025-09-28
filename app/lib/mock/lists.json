@@ -1,0 +1,239 @@
+[
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e1",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Coups de coeur de l'automne",
+    "slug": "coups-de-coeur-automne",
+    "description": "Mes livres préférés pour cette saison automnale, parfaits pour se blottir avec une tasse de thé.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075467/automne_fcsgkk.png",
+    "visibility": "public",
+    "publishAt": "2024-09-01T09:00:00.000Z",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d1",
+        "position": 1,
+        "addedAt": "2024-09-01T10:30:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d5",
+        "position": 2,
+        "addedAt": "2024-09-02T14:15:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d4",
+        "position": 3,
+        "addedAt": "2024-09-03T16:45:00.000Z"
+      }
+    ],
+    "createdAt": "2024-08-28T08:00:00.000Z",
+    "updatedAt": "2024-09-15T12:30:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e2",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Lectures d'hiver au coin du feu",
+    "slug": "lectures-hiver-coin-feu",
+    "description": "Des romans chaleureux et réconfortants pour les longues soirées d'hiver.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075491/winter_bxiywb.png",
+    "visibility": "public",
+    "publishAt": "2024-12-01T09:00:00.000Z",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1da",
+        "position": 1,
+        "addedAt": "2024-11-15T11:00:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d6",
+        "position": 2,
+        "addedAt": "2024-11-18T13:20:00.000Z"
+      }
+    ],
+    "createdAt": "2024-11-10T10:00:00.000Z",
+    "updatedAt": "2024-11-20T15:45:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e3",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Incontournables de la rentrée littéraire",
+    "slug": "incontournables-rentree-litteraire",
+    "description": "Les nouveautés littéraires de la rentrée qu'il ne faut absolument pas manquer.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png",
+    "visibility": "public",
+    "publishAt": "2024-08-25T08:00:00.000Z",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d4",
+        "position": 1,
+        "addedAt": "2024-08-25T09:15:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d5",
+        "position": 2,
+        "addedAt": "2024-08-26T10:30:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d9",
+        "position": 3,
+        "addedAt": "2024-08-27T14:00:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d1",
+        "position": 4,
+        "addedAt": "2024-08-28T11:45:00.000Z"
+      }
+    ],
+    "createdAt": "2024-08-20T14:00:00.000Z",
+    "updatedAt": "2024-09-05T16:20:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e4",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Voyages et évasion",
+    "slug": "voyages-evasion",
+    "description": "Des récits de voyage et romans d'aventure pour s'évader depuis son fauteuil.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075495/voyages_epqyz3.png",
+    "visibility": "draft",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d3",
+        "position": 1,
+        "addedAt": "2024-09-10T10:00:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d8",
+        "position": 2,
+        "addedAt": "2024-09-12T15:30:00.000Z"
+      }
+    ],
+    "createdAt": "2024-09-08T12:00:00.000Z",
+    "updatedAt": "2024-09-15T14:20:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e5",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Polars qui tiennent en haleine",
+    "slug": "polars-haleine",
+    "description": "Des thrillers et romans policiers à suspense pour les amateurs de frissons.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075479/polars_ebpm4w.png",
+    "visibility": "draft",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d7",
+        "position": 1,
+        "addedAt": "2024-09-05T09:30:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d8",
+        "position": 2,
+        "addedAt": "2024-09-06T11:15:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1db",
+        "position": 3,
+        "addedAt": "2024-09-07T13:45:00.000Z"
+      }
+    ],
+    "createdAt": "2024-09-01T10:30:00.000Z",
+    "updatedAt": "2024-09-10T17:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e6",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Histoires vraies",
+    "slug": "histoires-vraies",
+    "description": "Biographies, témoignages et récits de vie qui marquent et inspirent.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075468/histoires_vraies_cjt1ny.png",
+    "visibility": "draft",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d9",
+        "position": 1,
+        "addedAt": "2024-09-12T08:45:00.000Z"
+      }
+    ],
+    "createdAt": "2024-09-10T11:00:00.000Z",
+    "updatedAt": "2024-09-18T09:30:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e7",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Romans pour rêver en été",
+    "slug": "romans-rever-ete",
+    "description": "Des lectures légères et rafraîchissantes parfaites pour les vacances d'été.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075467/%C3%A9t%C3%A9_swfhcn.png",
+    "visibility": "unlisted",
+    "publishAt": "2024-06-15T07:00:00.000Z",
+    "unpublishAt": "2024-09-15T23:59:59.000Z",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d3",
+        "position": 1,
+        "addedAt": "2024-06-15T10:20:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d4",
+        "position": 2,
+        "addedAt": "2024-06-18T14:10:00.000Z"
+      }
+    ],
+    "createdAt": "2024-06-10T09:00:00.000Z",
+    "updatedAt": "2024-07-22T16:45:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e8",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Sélection jeunesse",
+    "slug": "selection-jeunesse",
+    "description": "Des livres captivants pour les jeunes lecteurs de tous âges.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075474/jeunesse_jzz1qw.png",
+    "visibility": "unlisted",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d1",
+        "position": 1,
+        "addedAt": "2024-09-01T12:00:00.000Z"
+      }
+    ],
+    "createdAt": "2024-08-25T15:30:00.000Z",
+    "updatedAt": "2024-09-05T10:15:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1e9",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "title": "Prix littéraires",
+    "slug": "prix-litteraires",
+    "description": "Les œuvres primées et nominées aux grands prix littéraires de l'année.",
+    "coverImage": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075483/prix_litt%C3%A9raires_bbbpfo.png",
+    "visibility": "unlisted",
+    "publishAt": "2024-10-01T08:00:00.000Z",
+    "items": [
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d5",
+        "position": 1,
+        "addedAt": "2024-09-20T11:30:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1d9",
+        "position": 2,
+        "addedAt": "2024-09-22T14:20:00.000Z"
+      },
+      {
+        "bookId": "66f1a1b1c1d1e1f1a1b1c1da",
+        "position": 3,
+        "addedAt": "2024-09-25T09:45:00.000Z"
+      }
+    ],
+    "createdAt": "2024-09-18T13:00:00.000Z",
+    "updatedAt": "2024-09-26T11:10:00.000Z"
+  }
+]
