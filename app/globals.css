@@ -49,6 +49,10 @@
     @apply text-[14px];
   }
 
+  .home-link {
+    @apply hover:text-primary-theme active:text-muted-text;
+  }
+
   .header-btn {
     @apply bg-primary-theme text-main-text px-4 py-1 rounded-lg hover:bg-secondary-accent hover:text-white hover:cursor-pointer  active:bg-card-background active:text-muted-text;
   }

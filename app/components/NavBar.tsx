@@ -12,7 +12,9 @@ const NavBar = () => {
     return (
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
-        <h3>Genève - Balexert</h3>
+        <Link href={'/dashboard'}>
+          <h3 className='home-link'>Genève - Balexert</h3>
+        </Link>
 
         {/* MIDDLE */}
         <div className='flex gap-8'>
@@ -43,16 +45,18 @@ const NavBar = () => {
     return (
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
-        <h3>Genève - Balexert</h3>
+        <Link href={'/dashboard'}>
+          <h3 className='home-link'>Genève - Balexert</h3>
+        </Link>
 
         {/* MIDDLE */}
         <div className='flex gap-8'>
-          <Link href='/dashboard'>
+          {/* <Link href='/dashboard'>
             <div className='header-btn flex items-center gap-2'>
               <FaArrowCircleLeft />
               Dashboard
             </div>
-          </Link>
+          </Link> */}
           <Link href='/dashboard/lists'>
             <div className='header-btn flex items-center gap-2'>
               <FaRegEdit />
@@ -74,16 +78,18 @@ const NavBar = () => {
     return (
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
-        <h3>Genève - Balexert</h3>
+        <Link href={'/dashboard'}>
+          <h3 className='home-link'>Genève - Balexert</h3>
+        </Link>
 
         {/* MIDDLE */}
         <div className='flex gap-8'>
-          <Link href='/dashboard'>
+          {/* <Link href='/dashboard'>
             <div className='header-btn flex items-center gap-2'>
               <FaArrowCircleLeft />
               Dashboard
             </div>
-          </Link>
+          </Link> */}
           <Link href='/dashboard/books'>
             <div className='header-btn flex items-center gap-2'>
               <FaRegEdit />
@@ -101,11 +107,16 @@ const NavBar = () => {
     );
   }
 
-  if (pathname == '/dashboard/books/new') {
+  if (
+    pathname == '/dashboard/books/new' ||
+    pathname == '/dashboard/lists/new'
+  ) {
     return (
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
-        <h3>Genève - Balexert</h3>
+        <Link href={'/dashboard'}>
+          <h3 className='home-link'>Genève - Balexert</h3>
+        </Link>
 
         {/* MIDDLE */}
         <div className='flex gap-8'>
