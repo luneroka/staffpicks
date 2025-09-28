@@ -22,7 +22,7 @@ export default function RootLayout({
       <body className={roboto.className}>
         <div className='flex flex-col h-screen max-h-screen'>
           <NavBar />
-          <div className='flex-grow overflow-y-auto'>{children}</div>
+          <div className='px-16 py-8'>{children}</div>
         </div>
       </body>
     </html>
