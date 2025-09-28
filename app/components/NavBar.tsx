@@ -1,31 +1,130 @@
-import React from 'react';
-import { FaRegEdit, FaUserCircle } from 'react-icons/fa';
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { FaRegEdit, FaUserCircle, FaArrowCircleLeft } from 'react-icons/fa';
 
 const NavBar = () => {
-  return (
-    <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
-      {/* LEFT */}
-      <h3>Genève - Balexert</h3>
+  const pathname = usePathname();
 
-      {/* MIDDLE */}
-      <div className='flex gap-8'>
-        <div className='header-btn flex items-center gap-2'>
-          <FaRegEdit />
-          Mes livres
-        </div>
-        <div className='header-btn flex items-center gap-2'>
-          <FaRegEdit />
-          Mes listes
-        </div>
-      </div>
+  // Dashboard
+  if (pathname == '/dashboard') {
+    return (
+      <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
+        {/* LEFT */}
+        <h3>Genève - Balexert</h3>
 
-      {/* RIGHT */}
-      <div className='flex gap-2 items-center'>
-        <h3>Sarah</h3>
-        <FaUserCircle className='size-8' />
-      </div>
-    </nav>
-  );
+        {/* MIDDLE */}
+        <div className='flex gap-8'>
+          <Link href='/dashboard/books'>
+            <div className='header-btn flex items-center gap-2'>
+              <FaRegEdit />
+              Mes livres
+            </div>
+          </Link>
+          <Link href='/dashboard/lists'>
+            <div className='header-btn flex items-center gap-2'>
+              <FaRegEdit />
+              Mes listes
+            </div>
+          </Link>
+        </div>
+
+        {/* RIGHT */}
+        <div className='flex gap-2 items-center'>
+          <h3>Sarah</h3>
+          <FaUserCircle className='size-8' />
+        </div>
+      </nav>
+    );
+  }
+
+  if (pathname == '/dashboard/books') {
+    return (
+      <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
+        {/* LEFT */}
+        <h3>Genève - Balexert</h3>
+
+        {/* MIDDLE */}
+        <div className='flex gap-8'>
+          <Link href='/dashboard'>
+            <div className='header-btn flex items-center gap-2'>
+              <FaArrowCircleLeft />
+              Dashboard
+            </div>
+          </Link>
+          <Link href='/dashboard/lists'>
+            <div className='header-btn flex items-center gap-2'>
+              <FaRegEdit />
+              Mes listes
+            </div>
+          </Link>
+        </div>
+
+        {/* RIGHT */}
+        <div className='flex gap-2 items-center'>
+          <h3>Sarah</h3>
+          <FaUserCircle className='size-8' />
+        </div>
+      </nav>
+    );
+  }
+
+  if (pathname == '/dashboard/lists') {
+    return (
+      <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
+        {/* LEFT */}
+        <h3>Genève - Balexert</h3>
+
+        {/* MIDDLE */}
+        <div className='flex gap-8'>
+          <Link href='/dashboard'>
+            <div className='header-btn flex items-center gap-2'>
+              <FaArrowCircleLeft />
+              Dashboard
+            </div>
+          </Link>
+          <Link href='/dashboard/books'>
+            <div className='header-btn flex items-center gap-2'>
+              <FaRegEdit />
+              Mes livres
+            </div>
+          </Link>
+        </div>
+
+        {/* RIGHT */}
+        <div className='flex gap-2 items-center'>
+          <h3>Sarah</h3>
+          <FaUserCircle className='size-8' />
+        </div>
+      </nav>
+    );
+  }
+
+  if (pathname == '/dashboard/books/new') {
+    return (
+      <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
+        {/* LEFT */}
+        <h3>Genève - Balexert</h3>
+
+        {/* MIDDLE */}
+        <div className='flex gap-8'>
+          <Link href='/dashboard/books'>
+            <div className='abort-btn flex items-center gap-2'>
+              <FaArrowCircleLeft />
+              Annuler
+            </div>
+          </Link>
+        </div>
+
+        {/* RIGHT */}
+        <div className='flex gap-2 items-center'>
+          <h3>Sarah</h3>
+          <FaUserCircle className='size-8' />
+        </div>
+      </nav>
+    );
+  }
 };
 
 export default NavBar;
