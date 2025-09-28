@@ -5,7 +5,45 @@
   --color-secondary-theme: #232323;
   --color-primary-accent: #2a8962;
   --color-secondary-accent: #4f6fa0;
+  --color-card-background: #f2f2f2;
   --color-main-text: #333333;
   --color-muted-text: #989898;
   --color-inverse-text: #ffffff;
+}
+
+@layer base {
+  body {
+    @apply text-main-text;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-lg;
+  }
+
+  p {
+    @apply text-base;
+  }
+}
+
+@layer components {
+  .h2-light,
+  .h3-light {
+    @apply font-light;
+  }
+
+  .small-text {
+    @apply text-xs;
+  }
+
+  .header-btn {
+    @apply bg-primary-theme text-main-text px-4 py-1 rounded-lg hover:bg-secondary-accent hover:text-white hover:cursor-pointer  active:bg-card-background active:text-muted-text;
+  }
 }
