@@ -58,10 +58,9 @@ export class Book {
   @prop({ _id: false, required: true })
   public bookData!: BookData;
 
-  @prop() public category?: string;
+  @prop() public genre?: string;
   @prop() public tone?: string;
   @prop() public ageGroup?: string;
-  @prop() public targetGender?: string;
   @prop() public fnacLink?: string;
   @prop() public recommendation?: string;
 
