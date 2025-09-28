@@ -9,6 +9,12 @@
   --color-main-text: #333333;
   --color-muted-text: #989898;
   --color-inverse-text: #ffffff;
+  --color-alert-error: #dc3646;
+  --color-alert-warning: #fcb700;
+  --color-alert-success: #00d290;
+  --color-alert-background-error: #fff3f4;
+  --color-alert-background-warning: #fffaef;
+  --color-alert-background-success: #f1fbf6;
 }
 
 @layer base {
@@ -45,5 +51,13 @@
 
   .header-btn {
     @apply bg-primary-theme text-main-text px-4 py-1 rounded-lg hover:bg-secondary-accent hover:text-white hover:cursor-pointer  active:bg-card-background active:text-muted-text;
+  }
+
+  .abort-btn {
+    @apply bg-alert-background-error text-alert-error border-alert-error border px-4 py-1 rounded-lg hover:bg-alert-error hover:text-white hover:cursor-pointer  active:bg-card-background active:text-muted-text active:border-none;
+  }
+
+  .add-item-btn {
+    @apply bg-secondary-accent text-white px-8 py-4 rounded-lg hover:bg-primary-theme hover:text-main-text hover:cursor-pointer active:bg-card-background active:text-muted-text;
   }
 }
