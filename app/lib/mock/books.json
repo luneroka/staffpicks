@@ -1,0 +1,222 @@
+[
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d1",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567890",
+    "bookData": {
+      "title": "Nos âmes tourmentées",
+      "authors": ["Morgane Moncomble"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074981/nos_ames_tourmentees_gshyya.webp",
+      "description": "Description placeholder",
+      "pageCount": 300,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-01-01T00:00:00.000Z"
+    },
+    "genre": "Fiction",
+    "tone": "Dramatic",
+    "ageGroup": "Young Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-01-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d3",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567891",
+    "bookData": {
+      "title": "My Last Night",
+      "authors": ["Author Placeholder"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074979/my_last_night_l72qar.jpg",
+      "description": "Description placeholder",
+      "pageCount": 250,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-02-01T00:00:00.000Z"
+    },
+    "genre": "Romance",
+    "tone": "Emotional",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-02-01T10:00:00.000Z",
+    "updatedAt": "2024-02-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d4",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567892",
+    "bookData": {
+      "title": "Jamais Plus",
+      "authors": ["Colleen Hoover"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074977/jamais_plus_nuccdo.webp",
+      "description": "Description placeholder",
+      "pageCount": 280,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-03-01T00:00:00.000Z"
+    },
+    "genre": "Drama",
+    "tone": "Intense",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-03-01T10:00:00.000Z",
+    "updatedAt": "2024-03-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d5",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567893",
+    "bookData": {
+      "title": "Automne pour pardonner",
+      "authors": ["Morgane Moncomble"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074975/automne_pour_pardonner_z8iz60.webp",
+      "description": "Description placeholder",
+      "pageCount": 320,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-04-01T00:00:00.000Z"
+    },
+    "genre": "Literary Fiction",
+    "tone": "Reflective",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-04-01T10:00:00.000Z",
+    "updatedAt": "2024-04-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d6",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567894",
+    "bookData": {
+      "title": "Necropolis",
+      "authors": ["Herbert Lieberman"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074966/necropolis_zmg8yx.jpg",
+      "description": "Description placeholder",
+      "pageCount": 400,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-05-01T00:00:00.000Z"
+    },
+    "genre": "Horror",
+    "tone": "Dark",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-05-01T10:00:00.000Z",
+    "updatedAt": "2024-05-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d7",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567895",
+    "bookData": {
+      "title": "Meurtre sous les étoiles",
+      "authors": ["C.A Larmer"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759079597/meurtre_sous_les_etoiles_aoqug5.jpg",
+      "description": "Description placeholder",
+      "pageCount": 350,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-06-01T00:00:00.000Z"
+    },
+    "genre": "Mystery",
+    "tone": "Suspenseful",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-06-01T10:00:00.000Z",
+    "updatedAt": "2024-06-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d8",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567896",
+    "bookData": {
+      "title": "Le 7ème pendu",
+      "authors": ["Robert Jordan"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074963/le_7eme_pendu_oam2ip.webp",
+      "description": "Description placeholder",
+      "pageCount": 380,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-07-01T00:00:00.000Z"
+    },
+    "genre": "Thriller",
+    "tone": "Dark",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-07-01T10:00:00.000Z",
+    "updatedAt": "2024-07-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1d9",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567897",
+    "bookData": {
+      "title": "La femme de ménage",
+      "authors": ["Freida McFadden"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074962/la_femme_de_menage_hom3dr.webp",
+      "description": "Description placeholder",
+      "pageCount": 290,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-08-01T00:00:00.000Z"
+    },
+    "genre": "Contemporary Fiction",
+    "tone": "Realistic",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-08-01T10:00:00.000Z",
+    "updatedAt": "2024-08-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1da",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567898",
+    "bookData": {
+      "title": "Holly",
+      "authors": ["Stephen King"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074961/holly_zdfpbc.webp",
+      "description": "Description placeholder",
+      "pageCount": 420,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-09-01T00:00:00.000Z"
+    },
+    "genre": "Horror/Thriller",
+    "tone": "Suspenseful",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-09-01T10:00:00.000Z",
+    "updatedAt": "2024-09-01T10:00:00.000Z"
+  },
+  {
+    "_id": "66f1a1b1c1d1e1f1a1b1c1db",
+    "ownerUserId": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "createdBy": "66f1a1b1c1d1e1f1a1b1c1d2",
+    "isbn": "9781234567899",
+    "bookData": {
+      "title": "Le mystère de la chambre jaune",
+      "authors": ["Gaston Leroux"],
+      "cover": "https://res.cloudinary.com/dhxckc6ld/image/upload/v1759074960/chambre_jaune_briaey.jpg",
+      "description": "Description placeholder",
+      "pageCount": 310,
+      "publisher": "Publisher Placeholder",
+      "publishDate": "2024-10-01T00:00:00.000Z"
+    },
+    "genre": "Mystery",
+    "tone": "Atmospheric",
+    "ageGroup": "Adult",
+    "fnacLink": "https://fnac.com/placeholder",
+    "recommendation": "Recommendation placeholder",
+    "createdAt": "2024-10-01T10:00:00.000Z",
+    "updatedAt": "2024-10-01T10:00:00.000Z"
+  }
+]

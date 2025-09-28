@@ -40,7 +40,7 @@
   }
 
   .small-text {
-    @apply text-xs;
+    @apply text-[14px];
   }
 
   .header-btn {
