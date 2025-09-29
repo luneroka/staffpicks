@@ -36,8 +36,7 @@ const ListCard = ({ listData }: ListCardProps) => {
           <img
             src={listData.coverImage}
             alt={listData.title || 'Couverture non disponible'}
-            className={`w-full h-full
-            }`}
+            className='w-full h-full rounded-md'
             style={{ width: '121px', height: '170px' }}
           />
         </div>
