@@ -96,7 +96,7 @@ const NavBar = () => {
         {/* MIDDLE */}
         <div className='flex gap-8'>
           <Link href='/dashboard/books'>
-            <div className='abort-btn flex items-center gap-2'>
+            <div className='btn btn-soft btn-error flex items-center gap-2'>
               <FaArrowCircleLeft />
               Retour
             </div>

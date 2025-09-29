@@ -58,14 +58,6 @@
     @apply bg-primary-theme text-main-text px-4 py-1 rounded-lg hover:bg-secondary-accent hover:text-white hover:cursor-pointer  active:bg-card-background active:text-muted-text;
   }
 
-  .abort-btn {
-    @apply bg-alert-background-error text-alert-error border-alert-error border px-4 py-1 rounded-lg hover:bg-alert-error hover:text-white hover:cursor-pointer  active:bg-card-background active:text-muted-text active:border-none;
-  }
-
-  .add-item-btn {
-    @apply bg-secondary-accent text-white px-8 py-4 rounded-lg hover:bg-primary-theme hover:text-main-text hover:cursor-pointer active:bg-card-background active:text-muted-text;
-  }
-
   .isbn-search-btn {
     @apply flex items-center absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-medium bg-card-background hover:bg-muted-text disabled:bg-gray-100 disabled:opacity-60 text-main-text disabled:text-gray-500 rounded-md border-0 transition-colors duration-150 z-10 cursor-pointer;
   }

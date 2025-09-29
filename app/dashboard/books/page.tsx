@@ -6,9 +6,7 @@ const Books = () => {
   return (
     <div className='flex flex-col gap-16'>
       <Link href={'/dashboard/books/new'}>
-        <div className='add-item-btn w-fit'>
-          <h3>Ajouter un livre</h3>
-        </div>
+        <div className='btn btn-soft btn-primary w-fit'>Ajouter un livre</div>
       </Link>
 
       <div className='flex flex-col gap-8'>

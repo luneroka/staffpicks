@@ -68,17 +68,17 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
 
           {/* Action Buttons */}
           <div className='flex gap-8'>
-            <div className='flex gap-4'>
+            <div className='flex gap-4 btn btn-warning text-main-text'>
               <a
                 href={book.fnacLink}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='bg-primary-theme text-main-text px-6 py-2 rounded-lg hover:bg-secondary-accent hover:text-white transition-colors'
+                className=''
               >
                 Voir sur Fnac.ch
               </a>
             </div>
-            <div className='flex gap-4 bg-card-background text-main-text px-6 py-2 rounded-lg hover:bg-muted-text hover:text-white transition-colors cursor-pointer'>
+            <div className='btn'>
               <Link href={`/dashboard/books/${book.isbn}/edit`}>Modifier</Link>
             </div>
           </div>

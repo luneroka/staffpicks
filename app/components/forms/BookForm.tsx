@@ -488,16 +488,12 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
         <div className='flex-grow'></div>
 
         <div className='flex gap-4 mt-6 w-full max-w-md'>
-          <button
-            type='button'
-            className='btn btn-outline flex-1'
-            onClick={resetForm}
-          >
+          <button type='button' className='btn flex-1' onClick={resetForm}>
             Annuler
           </button>
           <button
             type='submit'
-            className='btn bg-primary-theme hover:bg-secondary-accent hover:text-white flex-1'
+            className='btn btn-warning text-main-text flex-1'
           >
             {isEditing ? 'Modifier le livre' : 'Ajouter le livre'}
           </button>
