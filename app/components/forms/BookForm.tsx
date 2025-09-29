@@ -5,6 +5,7 @@ import { FaSearch } from 'react-icons/fa';
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 import { redirect } from 'next/navigation';
+import booksData from '@/app/lib/mock/books.json';
 
 interface BookData {
   isbn: string;
@@ -21,7 +22,11 @@ interface BookData {
   recommendation: string;
 }
 
-const BookForm = () => {
+interface BookEditFormProps {
+  bookIsbn?: string; // Optional prop for editing existing books
+}
+
+const BookForm = ({ bookIsbn }: BookEditFormProps) => {
   const [bookData, setBookData] = useState<BookData>({
     isbn: '',
     title: '',
@@ -41,6 +46,40 @@ const BookForm = () => {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load existing book data if bookIsbn is provided (for editing)
+  useEffect(() => {
+    if (bookIsbn) {
+      setIsLoading(true);
+
+      // Find the book by ISBN from mock data
+      const existingBook = booksData.find((book) => book.isbn === bookIsbn);
+
+      if (existingBook) {
+        setBookData({
+          isbn: existingBook.isbn,
+          title: existingBook.bookData.title,
+          authors: existingBook.bookData.authors.join(', '),
+          publisher: existingBook.bookData.publisher,
+          publishedDate: existingBook.bookData.publishDate
+            ? existingBook.bookData.publishDate.split('T')[0]
+            : '', // Convert to YYYY-MM-DD format
+          description: existingBook.bookData.description,
+          coverImage: existingBook.bookData.cover,
+          genre: existingBook.genre,
+          tone: existingBook.tone,
+          ageGroup: existingBook.ageGroup,
+          fnacLink: existingBook.fnacLink,
+          recommendation: existingBook.recommendation,
+        });
+      } else {
+        setError(`Aucun livre trouvé avec l'ISBN: ${bookIsbn}`);
+      }
+
+      setIsLoading(false);
+    }
+  }, [bookIsbn]);
 
   // Auto-dismiss success message after 3 seconds
   useEffect(() => {
@@ -188,21 +227,41 @@ const BookForm = () => {
 
     try {
       console.log('Submitting book data:', bookData);
-      // TODO: Add actual API call to save the book
-      setSuccess('Livre ajouté avec succès!');
+      // TODO: Add actual API call to save/update the book
+      const isEditing = !!bookIsbn;
+      setSuccess(
+        isEditing ? 'Livre modifié avec succès!' : 'Livre ajouté avec succès!'
+      );
 
-      // Reset form after successful submission
-      resetForm();
+      // Reset form after successful submission (only for new books)
+      if (!isEditing) {
+        resetForm();
+      }
       redirect('/dashboard/books');
     } catch (error) {
       console.error('Error saving book:', error);
+      const isEditing = !!bookIsbn;
       setError(
         error instanceof Error
           ? error.message
+          : isEditing
+          ? 'Erreur lors de la modification du livre'
           : "Erreur lors de l'ajout du livre"
       );
     }
   };
+
+  // Show loading state when loading existing book data
+  if (isLoading) {
+    return (
+      <div className='flex justify-center items-center p-8'>
+        <div className='loading loading-spinner loading-lg'></div>
+        <span className='ml-4'>Chargement des données du livre...</span>
+      </div>
+    );
+  }
+
+  const isEditing = !!bookIsbn;
 
   return (
     <form
@@ -229,7 +288,9 @@ const BookForm = () => {
             )}
           </div>
         )}
-        <legend className='fieldset-legend'>Détails du livre</legend>
+        <legend className='fieldset-legend'>
+          {isEditing ? 'Modifier le livre' : 'Détails du livre'}
+        </legend>
 
         <label className='label w-full max-w-md text-center'>EAN/ISBN *</label>
         <div className='relative w-full max-w-md mx-auto'>
@@ -241,11 +302,12 @@ const BookForm = () => {
             className='input w-full pr-32'
             placeholder='9782123456789'
             maxLength={17}
+            disabled={isEditing}
           />
           <button
             type='button'
             onClick={handleISBNSearch}
-            disabled={isSearching}
+            disabled={isSearching || isEditing}
             className='isbn-search-btn'
           >
             {isSearching ? (
@@ -437,7 +499,7 @@ const BookForm = () => {
             type='submit'
             className='btn bg-primary-theme hover:bg-secondary-accent hover:text-white flex-1'
           >
-            Ajouter le livre
+            {isEditing ? 'Modifier le livre' : 'Ajouter le livre'}
           </button>
         </div>
       </fieldset>

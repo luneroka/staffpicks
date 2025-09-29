@@ -1,7 +1,19 @@
-import React from 'react';
+import BookDetails from '@/app/components/BookDetails';
 
-const BookPage = () => {
-  return <div>BookPage</div>;
+interface BookPageProps {
+  params: Promise<{
+    bookId: string;
+  }>;
+}
+
+const BookPage = async ({ params }: BookPageProps) => {
+  const { bookId } = await params;
+
+  return (
+    <div>
+      <BookDetails bookIsbn={bookId} />
+    </div>
+  );
 };
 
 export default BookPage;
