@@ -2,7 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaRegEdit, FaUserCircle, FaArrowCircleLeft } from 'react-icons/fa';
+import {
+  FaHome,
+  FaRegEdit,
+  FaUserCircle,
+  FaArrowCircleLeft,
+} from 'react-icons/fa';
 
 const NavBar = () => {
   const pathname = usePathname();
@@ -13,7 +18,12 @@ const NavBar = () => {
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
         <Link href={'/dashboard'}>
-          <h3 className='home-link'>Genève - Balexert</h3>
+          <div className='flex items-center gap-2 home-link'>
+            {/* TODO: Use company logo from db */}
+            <FaHome />
+            {/* TODO: Use store name from db */}
+            <h3>Genève - Balexert</h3>
+          </div>
         </Link>
 
         {/* MIDDLE */}
@@ -46,17 +56,16 @@ const NavBar = () => {
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
         <Link href={'/dashboard'}>
-          <h3 className='home-link'>Genève - Balexert</h3>
+          <div className='flex items-center gap-2 home-link'>
+            {/* TODO: Use company logo from db */}
+            <FaHome />
+            {/* TODO: Use store name from db */}
+            <h3>Genève - Balexert</h3>
+          </div>
         </Link>
 
         {/* MIDDLE */}
         <div className='flex gap-8'>
-          {/* <Link href='/dashboard'>
-            <div className='header-btn flex items-center gap-2'>
-              <FaArrowCircleLeft />
-              Dashboard
-            </div>
-          </Link> */}
           <Link href='/dashboard/lists'>
             <div className='header-btn flex items-center gap-2'>
               <FaRegEdit />
@@ -79,17 +88,16 @@ const NavBar = () => {
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
         <Link href={'/dashboard'}>
-          <h3 className='home-link'>Genève - Balexert</h3>
+          <div className='flex items-center gap-2 home-link'>
+            {/* TODO: Use company logo from db */}
+            <FaHome />
+            {/* TODO: Use store name from db */}
+            <h3>Genève - Balexert</h3>
+          </div>
         </Link>
 
         {/* MIDDLE */}
         <div className='flex gap-8'>
-          {/* <Link href='/dashboard'>
-            <div className='header-btn flex items-center gap-2'>
-              <FaArrowCircleLeft />
-              Dashboard
-            </div>
-          </Link> */}
           <Link href='/dashboard/books'>
             <div className='header-btn flex items-center gap-2'>
               <FaRegEdit />
@@ -115,7 +123,12 @@ const NavBar = () => {
       <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
         {/* LEFT */}
         <Link href={'/dashboard'}>
-          <h3 className='home-link'>Genève - Balexert</h3>
+          <div className='flex items-center gap-2 home-link'>
+            {/* TODO: Use company logo from db */}
+            <FaHome />
+            {/* TODO: Use store name from db */}
+            <h3>Genève - Balexert</h3>
+          </div>
         </Link>
 
         {/* MIDDLE */}
