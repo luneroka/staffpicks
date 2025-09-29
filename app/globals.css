@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin "daisyui";
 
 @theme inline {
   --color-primary-theme: #f5b027;
