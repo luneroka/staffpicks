@@ -18,7 +18,6 @@ class BookData {
 
   @prop() public cover?: string; // URL
   @prop() public description?: string;
-  @prop() public pageCount?: number;
   @prop() public publisher?: string;
 
   @prop({
