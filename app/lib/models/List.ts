@@ -4,10 +4,11 @@ import {
   index,
   modelOptions,
 } from '@typegoose/typegoose';
-import type { Ref } from '@typegoose/typegoose';
+import type { Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import type { User } from './User';
 import type { Book } from './Book';
+import { Company } from './Company';
 
 export enum ListVisibility {
   Draft = 'draft',
@@ -29,17 +30,19 @@ class ListItem {
 }
 
 /**
- * Pretty URLs per owner; allow reusing slug after soft delete.
+ * Pretty URLs per company and owner; allow reusing slug after soft delete.
  * The first index enforces uniqueness only when `deletedAt` is not set.
  */
 @index(
-  { ownerUserId: 1, slug: 1 },
+  { companyId: 1, ownerUserId: 1, slug: 1 },
   { unique: true, partialFilterExpression: { deletedAt: { $exists: false } } }
 )
-// Dashboards (active lists)
-@index({ ownerUserId: 1, visibility: 1, updatedAt: -1 })
-// Trash (fast lookup by owner & deletedAt)
-@index({ ownerUserId: 1, deletedAt: 1, updatedAt: -1 })
+// Dashboards (active lists by company)
+@index({ companyId: 1, ownerUserId: 1, visibility: 1, updatedAt: -1 })
+// Company-wide lists
+@index({ companyId: 1, visibility: 1, updatedAt: -1 })
+// Trash (fast lookup by company, owner & deletedAt)
+@index({ companyId: 1, ownerUserId: 1, deletedAt: 1, updatedAt: -1 })
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -49,6 +52,10 @@ class ListItem {
 })
 export class List {
   public readonly _id!: Types.ObjectId;
+
+  /** Company boundary for multi-tenancy */
+  @prop({ ref: () => Company, required: true, index: true })
+  public companyId!: Ref<Company>;
 
   /** Tenant boundary: the librarian who owns the list */
   @prop({ ref: () => ({} as unknown as typeof User), required: true })
@@ -97,6 +104,45 @@ export class List {
   /** Timestamps via schemaOptions */
   public createdAt?: Date;
   public updatedAt?: Date;
+
+  // ---------- Static helpers ----------
+  /** Guard every query by company and owner (multi-tenant boundary) */
+  static scopedFor(
+    this: ReturnModelType<typeof List>,
+    companyId: Types.ObjectId | string,
+    ownerUserId?: Types.ObjectId | string
+  ) {
+    const query = { companyId, deletedAt: { $exists: false } };
+    if (ownerUserId) {
+      return this.find({ ...query, ownerUserId });
+    }
+    return this.find(query);
+  }
+
+  /** Get all lists for a company */
+  static forCompany(
+    this: ReturnModelType<typeof List>,
+    companyId: Types.ObjectId | string,
+    visibility?: ListVisibility
+  ) {
+    const query = { companyId, deletedAt: { $exists: false } };
+    if (visibility) {
+      return this.find({ ...query, visibility });
+    }
+    return this.find(query);
+  }
+
+  /** Get public lists for a company */
+  static publicForCompany(
+    this: ReturnModelType<typeof List>,
+    companyId: Types.ObjectId | string
+  ) {
+    return this.find({
+      companyId,
+      visibility: ListVisibility.Public,
+      deletedAt: { $exists: false },
+    });
+  }
 }
 
 export const ListModel = getModelForClass(List);

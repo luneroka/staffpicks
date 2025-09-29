@@ -7,6 +7,7 @@ import {
 import type { Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { User } from './User';
+import { Company } from './Company';
 
 class BookData {
   @prop({ required: true, trim: true })
@@ -28,9 +29,12 @@ class BookData {
 }
 
 // INDEXES
-/** Unique ISBN per owner; fast dashboard listing by owner */
-@index({ ownerUserId: 1, isbn: 1 }, { unique: true })
-@index({ ownerUserId: 1, createdAt: -1 })
+/** Unique ISBN per company (multi-tenant isolation) */
+@index({ companyId: 1, isbn: 1 }, { unique: true })
+/** Fast dashboard listing by owner within company */
+@index({ companyId: 1, ownerUserId: 1, createdAt: -1 })
+/** Company-wide book search */
+@index({ companyId: 1, createdAt: -1 })
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -41,7 +45,11 @@ class BookData {
 export class Book {
   public readonly _id!: Types.ObjectId;
 
-  /** The library owner (the librarian’s user id) */
+  /** Company boundary for multi-tenancy */
+  @prop({ ref: () => Company, required: true, index: true })
+  public companyId!: Ref<Company>;
+
+  /** The library owner (the librarian's user id) */
   @prop({ ref: () => User, required: true })
   public ownerUserId!: Ref<User>;
 
@@ -68,12 +76,25 @@ export class Book {
   public updatedAt?: Date; // timestamps
 
   // ---------- Static helpers ----------
-  /** Guard every query by owner (tenant boundary) */
+  /** Guard every query by company and owner (multi-tenant boundary) */
   static scopedFor(
     this: ReturnModelType<typeof Book>,
-    ownerUserId: Types.ObjectId | string
+    companyId: Types.ObjectId | string,
+    ownerUserId?: Types.ObjectId | string
   ) {
-    return this.find({ ownerUserId });
+    const query = { companyId };
+    if (ownerUserId) {
+      return this.find({ ...query, ownerUserId });
+    }
+    return this.find(query);
+  }
+
+  /** Get all books for a company */
+  static forCompany(
+    this: ReturnModelType<typeof Book>,
+    companyId: Types.ObjectId | string
+  ) {
+    return this.find({ companyId });
   }
 }
 

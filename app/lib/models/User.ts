@@ -5,27 +5,21 @@ import {
   modelOptions,
   DocumentType,
 } from '@typegoose/typegoose';
+import type { Ref, ReturnModelType } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { Company } from './Company';
+import { Store } from './Store';
 
 export enum UserRole {
-  Admin = 'admin',
+  SuperAdmin = 'superAdmin', // Platform admin (manages all companies)
+  CompanyAdmin = 'companyAdmin', // Company admin (manages librarians within company)
   Librarian = 'librarian',
 }
 
-export enum StoreCode {
-  GeneveBalexert = 'GENEVE_BALEXERT',
-  GeneveRives = 'GENEVE_RIVES',
-  Lausanne = 'LAUSANNE',
-}
-
-/** Human-friendly store labels for UI */
-export const StoreLabels: Record<StoreCode, string> = {
-  [StoreCode.GeneveBalexert]: 'Genève - Balexert',
-  [StoreCode.GeneveRives]: 'Genève - Rives',
-  [StoreCode.Lausanne]: 'Lausanne',
-};
-
 @index({ email: 1 }, { unique: true })
+@index({ companyId: 1, role: 1, createdAt: -1 }) // Fast company user lookup
+@index({ companyId: 1, storeId: 1 }) // Users by company and store
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -41,6 +35,10 @@ export const StoreLabels: Record<StoreCode, string> = {
   },
 })
 export class User {
+  /** Company association - null only for SuperAdmin */
+  @prop({ ref: () => Company, required: false, index: true })
+  public companyId?: Ref<Company>;
+
   /** Display name */
   @prop({ required: true, trim: true })
   public name!: string;
@@ -57,9 +55,9 @@ export class User {
   @prop({ required: true, enum: UserRole, default: UserRole.Librarian })
   public role!: UserRole;
 
-  /** Store membership **/
-  @prop({ required: true, enum: StoreCode })
-  public store!: StoreCode;
+  /** Store assignment - only for Librarians **/
+  @prop({ ref: () => Store })
+  public storeId?: Ref<Store>;
 
   /** Optional avatar for UI */
   @prop()
@@ -81,6 +79,36 @@ export class User {
   ): Promise<boolean> {
     return bcrypt.compare(plain, this.passwordHash);
   }
+
+  // ---------- Static helpers ----------
+  /** Get all users for a company */
+  static forCompany(
+    this: ReturnModelType<typeof User>,
+    companyId: Types.ObjectId | string,
+    role?: UserRole
+  ) {
+    const query = { companyId };
+    if (role) {
+      return this.find({ ...query, role });
+    }
+    return this.find(query);
+  }
+
+  /** Get all librarians for a store */
+  static forStore(
+    this: ReturnModelType<typeof User>,
+    storeId: Types.ObjectId | string
+  ) {
+    return this.find({ storeId, role: UserRole.Librarian });
+  }
+
+  /** Get company admins for a company */
+  static companyAdminsFor(
+    this: ReturnModelType<typeof User>,
+    companyId: Types.ObjectId | string
+  ) {
+    return this.find({ companyId, role: UserRole.CompanyAdmin });
+  }
 }
 
 export const UserModel = getModelForClass(User);
@@ -91,5 +119,6 @@ export type SessionUser = {
   email: string;
   role: UserRole;
   name: string;
-  store: StoreCode;
+  companyId?: string;
+  storeId?: string;
 };
