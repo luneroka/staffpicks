@@ -1,0 +1,164 @@
+{
+  "genres": [
+    {
+      "value": "roman",
+      "label": "Roman",
+      "description": "Œuvre de fiction narrative en prose"
+    },
+    {
+      "value": "nouvelle",
+      "label": "Nouvelle",
+      "description": "Récit bref de fiction"
+    },
+    {
+      "value": "essai",
+      "label": "Essai",
+      "description": "Texte littéraire d'idées"
+    },
+    {
+      "value": "biographie",
+      "label": "Biographie",
+      "description": "Récit de la vie d'une personne"
+    },
+    {
+      "value": "autobiographie",
+      "label": "Autobiographie",
+      "description": "Récit de sa propre vie"
+    },
+    {
+      "value": "memoires",
+      "label": "Mémoires",
+      "description": "Souvenirs personnels d'événements vécus"
+    },
+    {
+      "value": "histoire",
+      "label": "Histoire",
+      "description": "Étude du passé"
+    },
+    {
+      "value": "science-fiction",
+      "label": "Science-fiction",
+      "description": "Fiction basée sur les progrès scientifiques"
+    },
+    {
+      "value": "fantasy",
+      "label": "Fantasy",
+      "description": "Fiction avec des éléments magiques ou surnaturels"
+    },
+    {
+      "value": "thriller",
+      "label": "Thriller",
+      "description": "Roman à suspense"
+    },
+    {
+      "value": "policier",
+      "label": "Policier",
+      "description": "Roman d'enquête criminelle"
+    },
+    {
+      "value": "romance",
+      "label": "Romance",
+      "description": "Roman sentimental"
+    },
+    {
+      "value": "jeunesse",
+      "label": "Jeunesse",
+      "description": "Littérature destinée aux jeunes"
+    },
+    {
+      "value": "bande-dessinee",
+      "label": "Bande dessinée",
+      "description": "Art séquentiel alliant texte et image"
+    },
+    {
+      "value": "manga",
+      "label": "Manga",
+      "description": "Bande dessinée japonaise"
+    },
+    {
+      "value": "poesie",
+      "label": "Poésie",
+      "description": "Art du langage visant à exprimer ou suggérer"
+    },
+    {
+      "value": "theatre",
+      "label": "Théâtre",
+      "description": "Texte dramatique destiné à la représentation"
+    },
+    {
+      "value": "philosophie",
+      "label": "Philosophie",
+      "description": "Réflexion sur l'existence et la connaissance"
+    },
+    {
+      "value": "psychologie",
+      "label": "Psychologie",
+      "description": "Étude du comportement et des processus mentaux"
+    },
+    {
+      "value": "sociologie",
+      "label": "Sociologie",
+      "description": "Étude de la société et des relations sociales"
+    },
+    {
+      "value": "economie",
+      "label": "Économie",
+      "description": "Science des échanges et de la production"
+    },
+    {
+      "value": "politique",
+      "label": "Politique",
+      "description": "Art et science du gouvernement"
+    },
+    {
+      "value": "sciences",
+      "label": "Sciences",
+      "description": "Connaissance exacte et raisonnée"
+    },
+    {
+      "value": "informatique",
+      "label": "Informatique",
+      "description": "Science du traitement automatique de l'information"
+    },
+    {
+      "value": "cuisine",
+      "label": "Cuisine",
+      "description": "Art culinaire et gastronomie"
+    },
+    {
+      "value": "voyage",
+      "label": "Voyage",
+      "description": "Récits et guides de voyage"
+    },
+    {
+      "value": "art",
+      "label": "Art",
+      "description": "Créations artistiques et leur histoire"
+    },
+    {
+      "value": "religion",
+      "label": "Religion",
+      "description": "Croyances et pratiques spirituelles"
+    },
+    {
+      "value": "spiritualite",
+      "label": "Spiritualité",
+      "description": "Quête de sens et développement personnel"
+    },
+    {
+      "value": "sante",
+      "label": "Santé",
+      "description": "Bien-être et médecine"
+    },
+    {
+      "value": "sport",
+      "label": "Sport",
+      "description": "Activités physiques et compétitives"
+    },
+    {
+      "value": "autre",
+      "label": "Autre",
+      "description": "Genres non répertoriés"
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "tones": [
+    {
+      "value": "leger",
+      "label": "Léger",
+      "description": "Ton décontracté et accessible",
+      "category": "positif"
+    },
+    {
+      "value": "humoristique",
+      "label": "Humoristique",
+      "description": "Ton comique et divertissant",
+      "category": "positif"
+    },
+    {
+      "value": "optimiste",
+      "label": "Optimiste",
+      "description": "Ton positif et encourageant",
+      "category": "positif"
+    },
+    {
+      "value": "poetique",
+      "label": "Poétique",
+      "description": "Ton lyrique et expressif",
+      "category": "artistique"
+    },
+    {
+      "value": "contemplatif",
+      "label": "Contemplatif",
+      "description": "Ton méditatif et réfléchi",
+      "category": "reflexif"
+    },
+    {
+      "value": "serieux",
+      "label": "Sérieux",
+      "description": "Ton grave et formel",
+      "category": "neutre"
+    },
+    {
+      "value": "informatif",
+      "label": "Informatif",
+      "description": "Ton didactique et pédagogique",
+      "category": "neutre"
+    },
+    {
+      "value": "critique",
+      "label": "Critique",
+      "description": "Ton analytique et évaluatif",
+      "category": "reflexif"
+    },
+    {
+      "value": "dramatique",
+      "label": "Dramatique",
+      "description": "Ton intense et émotionnel",
+      "category": "intense"
+    },
+    {
+      "value": "melancolique",
+      "label": "Mélancolique",
+      "description": "Ton nostalgique et pensif",
+      "category": "sombre"
+    },
+    {
+      "value": "sombre",
+      "label": "Sombre",
+      "description": "Ton pessimiste et grave",
+      "category": "sombre"
+    },
+    {
+      "value": "angoissant",
+      "label": "Angoissant",
+      "description": "Ton inquiétant et stressant",
+      "category": "intense"
+    },
+    {
+      "value": "satirique",
+      "label": "Satirique",
+      "description": "Ton moqueur et critique",
+      "category": "critique"
+    },
+    {
+      "value": "ironique",
+      "label": "Ironique",
+      "description": "Ton subtil et sarcastique",
+      "category": "critique"
+    },
+    {
+      "value": "epique",
+      "label": "Épique",
+      "description": "Ton grandiose et héroïque",
+      "category": "artistique"
+    },
+    {
+      "value": "intimiste",
+      "label": "Intimiste",
+      "description": "Ton personnel et confidentiel",
+      "category": "reflexif"
+    },
+    {
+      "value": "provocateur",
+      "label": "Provocateur",
+      "description": "Ton audacieux et dérangeant",
+      "category": "critique"
+    },
+    {
+      "value": "inspirant",
+      "label": "Inspirant",
+      "description": "Ton motivant et uplifting",
+      "category": "positif"
+    }
+  ]
+}

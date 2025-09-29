@@ -1,0 +1,84 @@
+{
+  "ageGroups": [
+    {
+      "value": "petite-enfance",
+      "label": "Petite enfance (0-3 ans)",
+      "description": "Livres adaptés aux tout-petits",
+      "minAge": 0,
+      "maxAge": 3,
+      "category": "enfance"
+    },
+    {
+      "value": "enfant-prescolaire",
+      "label": "Enfant préscolaire (4-6 ans)",
+      "description": "Livres pour les enfants d'âge préscolaire",
+      "minAge": 4,
+      "maxAge": 6,
+      "category": "enfance"
+    },
+    {
+      "value": "enfant-primaire",
+      "label": "Enfant primaire (7-11 ans)",
+      "description": "Livres pour les enfants du primaire",
+      "minAge": 7,
+      "maxAge": 11,
+      "category": "enfance"
+    },
+    {
+      "value": "preadolescent",
+      "label": "Préadolescent (12-14 ans)",
+      "description": "Livres pour les préadolescents",
+      "minAge": 12,
+      "maxAge": 14,
+      "category": "jeunesse"
+    },
+    {
+      "value": "adolescent",
+      "label": "Adolescent (15-17 ans)",
+      "description": "Livres pour les adolescents",
+      "minAge": 15,
+      "maxAge": 17,
+      "category": "jeunesse"
+    },
+    {
+      "value": "jeune-adulte",
+      "label": "Jeune adulte (18-25 ans)",
+      "description": "Livres pour les jeunes adultes",
+      "minAge": 18,
+      "maxAge": 25,
+      "category": "adulte"
+    },
+    {
+      "value": "adulte",
+      "label": "Adulte (26-59 ans)",
+      "description": "Livres pour les adultes",
+      "minAge": 26,
+      "maxAge": 59,
+      "category": "adulte"
+    },
+    {
+      "value": "senior",
+      "label": "Senior (60+ ans)",
+      "description": "Livres adaptés aux seniors",
+      "minAge": 60,
+      "maxAge": null,
+      "category": "adulte"
+    },
+    {
+      "value": "tout-public",
+      "label": "Tout public",
+      "description": "Livres adaptés à tous les âges",
+      "minAge": 0,
+      "maxAge": null,
+      "category": "universel"
+    },
+    {
+      "value": "famille",
+      "label": "Famille",
+      "description": "Livres à partager en famille",
+      "minAge": 6,
+      "maxAge": null,
+      "category": "universel"
+    }
+  ]
+}
