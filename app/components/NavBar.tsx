@@ -2,12 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  FaHome,
-  FaRegEdit,
-  FaUserCircle,
-  FaArrowCircleLeft,
-} from 'react-icons/fa';
+import { FaHome, FaUserCircle } from 'react-icons/fa';
 
 const NavBar = () => {
   const pathname = usePathname();
@@ -33,10 +28,7 @@ const NavBar = () => {
             pathname === '/dashboard/books' ? 'tab-active' : ''
           }`}
         >
-          <div className='flex items-center gap-2'>
-            <FaRegEdit />
-            Mes livres
-          </div>
+          <div className='flex items-center gap-2'>Mes livres</div>
         </Link>
         <Link
           href='/dashboard/lists'
@@ -45,10 +37,7 @@ const NavBar = () => {
             pathname === '/dashboard/lists' ? 'tab-active' : ''
           }`}
         >
-          <div className='flex items-center gap-2'>
-            <FaRegEdit />
-            Mes listes
-          </div>
+          <div className='flex items-center gap-2'>Mes listes</div>
         </Link>
       </div>
 

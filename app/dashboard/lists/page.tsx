@@ -9,7 +9,7 @@ const Lists = () => {
         <div className='btn btn-soft btn-primary w-fit'>Ajouter une liste</div>
       </Link>
 
-      <div id='list-display' className='flex flex-wrap gap-8'>
+      <div id='list-display' className='flex flex-wrap gap-8 mt-[-16px]'>
         {listsData.map((list) => (
           <ListCard key={list._id} listData={list} />
         ))}
