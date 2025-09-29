@@ -488,8 +488,12 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
         <div className='flex-grow'></div>
 
         <div className='flex gap-4 mt-6 w-full max-w-md'>
-          <button type='button' className='btn flex-1' onClick={resetForm}>
-            Annuler
+          <button
+            type='button'
+            className={`btn flex-1 ${isEditing ? 'hidden' : 'block'}`}
+            onClick={resetForm}
+          >
+            Effacer
           </button>
           <button
             type='submit'

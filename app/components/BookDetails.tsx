@@ -31,39 +31,39 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
 
         {/* Book Details */}
         <div className='flex-1'>
-          <h2 className='text-3xl font-bold mb-2'>{book.bookData.title}</h2>
-          <p className='text-muted-text mb-6'>
+          <h2 className='font-bold mb-2'>{book.bookData.title}</h2>
+          <p className='text-main-text mb-6'>
             de {book.bookData.authors.join(', ')}
           </p>
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-            <div>
+            <div className='small-text'>
               <span className='font-semibold'>Genre :</span> {book.genre}
             </div>
-            <div>
+            <div className='small-text'>
               <span className='font-semibold'>Ton :</span> {book.tone}
             </div>
-            <div>
+            <div className='small-text'>
               <span className='font-semibold'>Catégorie d'âge :</span>{' '}
               {book.ageGroup}
             </div>
-            <div>
+            <div className='small-text'>
               <span className='font-semibold'>Éditions :</span>{' '}
               {book.bookData.publisher}
             </div>
-            <div>
+            <div className='small-text'>
               <span className='font-semibold'>ISBN :</span> {book.isbn}
             </div>
           </div>
 
           <div className='mb-6'>
-            <h3 className='font-semibold mb-2'>Description</h3>
-            <p className='text-gray-700'>{book.bookData.description}</p>
+            <p className='font-semibold mb-1'>Description</p>
+            <p className='small-text'>{book.bookData.description}</p>
           </div>
 
           <div className='mb-6'>
-            <h3 className='font-semibold mb-2'>Recommandation libraire</h3>
-            <p className='text-gray-700'>{book.recommendation}</p>
+            <p className='font-semibold mb-1'>Recommandation libraire</p>
+            <p className='small-text'>{book.recommendation}</p>
           </div>
 
           {/* Action Buttons */}
