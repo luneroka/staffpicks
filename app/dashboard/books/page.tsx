@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import booksData from '../../lib/mock/books.json';
 import Book from '@/app/components/Book';
-import { IoIosArrowForward } from 'react-icons/io';
 
 const Books = () => {
   return (
@@ -13,10 +12,6 @@ const Books = () => {
       </Link>
 
       <div className='flex flex-col gap-8'>
-        <div className='flex gap-2 items-center'>
-          <h2 className='h2-light'>Mes livres</h2>
-          <IoIosArrowForward />
-        </div>
         {/* Books mapped dynamically from JSON data */}
         <div id='book-display' className='flex flex-wrap gap-8'>
           {booksData.map((book) => (
