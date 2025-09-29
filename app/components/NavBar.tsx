@@ -136,7 +136,7 @@ const NavBar = () => {
           <Link href='/dashboard/books'>
             <div className='abort-btn flex items-center gap-2'>
               <FaArrowCircleLeft />
-              Annuler
+              Retour
             </div>
           </Link>
         </div>
