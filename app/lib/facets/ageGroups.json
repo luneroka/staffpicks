@@ -1,66 +1,50 @@
 {
   "ageGroups": [
     {
-      "value": "petite-enfance",
-      "label": "Petite enfance (0-3 ans)",
-      "description": "Livres adaptés aux tout-petits",
-      "minAge": 0,
-      "maxAge": 3,
-      "category": "enfance"
-    },
-    {
-      "value": "enfant-prescolaire",
-      "label": "Enfant préscolaire (4-6 ans)",
-      "description": "Livres pour les enfants d'âge préscolaire",
-      "minAge": 4,
+      "value": "3-6",
+      "label": "3-6 ans",
+      "description": "Livres pour les jeunes enfants",
+      "minAge": 3,
       "maxAge": 6,
       "category": "enfance"
     },
     {
-      "value": "enfant-primaire",
-      "label": "Enfant primaire (7-11 ans)",
+      "value": "7-9",
+      "label": "7-9 ans",
       "description": "Livres pour les enfants du primaire",
       "minAge": 7,
-      "maxAge": 11,
+      "maxAge": 9,
       "category": "enfance"
     },
     {
-      "value": "preadolescent",
-      "label": "Préadolescent (12-14 ans)",
+      "value": "10-12",
+      "label": "10-12 ans",
       "description": "Livres pour les préadolescents",
-      "minAge": 12,
-      "maxAge": 14,
-      "category": "jeunesse"
+      "minAge": 10,
+      "maxAge": 12,
+      "category": "enfance"
     },
     {
-      "value": "adolescent",
-      "label": "Adolescent (15-17 ans)",
-      "description": "Livres pour les adolescents",
-      "minAge": 15,
+      "value": "ados",
+      "label": "Ados",
+      "description": "Livres pour les adolescents (13-17 ans)",
+      "minAge": 13,
       "maxAge": 17,
       "category": "jeunesse"
     },
     {
-      "value": "jeune-adulte",
-      "label": "Jeune adulte (18-25 ans)",
-      "description": "Livres pour les jeunes adultes",
+      "value": "jeunes-adultes",
+      "label": "Jeunes adultes",
+      "description": "Livres pour les jeunes adultes (18-25 ans)",
       "minAge": 18,
       "maxAge": 25,
       "category": "adulte"
     },
     {
-      "value": "adulte",
-      "label": "Adulte (26-59 ans)",
-      "description": "Livres pour les adultes",
+      "value": "adultes",
+      "label": "Adultes",
+      "description": "Livres pour les adultes (26+ ans)",
       "minAge": 26,
-      "maxAge": 59,
-      "category": "adulte"
-    },
-    {
-      "value": "senior",
-      "label": "Senior (60+ ans)",
-      "description": "Livres adaptés aux seniors",
-      "minAge": 60,
       "maxAge": null,
       "category": "adulte"
     },
@@ -69,14 +53,6 @@
       "label": "Tout public",
       "description": "Livres adaptés à tous les âges",
       "minAge": 0,
-      "maxAge": null,
-      "category": "universel"
-    },
-    {
-      "value": "famille",
-      "label": "Famille",
-      "description": "Livres à partager en famille",
-      "minAge": 6,
       "maxAge": null,
       "category": "universel"
     }
