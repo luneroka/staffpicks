@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { FaUpload, FaSearch } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaSearch } from 'react-icons/fa';
+import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci';
+import { genres, tones, ageGroups } from '@/app/lib/facets';
 
 interface BookData {
   isbn: string;
@@ -35,6 +37,20 @@ const AddBook = () => {
   });
 
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Auto-dismiss success message after 3 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess('');
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -46,13 +62,27 @@ const AddBook = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Clear validation errors when user starts typing
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
+    // Clear general error when user modifies form
+    if (error) {
+      setError('');
+    }
   };
 
   const handleISBNSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Clear previous errors and success messages
+    setError('');
+    setSuccess('');
+    setValidationErrors([]);
+
     if (!bookData.isbn.trim()) {
-      alert('Veuillez saisir un ISBN');
+      setError('Veuillez saisir un ISBN');
       return;
     }
 
@@ -75,12 +105,14 @@ const AddBook = () => {
         authors: Array.isArray(book.authors) ? book.authors.join(', ') : '',
         publisher: book.publisher || '',
         publishedDate: book.date_published || '',
-        description: book.synopsis || book.overview || '', // API might have synopsis/overview
+        description: book.synopsis || book.overview || '',
         coverImage: book.image || book.image_original || '',
       }));
+
+      setSuccess('Informations du livre récupérées avec succès!');
     } catch (error) {
       console.error('Error searching ISBN:', error);
-      alert(
+      setError(
         error instanceof Error
           ? error.message
           : 'Erreur lors de la recherche ISBN'
@@ -90,8 +122,34 @@ const AddBook = () => {
     }
   };
 
+  const resetForm = () => {
+    setBookData({
+      isbn: '',
+      title: '',
+      authors: '',
+      publisher: '',
+      publishedDate: '',
+      description: '',
+      coverImage: '',
+      genre: '',
+      tone: '',
+      ageGroup: '',
+      fnacLink: '',
+      recommendation: '',
+    });
+    // Clear all messages when resetting
+    setError('');
+    setSuccess('');
+    setValidationErrors([]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Clear previous errors and success messages
+    setError('');
+    setSuccess('');
+    setValidationErrors([]);
 
     // Basic validation
     const requiredFields = [
@@ -108,19 +166,39 @@ const AddBook = () => {
     );
 
     if (missingFields.length > 0) {
-      alert(
-        `Veuillez remplir les champs obligatoires: ${missingFields.join(', ')}`
+      const fieldLabels: { [key: string]: string } = {
+        isbn: 'ISBN',
+        title: 'Titre',
+        authors: 'Auteur(s)',
+        publisher: "Maison d'édition",
+        description: 'Description',
+        genre: 'Genre',
+        tone: 'Ton',
+      };
+
+      const missingLabels = missingFields.map(
+        (field) => fieldLabels[field] || field
       );
+      setValidationErrors([
+        `Champs obligatoires manquants: ${missingLabels.join(', ')}`,
+      ]);
       return;
     }
 
     try {
       console.log('Submitting book data:', bookData);
       // TODO: Add actual API call to save the book
-      alert('Livre ajouté avec succès!');
+      setSuccess('Livre ajouté avec succès!');
+
+      // Reset form after successful submission
+      resetForm();
     } catch (error) {
       console.error('Error saving book:', error);
-      alert("Erreur lors de l'ajout du livre");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'ajout du livre"
+      );
     }
   };
 
@@ -131,6 +209,25 @@ const AddBook = () => {
         className='flex flex-col lg:flex-row gap-8 w-full max-w-6xl items-stretch'
       >
         <fieldset className='fieldset bg-base-200 border-base-300 rounded-box border p-6 flex-1 flex flex-col items-center'>
+          {/* Error and Success Messages */}
+          {(error || success || validationErrors.length > 0) && (
+            <div className='w-full'>
+              {error && (
+                <div className='alert alert-error alert-soft mb-1 shadow-sm'>
+                  <CiCircleRemove className='size-5' />
+
+                  <span className='text-sm font-medium'>{error}</span>
+                </div>
+              )}
+
+              {success && (
+                <div className='alert alert-success alert-soft mb-1 shadow-sm'>
+                  <CiCircleCheck className='size-5' />
+                  <span className='text-sm font-medium'>{success}</span>
+                </div>
+              )}
+            </div>
+          )}
           <legend className='fieldset-legend'>Détails du livre</legend>
 
           <label className='label w-full max-w-md text-center'>
@@ -246,21 +343,15 @@ const AddBook = () => {
             className='select w-full max-w-md'
           >
             <option value=''>Sélectionnez un genre</option>
-            <option value='roman'>Roman</option>
-            <option value='nouvelle'>Nouvelle</option>
-            <option value='essai'>Essai</option>
-            <option value='biographie'>Biographie</option>
-            <option value='histoire'>Histoire</option>
-            <option value='science-fiction'>Science-fiction</option>
-            <option value='fantasy'>Fantasy</option>
-            <option value='thriller'>Thriller</option>
-            <option value='policier'>Policier</option>
-            <option value='romance'>Romance</option>
-            <option value='jeunesse'>Jeunesse</option>
-            <option value='bande-dessinee'>Bande dessinée</option>
-            <option value='poesie'>Poésie</option>
-            <option value='theatre'>Théâtre</option>
-            <option value='autre'>Autre</option>
+            {genres.map((genre) => (
+              <option
+                key={genre.value}
+                value={genre.value}
+                title={genre.description}
+              >
+                {genre.label}
+              </option>
+            ))}
           </select>
 
           <label className='label w-full max-w-md text-center'>Ton *</label>
@@ -271,16 +362,15 @@ const AddBook = () => {
             className='select w-full max-w-md'
           >
             <option value=''>Sélectionnez un ton</option>
-            <option value='leger'>Léger</option>
-            <option value='serieux'>Sérieux</option>
-            <option value='humoristique'>Humoristique</option>
-            <option value='dramatique'>Dramatique</option>
-            <option value='melancolique'>Mélancolique</option>
-            <option value='optimiste'>Optimiste</option>
-            <option value='sombre'>Sombre</option>
-            <option value='poetique'>Poétique</option>
-            <option value='satirique'>Satirique</option>
-            <option value='contemplatif'>Contemplatif</option>
+            {tones.map((tone) => (
+              <option
+                key={tone.value}
+                value={tone.value}
+                title={tone.description}
+              >
+                {tone.label}
+              </option>
+            ))}
           </select>
 
           <label className='label w-full max-w-md text-center'>
@@ -293,11 +383,15 @@ const AddBook = () => {
             className='select w-full max-w-md'
           >
             <option value=''>Sélectionnez une tranche d'âge</option>
-            <option value='enfant'>Enfant (0-12 ans)</option>
-            <option value='adolescent'>Adolescent (13-17 ans)</option>
-            <option value='jeune-adulte'>Jeune adulte (18-25 ans)</option>
-            <option value='adulte'>Adulte (26+ ans)</option>
-            <option value='tout-public'>Tout public</option>
+            {ageGroups.map((ageGroup) => (
+              <option
+                key={ageGroup.value}
+                value={ageGroup.value}
+                title={ageGroup.description}
+              >
+                {ageGroup.label}
+              </option>
+            ))}
           </select>
 
           <label className='label w-full max-w-md text-center'>Lien FNAC</label>
@@ -322,11 +416,26 @@ const AddBook = () => {
             rows={8}
           />
 
+          {validationErrors.length > 0 && (
+            <div className='alert alert-warning alert-soft mt-4 shadow-sm'>
+              <CiWarning className='size-5' />
+              <div className='text-sm font-medium'>
+                {validationErrors.map((validationError, index) => (
+                  <div key={index}>{validationError}</div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Spacer to push buttons to bottom */}
           <div className='flex-grow'></div>
 
           <div className='flex gap-4 mt-6 w-full max-w-md'>
-            <button type='button' className='btn btn-outline flex-1'>
+            <button
+              type='button'
+              className='btn btn-outline flex-1'
+              onClick={resetForm}
+            >
               Annuler
             </button>
             <button
