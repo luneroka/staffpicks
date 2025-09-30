@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 import { redirect } from 'next/navigation';
 import booksData from '@/app/lib/mock/books.json';
