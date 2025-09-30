@@ -120,11 +120,11 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
       {/* Description Card */}
       <div className='card bg-base-200 shadow-xl'>
         <div className='card-body'>
-          <h2 className='card-title text-2xl mb-4'>
+          <h2 className='card-title text-xl mb-4'>
             <HiDocumentText className='h-6 w-6' />
             Description
           </h2>
-          <p className='text-lg leading-relaxed text-base-content/90'>
+          <p className='leading-relaxed text-base-content/90'>
             {book.bookData.description}
           </p>
         </div>
@@ -133,12 +133,12 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
       {/* Recommendation Card */}
       <div className='card bg-gradient-to-r from-primary/10 to-secondary/10 shadow-xl border border-primary/20'>
         <div className='card-body'>
-          <h2 className='card-title text-2xl mb-4'>
+          <h2 className='card-title text-xl mb-4'>
             <HiStar className='h-6 w-6 text-primary' />
             Recommandation libraire
           </h2>
           <div className='bg-base-100 rounded-lg p-4 border-l-4 border-primary'>
-            <p className='text-lg leading-relaxed italic text-base-content/90'>
+            <p className='leading-relaxed italic text-base-content/90'>
               "{book.recommendation}"
             </p>
           </div>
