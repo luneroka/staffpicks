@@ -1,7 +1,11 @@
 @import 'tailwindcss';
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: light --default, dim --prefersdark;
+}
 
-@theme inline {
+@custom-variant dark (&:where([data-theme=dim], [data-theme=dim] *));
+
+/* @theme inline {
   --color-primary-theme: #f5b027;
   --color-secondary-theme: #232323;
   --color-primary-accent: #2a8962;
@@ -16,13 +20,9 @@
   --color-alert-background-error: #fff3f4;
   --color-alert-background-warning: #fffaef;
   --color-alert-background-success: #f1fbf6;
-}
+} */
 
 @layer base {
-  body {
-    @apply text-main-text;
-  }
-
   h1 {
     @apply text-3xl;
   }
@@ -51,10 +51,10 @@
   }
 
   .home-link {
-    @apply hover:text-primary-theme active:text-muted-text;
+    @apply hover:text-secondary active:text-base-content/60;
   }
 
   .isbn-search-btn {
-    @apply flex items-center absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-medium bg-card-background hover:bg-muted-text disabled:bg-gray-100 disabled:opacity-60 text-main-text disabled:text-gray-500 rounded-md border-0 transition-colors duration-150 z-10 cursor-pointer;
+    @apply flex items-center absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-medium bg-base-200 hover:bg-base-300 disabled:bg-gray-100 disabled:opacity-60 disabled:text-gray-500 rounded-md border-0 transition-colors duration-150 z-10 cursor-pointer;
   }
 }

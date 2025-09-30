@@ -32,9 +32,7 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
         {/* Book Details */}
         <div className='flex-1'>
           <h2 className='font-bold mb-2'>{book.bookData.title}</h2>
-          <p className='text-main-text mb-6'>
-            de {book.bookData.authors.join(', ')}
-          </p>
+          <p className='mb-6'>de {book.bookData.authors.join(', ')}</p>
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
             <div className='small-text'>
@@ -68,7 +66,7 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
 
           {/* Action Buttons */}
           <div className='flex gap-8'>
-            <div className='flex gap-4 btn btn-warning text-main-text'>
+            <div className='flex gap-4 btn btn-primary'>
               <a
                 href={book.fnacLink}
                 target='_blank'
@@ -78,7 +76,7 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
                 Voir sur Fnac.ch
               </a>
             </div>
-            <div className='btn'>
+            <div className='btn dark:btn-secondary btn-soft'>
               <Link href={`/dashboard/books/${book.isbn}/edit`}>Modifier</Link>
             </div>
           </div>

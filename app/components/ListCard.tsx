@@ -30,7 +30,7 @@ const ListCard = ({ listData }: ListCardProps) => {
 
   return (
     <Link href={`/dashboard/lists/${listData._id}`}>
-      <div className='bg-base-100 w-96 shadow-sm rounded-lg p-4 flex gap-8 cursor-pointer hover:scale-105 transition-all duration-200 min-w-lg'>
+      <div className='bg-base-200 w-96 shadow-sm rounded-lg p-4 flex gap-8 cursor-pointer hover:scale-105 transition-all duration-200 min-w-lg'>
         {/* LIST COVER */}
         <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center'>
           <img

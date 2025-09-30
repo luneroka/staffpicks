@@ -13,7 +13,7 @@ const List = ({ coverUrl, id, title }: ListProps) => {
     'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075467/automne_fcsgkk.png';
 
   return (
-    <div className='card bg-base-100 shadow-sm cursor-pointer hover:scale-105 transition-all duration-200 p-4'>
+    <div className='card bg-base-200 shadow-sm cursor-pointer hover:scale-105 transition-all duration-200 p-4'>
       <div className='flex flex-col gap-2 w-[121px]'>
         {/* LIST TITLE */}
         <div className='flex items-center justify-center h-11'>

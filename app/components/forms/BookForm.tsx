@@ -525,15 +525,14 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
         <div className='flex gap-4 mt-6 w-full max-w-md'>
           <button
             type='button'
-            className={`btn flex-1 ${isEditing ? 'hidden' : 'block'}`}
+            className={`btn btn-soft dark:btn-secondary flex-1 ${
+              isEditing ? 'hidden' : 'block'
+            }`}
             onClick={resetForm}
           >
             Effacer
           </button>
-          <button
-            type='submit'
-            className='btn btn-warning text-main-text flex-1'
-          >
+          <button type='submit' className='btn btn-soft btn-primary flex-1'>
             {isEditing ? 'Modifier le livre' : 'Ajouter le livre'}
           </button>
         </div>

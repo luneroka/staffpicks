@@ -3,8 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaHome, FaUserCircle } from 'react-icons/fa';
+import { useEffect } from 'react';
+import { themeChange } from 'theme-change';
+import { MdDarkMode } from 'react-icons/md';
 
 const NavBar = () => {
+  useEffect(() => {
+    themeChange(false);
+    // 👆 false parameter is required for react project
+  }, []);
+
   const pathname = usePathname();
 
   if (pathname === '/' || pathname === '/login' || pathname === 'register') {
@@ -38,25 +46,34 @@ const NavBar = () => {
         <Link
           href='/dashboard/books'
           role='tab'
-          className={`tab ${
+          className={`tab  ${
             pathname === '/dashboard/books' ? 'tab-active' : ''
           }`}
         >
-          <div className='flex items-center gap-2'>Mes livres</div>
+          <div className='flex items-center gap-2 '>Mes livres</div>
         </Link>
         <Link
           href='/dashboard/lists'
           role='tab'
-          className={`tab ${
+          className={`tab  ${
             pathname === '/dashboard/lists' ? 'tab-active' : ''
           }`}
         >
-          <div className='flex items-center gap-2'>Mes listes</div>
+          <div className='flex items-center gap-2 '>Mes listes</div>
         </Link>
       </div>
 
+      {/* Floating Dark Mode Button */}
+      <button
+        data-toggle-theme='dim,light'
+        data-act-class='ACTIVECLASS'
+        className='fixed bottom-4 right-4 z-50 bg-base-200 hover:bg-secondary-accent p-3 rounded-full shadow-lg transition-colors cursor-pointer'
+      >
+        <MdDarkMode className='size-6' />
+      </button>
+
       {/* RIGHT */}
-      <div className='flex gap-2 items-center'>
+      <div className='flex gap-2 items-center '>
         <h3>Sarah</h3>
         <FaUserCircle className='size-8' />
       </div>
