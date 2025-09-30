@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import React from 'react';
-import { formatDate, getVisibilityConfig } from '../../lib/utils';
+import {
+  formatDate,
+  getVisibilityConfig,
+  getListBookCount,
+} from '../../lib/utils';
 import { IoTrashBin } from 'react-icons/io5';
 
 interface Items {
@@ -59,7 +63,7 @@ const ListCard = ({ listData }: ListCardProps) => {
 
             {/* List Items */}
             <div className='flex gap-1'>
-              <div>{listData.items?.length}</div>
+              <div>{getListBookCount(listData)}</div>
               <p>livres</p>
             </div>
 

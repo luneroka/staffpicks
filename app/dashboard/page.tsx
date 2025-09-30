@@ -3,7 +3,11 @@ import List from '../components/lists/List';
 import Book from '../components/books/Book';
 import booksData from '../lib/mock/books.json';
 import listsData from '../lib/mock/lists.json';
-import { extractBookProps } from '../lib/utils';
+import {
+  extractBookProps,
+  extractListProps,
+  getPublishedLists,
+} from '../lib/utils';
 import Link from 'next/link';
 
 const Dashboard = () => {
@@ -22,16 +26,9 @@ const Dashboard = () => {
 
         {/* Lists filtered to show only public ones */}
         <div id='list-display' className='flex gap-8'>
-          {listsData
-            .filter((list) => list.visibility === 'public')
-            .map((list) => (
-              <List
-                key={list._id}
-                id={list._id}
-                coverUrl={list.coverImage}
-                title={list.title}
-              />
-            ))}
+          {getPublishedLists(listsData).map((list) => (
+            <List key={list._id} {...extractListProps(list)} />
+          ))}
         </div>
       </div>
 
