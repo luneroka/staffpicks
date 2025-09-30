@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { MdCancel } from 'react-icons/md';
 
 interface BookProps {
@@ -8,6 +11,8 @@ interface BookProps {
 }
 
 const Book = ({ coverUrl, isbn, title }: BookProps) => {
+  const pathname = usePathname();
+
   return (
     <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center'>
       <div className='hover:scale-105 transition-all duration-200'>
@@ -19,7 +24,11 @@ const Book = ({ coverUrl, isbn, title }: BookProps) => {
             style={{ width: '121px', height: '170px' }}
           />
         </Link>
-        <button className='absolute top-1 right-1 rounded-full hover:text-primary-btn text-error cursor-pointer hover:scale-150 transition-all duration-200'>
+        <button
+          className={`absolute top-1 right-1 rounded-full hover:text-primary-btn text-error cursor-pointer hover:scale-150 transition-all duration-200 ${
+            pathname === '/dashboard' ? 'hidden' : 'block'
+          }`}
+        >
           <MdCancel className='size-5' />
         </button>
       </div>
