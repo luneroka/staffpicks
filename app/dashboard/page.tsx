@@ -3,6 +3,7 @@ import List from '../components/List';
 import Book from '../components/Book';
 import booksData from '../lib/mock/books.json';
 import listsData from '../lib/mock/lists.json';
+import { extractBookProps } from '../lib/utils';
 import Link from 'next/link';
 
 const Dashboard = () => {
@@ -26,6 +27,7 @@ const Dashboard = () => {
             .map((list) => (
               <List
                 key={list._id}
+                id={list._id}
                 coverUrl={list.coverImage}
                 title={list.title}
               />
@@ -47,12 +49,7 @@ const Dashboard = () => {
         {/* Books mapped dynamically from JSON data */}
         <div id='book-display' className='flex flex-wrap gap-8'>
           {booksData.map((book) => (
-            <Book
-              key={book._id}
-              coverUrl={book.bookData.cover}
-              isbn={book.isbn}
-              title={book.bookData.title}
-            />
+            <Book key={book._id} {...extractBookProps(book)} />
           ))}
         </div>
       </div>

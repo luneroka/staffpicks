@@ -1,7 +1,19 @@
-import React from 'react';
+import ListDetails from '@/app/components/ListDetails';
 
-const ListPage = () => {
-  return <div>ListPage</div>;
+interface ListPageProps {
+  params: Promise<{
+    listId: string;
+  }>;
+}
+
+const ListPage = async ({ params }: ListPageProps) => {
+  const { listId } = await params;
+
+  return (
+    <div>
+      <ListDetails listId={listId} />
+    </div>
+  );
 };
 
 export default ListPage;
