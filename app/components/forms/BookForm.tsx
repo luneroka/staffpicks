@@ -14,6 +14,7 @@ interface BookData {
   publishedDate: string;
   description: string;
   coverImage: string;
+  pageCount: string;
   genre: string;
   tone: string;
   ageGroup: string;
@@ -34,6 +35,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
     publishedDate: '',
     description: '',
     coverImage: '',
+    pageCount: '',
     genre: '',
     tone: '',
     ageGroup: '',
@@ -66,6 +68,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
             : '', // Convert to YYYY-MM-DD format
           description: existingBook.bookData.description,
           coverImage: existingBook.bookData.cover,
+          pageCount: existingBook.bookData.pageCount?.toString() || '',
           genre: existingBook.genre,
           tone: existingBook.tone,
           ageGroup: existingBook.ageGroup,
@@ -146,6 +149,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
         publishedDate: book.date_published || '',
         description: book.synopsis || book.overview || '',
         coverImage: book.image || book.image_original || '',
+        pageCount: book.pages ? book.pages.toString() : '',
       }));
 
       setSuccess('Informations du livre récupérées avec succès!');
@@ -170,6 +174,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
       publishedDate: '',
       description: '',
       coverImage: '',
+      pageCount: '',
       genre: '',
       tone: '',
       ageGroup: '',
@@ -265,9 +270,9 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className='flex flex-col lg:flex-row gap-8 w-full max-w-6xl items-stretch'
+      className='mt-[-16px] flex flex-col lg:flex-row gap-8 w-full max-w-6xl items-stretch'
     >
-      <fieldset className='fieldset bg-base-200 border-base-300 rounded-box border p-6 flex-1 flex flex-col items-center'>
+      <fieldset className='fieldset bg-base-200 border-base-300 rounded-box border px-6 py-2 flex-1 flex flex-col items-center'>
         {/* Error and Success Messages */}
         {(error || success || validationErrors.length > 0) && (
           <div className='w-full'>
@@ -376,6 +381,19 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
         />
 
         <label className='label w-full max-w-md text-center'>
+          Nombre de pages
+        </label>
+        <input
+          type='number'
+          name='pageCount'
+          value={bookData.pageCount}
+          onChange={handleInputChange}
+          className='input w-full max-w-md'
+          placeholder='Nombre de pages'
+          min='1'
+        />
+
+        <label className='label w-full max-w-md text-center'>
           Date de publication *
         </label>
         <input
@@ -409,7 +427,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
         </div>
       </fieldset>
 
-      <fieldset className='fieldset bg-base-200 border-base-300 rounded-box border p-6 flex-1 flex flex-col items-center'>
+      <fieldset className='fieldset bg-base-200 border-base-300 rounded-box border px-6 py-2 flex-1 flex flex-col items-center'>
         <legend className='fieldset-legend'>
           Informations complémentaires
         </legend>

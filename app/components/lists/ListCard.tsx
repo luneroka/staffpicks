@@ -72,7 +72,7 @@ const ListCard = ({ listData }: ListCardProps) => {
         </div>
 
         {/* Trash Icon */}
-        <div className='self-start btn btn-soft btn-error'>
+        <div className='self-start btn btn-soft hover:btn-error'>
           <IoTrashBin />
         </div>
       </div>
