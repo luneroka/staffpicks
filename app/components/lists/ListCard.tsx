@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
-import { formatDate, getVisibilityConfig } from '../lib/utils';
+import { formatDate, getVisibilityConfig } from '../../lib/utils';
 import { IoTrashBin } from 'react-icons/io5';
 
 interface Items {

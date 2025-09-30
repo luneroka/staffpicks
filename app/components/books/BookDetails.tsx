@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import bookData from '../lib/mock/books.json';
+import bookData from '../../lib/mock/books.json';
 
 interface BookDetailsProps {
   bookIsbn: string;
@@ -66,7 +66,7 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
 
           {/* Action Buttons */}
           <div className='flex gap-8'>
-            <div className='flex gap-4 btn btn-soft btn-primary'>
+            <div className='flex gap-4 btn btn-soft btn-secondary'>
               <a
                 href={book.purchaseLink}
                 target='_blank'
@@ -75,7 +75,7 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
                 Lien boutique
               </a>
             </div>
-            <div className='btn btn-warning dark:btn-secondary btn-soft'>
+            <div className='btn btn-soft btn-primary'>
               <Link href={`/dashboard/books/${book.isbn}/edit`}>Modifier</Link>
             </div>
             <div className='btn btn-error dark:btn-secondary btn-soft'>

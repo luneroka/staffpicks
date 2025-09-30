@@ -1,4 +1,4 @@
-import BookDetails from '@/app/components/BookDetails';
+import BookDetails from '@/app/components/books/BookDetails';
 
 interface BookPageProps {
   params: Promise<{

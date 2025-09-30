@@ -6,7 +6,7 @@ import { FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
 import listsData from '@/app/lib/mock/lists.json';
 import booksData from '@/app/lib/mock/books.json';
 import { findBookAndExtractProps } from '@/app/lib/utils';
-import Book from '../Book';
+import Book from '../books/Book';
 
 interface ListData {
   title: string;

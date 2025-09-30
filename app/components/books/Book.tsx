@@ -14,7 +14,7 @@ interface BookProps {
 const Book = ({ coverUrl, isbn, title }: BookProps) => {
   const pathname = usePathname();
 
-  if (pathname === '/dashboard') {
+  if (pathname === '/dashboard' || pathname.startsWith('/dashboard/books')) {
     return (
       <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center'>
         <div className='hover:scale-105 transition-all duration-200'>

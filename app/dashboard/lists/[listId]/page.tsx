@@ -1,4 +1,4 @@
-import ListDetails from '@/app/components/ListDetails';
+import ListDetails from '@/app/components/lists/ListDetails';
 
 interface ListPageProps {
   params: Promise<{

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import listsData from '../../lib/mock/lists.json';
-import ListCard from '@/app/components/ListCard';
+import ListCard from '@/app/components/lists/ListCard';
 
 const Lists = () => {
   return (

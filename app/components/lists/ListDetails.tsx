@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import listData from '../lib/mock/lists.json';
-import booksData from '../lib/mock/books.json';
+import listData from '../../lib/mock/lists.json';
+import booksData from '../../lib/mock/books.json';
 import {
   formatDate,
   getVisibilityConfig,
   findBookAndExtractProps,
-} from '../lib/utils';
-import Book from './Book';
+} from '../../lib/utils';
+import Book from '../books/Book';
 
 interface ListDetailsProps {
   listId: string;
@@ -42,7 +42,7 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
   return (
     <div className='max-w-6xl mx-auto space-y-6'>
       {/* Header Card */}
-      <div className='card bg-base-100 shadow-xl'>
+      <div className='card bg-base-200 shadow-xl'>
         <div className='card-body'>
           <div className='flex flex-col lg:flex-row gap-6'>
             {/* List Cover */}
@@ -144,7 +144,7 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
 
       {/* Books Section */}
       {list.items.length > 0 && (
-        <div className='card bg-base-100 shadow-xl'>
+        <div className='card bg-base-200 shadow-xl'>
           <div className='card-body'>
             <h2 className='card-title text-xl mb-4'>
               <svg
@@ -179,7 +179,7 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
 
       {/* Empty State */}
       {list.items.length === 0 && (
-        <div className='card bg-base-100 shadow-xl'>
+        <div className='card bg-base-200 shadow-xl'>
           <div className='card-body text-center'>
             <div className='py-12'>
               <svg

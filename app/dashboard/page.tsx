@@ -1,6 +1,6 @@
 import { IoIosArrowForward } from 'react-icons/io';
-import List from '../components/List';
-import Book from '../components/Book';
+import List from '../components/lists/List';
+import Book from '../components/books/Book';
 import booksData from '../lib/mock/books.json';
 import listsData from '../lib/mock/lists.json';
 import { extractBookProps } from '../lib/utils';

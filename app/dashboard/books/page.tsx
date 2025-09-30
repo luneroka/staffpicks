@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import booksData from '../../lib/mock/books.json';
-import Book from '@/app/components/Book';
+import Book from '@/app/components/books/Book';
 
 const Books = () => {
   return (
