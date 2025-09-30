@@ -72,11 +72,14 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
                 target='_blank'
                 rel='noopener noreferrer'
               >
-                Acheter le livre
+                Lien boutique
               </a>
             </div>
-            <div className='btn dark:btn-secondary btn-soft'>
+            <div className='btn btn-warning dark:btn-secondary btn-soft'>
               <Link href={`/dashboard/books/${book.isbn}/edit`}>Modifier</Link>
+            </div>
+            <div className='btn btn-error dark:btn-secondary btn-soft'>
+              Supprimer
             </div>
           </div>
         </div>
