@@ -29,7 +29,7 @@ const NavBar = () => {
   }
 
   return (
-    <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
+    <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>
       {/* LEFT */}
       <Link href={'/dashboard'}>
         <div className='flex items-center gap-2 home-link'>
