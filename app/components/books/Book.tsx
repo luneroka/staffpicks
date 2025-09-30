@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MdCancel } from 'react-icons/md';
 import { FaTimes } from 'react-icons/fa';
 
 interface BookProps {

@@ -1,32 +1,33 @@
 import Link from 'next/link';
+import { MdRemoveRedEye } from 'react-icons/md';
 
 interface ListProps {
   coverUrl?: string;
   id?: string;
   title?: string;
+  description?: string;
 }
 
-const List = ({ coverUrl, id, title }: ListProps) => {
+const List = ({ coverUrl, id, title, description }: ListProps) => {
   return (
-    <div className='card bg-base-200 shadow-sm cursor-pointer hover:scale-105 transition-all duration-200 p-4'>
-      <div className='flex flex-col gap-2 w-[121px]'>
-        {/* LIST TITLE */}
-        <div className='flex items-center justify-center h-11'>
-          <div className='small-text text-center font-semibold'>{title}</div>
-        </div>
-
-        {/* LIST COVER */}
-        <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center '>
-          <div className=''>
-            <Link href={`/dashboard/lists/${id}`}>
-              <img
-                src={coverUrl}
-                alt={title || 'Couverture non disponible'}
-                className='w-full h-full rounded-md'
-                style={{ width: '121px', height: '170px' }}
-              />
-            </Link>
-          </div>
+    <div className='card card-side bg-base-200 shadow-sm cursor-pointer hover:scale-105 transition-all duration-200 p-4'>
+      <figure className='flex-shrink-0'>
+        <img
+          src={coverUrl}
+          alt={title || 'Couverture non disponible'}
+          className='h-[170px] w-auto object-cover rounded-lg'
+        />
+      </figure>
+      <div className='card-body'>
+        <h2 className='card-title'>{title}</h2>
+        <p>{description}</p>
+        <div className='card-actions justify-end'>
+          <Link href={`/dashboard/lists/${id}`}>
+            <button className='btn btn-soft btn-primary'>
+              <MdRemoveRedEye />
+              Voir
+            </button>
+          </Link>
         </div>
       </div>
     </div>
