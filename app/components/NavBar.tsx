@@ -7,6 +7,20 @@ import { FaHome, FaUserCircle } from 'react-icons/fa';
 const NavBar = () => {
   const pathname = usePathname();
 
+  if (pathname === '/' || pathname === '/login' || pathname === 'register') {
+    return (
+      <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
+        {/* LEFT */}
+        <Link href={'/'}>
+          <div className='flex items-center gap-2 home-link'>
+            {/* TODO: Use company logo from db */}
+            <FaHome />
+          </div>
+        </Link>
+      </nav>
+    );
+  }
+
   return (
     <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
       {/* LEFT */}
