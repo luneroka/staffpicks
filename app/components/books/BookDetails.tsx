@@ -90,7 +90,7 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
               </div>
 
               {/* Action Buttons */}
-              <div className='card-actions justify-start flex-wrap gap-3'>
+              <div className='card-actions justify-start flex-wrap gap-6'>
                 <a
                   href={book.purchaseLink}
                   target='_blank'

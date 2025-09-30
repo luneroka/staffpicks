@@ -43,22 +43,22 @@ const NavBar = () => {
       {/* MIDDLE */}
       <div role='tablist' className='tabs tabs-border'>
         <Link
-          href='/dashboard/books'
-          role='tab'
-          className={`tab  ${
-            pathname === '/dashboard/books' ? 'tab-active' : ''
-          }`}
-        >
-          <div className='flex items-center gap-2 '>Mes livres</div>
-        </Link>
-        <Link
           href='/dashboard/lists'
           role='tab'
           className={`tab  ${
             pathname === '/dashboard/lists' ? 'tab-active' : ''
           }`}
         >
-          <div className='flex items-center gap-2 '>Mes listes</div>
+          Mes listes
+        </Link>
+        <Link
+          href='/dashboard/books'
+          role='tab'
+          className={`tab  ${
+            pathname === '/dashboard/books' ? 'tab-active' : ''
+          }`}
+        >
+          Mes livres
         </Link>
       </div>
 

@@ -90,7 +90,7 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
               </div>
 
               {/* Action Buttons */}
-              <div className='card-actions justify-start'>
+              <div className='flex card-actions justify-start gap-6'>
                 <Link
                   href={`/dashboard/lists/${list._id}/edit`}
                   className='btn btn-soft btn-primary'

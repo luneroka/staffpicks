@@ -14,7 +14,7 @@ const Dashboard = () => {
         <Link href='/dashboard/lists' className='group'>
           <div className='flex gap-2 items-center'>
             <h2 className='h2-light group-hover:underline'>
-              Mes listes personnalisées
+              Mes listes publiques
             </h2>
             <IoIosArrowForward />
           </div>
@@ -40,7 +40,7 @@ const Dashboard = () => {
         <Link href='/dashboard/books' className='group'>
           <div className='flex gap-2 items-center'>
             <h2 className='h2-light group-hover:underline'>
-              Mes recommandations par genre
+              Mes livres par genre
             </h2>
             <IoIosArrowForward />
           </div>
