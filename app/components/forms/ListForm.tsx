@@ -344,7 +344,7 @@ const ListForm = ({ listId }: ListFormProps) => {
           <img
             src={listData.coverImage || '/placeholder-list-cover.jpg'}
             alt='Couverture de la liste'
-            className='w-[121px] h-[170px] object-cover border border-base-300 rounded cursor-pointer hover:scale-105 transition-all duration-200'
+            className='w-[96px] h-[135px] object-cover border border-base-300 rounded cursor-pointer'
           />
           <input type='file' className='file-input file-input-ghost' />
         </div>
