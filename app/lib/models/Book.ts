@@ -68,7 +68,7 @@ export class Book {
   @prop() public genre?: string;
   @prop() public tone?: string;
   @prop() public ageGroup?: string;
-  @prop() public fnacLink?: string;
+  @prop() public purchaseLink?: string;
   @prop() public recommendation?: string;
 
   public createdAt?: Date; // timestamps

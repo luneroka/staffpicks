@@ -66,14 +66,13 @@ const BookDetails = ({ bookIsbn }: BookDetailsProps) => {
 
           {/* Action Buttons */}
           <div className='flex gap-8'>
-            <div className='flex gap-4 btn btn-primary'>
+            <div className='flex gap-4 btn btn-soft btn-primary'>
               <a
-                href={book.fnacLink}
+                href={book.purchaseLink}
                 target='_blank'
                 rel='noopener noreferrer'
-                className=''
               >
-                Voir sur Fnac.ch
+                Acheter le livre
               </a>
             </div>
             <div className='btn dark:btn-secondary btn-soft'>

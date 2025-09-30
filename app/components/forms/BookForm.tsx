@@ -18,7 +18,7 @@ interface BookData {
   genre: string;
   tone: string;
   ageGroup: string;
-  fnacLink: string;
+  purchaseLink: string;
   recommendation: string;
 }
 
@@ -38,7 +38,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
     genre: '',
     tone: '',
     ageGroup: '',
-    fnacLink: '',
+    purchaseLink: '',
     recommendation: '',
   });
 
@@ -70,7 +70,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
           genre: existingBook.genre,
           tone: existingBook.tone,
           ageGroup: existingBook.ageGroup,
-          fnacLink: existingBook.fnacLink,
+          purchaseLink: existingBook.purchaseLink,
           recommendation: existingBook.recommendation,
         });
       } else {
@@ -174,7 +174,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
       genre: '',
       tone: '',
       ageGroup: '',
-      fnacLink: '',
+      purchaseLink: '',
       recommendation: '',
     });
     // Clear all messages when resetting
@@ -474,14 +474,16 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
           ))}
         </select>
 
-        <label className='label w-full max-w-md text-center'>Lien FNAC</label>
+        <label className='label w-full max-w-md text-center'>
+          Lien d'achat
+        </label>
         <input
           type='url'
-          name='fnacLink'
-          value={bookData.fnacLink}
+          name='purchaseLink'
+          value={bookData.purchaseLink}
           onChange={handleInputChange}
           className='input w-full max-w-md'
-          placeholder='https://www.fnac.com/...'
+          placeholder='https://www.example.com/...'
         />
 
         <label className='label w-full max-w-md text-center'>

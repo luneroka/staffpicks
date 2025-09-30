@@ -16,7 +16,7 @@
     "genre": "Fiction",
     "tone": "Dramatic",
     "ageGroup": "Young Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-01-01T10:00:00.000Z",
     "updatedAt": "2024-01-01T10:00:00.000Z"
@@ -38,7 +38,7 @@
     "genre": "Romance",
     "tone": "Emotional",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-02-01T10:00:00.000Z",
     "updatedAt": "2024-02-01T10:00:00.000Z"
@@ -60,7 +60,7 @@
     "genre": "Drama",
     "tone": "Intense",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-03-01T10:00:00.000Z",
     "updatedAt": "2024-03-01T10:00:00.000Z"
@@ -82,7 +82,7 @@
     "genre": "Literary Fiction",
     "tone": "Reflective",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-04-01T10:00:00.000Z",
     "updatedAt": "2024-04-01T10:00:00.000Z"
@@ -104,7 +104,7 @@
     "genre": "Horror",
     "tone": "Dark",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-05-01T10:00:00.000Z",
     "updatedAt": "2024-05-01T10:00:00.000Z"
@@ -126,7 +126,7 @@
     "genre": "Mystery",
     "tone": "Suspenseful",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-06-01T10:00:00.000Z",
     "updatedAt": "2024-06-01T10:00:00.000Z"
@@ -148,7 +148,7 @@
     "genre": "Thriller",
     "tone": "Dark",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-07-01T10:00:00.000Z",
     "updatedAt": "2024-07-01T10:00:00.000Z"
@@ -170,7 +170,7 @@
     "genre": "Contemporary Fiction",
     "tone": "Realistic",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-08-01T10:00:00.000Z",
     "updatedAt": "2024-08-01T10:00:00.000Z"
@@ -192,7 +192,7 @@
     "genre": "Horror/Thriller",
     "tone": "Suspenseful",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-09-01T10:00:00.000Z",
     "updatedAt": "2024-09-01T10:00:00.000Z"
@@ -214,7 +214,7 @@
     "genre": "Mystery",
     "tone": "Atmospheric",
     "ageGroup": "Adult",
-    "fnacLink": "https://fnac.com/placeholder",
+    "purchaseLink": "https://fnac.com/placeholder",
     "recommendation": "Recommendation placeholder",
     "createdAt": "2024-10-01T10:00:00.000Z",
     "updatedAt": "2024-10-01T10:00:00.000Z"
