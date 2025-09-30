@@ -12,9 +12,10 @@ import { Company } from './Company';
 import { Store } from './Store';
 
 export enum UserRole {
-  SuperAdmin = 'superAdmin', // Platform admin (manages all companies)
-  CompanyAdmin = 'companyAdmin', // Company admin (manages librarians within company)
-  Librarian = 'librarian',
+  Admin = 'admin', // Platform admin (manages all companies and users)
+  CompanyAdmin = 'companyAdmin', // Company admin (sets up company + can add store admins and librarians)
+  StoreAdmin = 'storeAdmin', // Store admin (can manage their librarians within their store)
+  Librarian = 'librarian', // Librarian (manages books and lists for their store)
 }
 
 @index({ email: 1 }, { unique: true })
@@ -35,7 +36,7 @@ export enum UserRole {
   },
 })
 export class User {
-  /** Company association - null only for SuperAdmin */
+  /** Company association - null only for Platform Admin */
   @prop({ ref: () => Company, required: false, index: true })
   public companyId?: Ref<Company>;
 
@@ -55,7 +56,7 @@ export class User {
   @prop({ required: true, enum: UserRole, default: UserRole.Librarian })
   public role!: UserRole;
 
-  /** Store assignment - only for Librarians **/
+  /** Store assignment - required for StoreAdmin and Librarian roles **/
   @prop({ ref: () => Store })
   public storeId?: Ref<Store>;
 
@@ -80,6 +81,51 @@ export class User {
     return bcrypt.compare(plain, this.passwordHash);
   }
 
+  /** Check if user can manage another user based on role hierarchy */
+  public canManage(
+    this: DocumentType<User>,
+    targetUser: DocumentType<User>
+  ): boolean {
+    // Platform Admin can manage everyone
+    if (this.role === UserRole.Admin) return true;
+
+    // Company Admin can manage StoreAdmins and Librarians in their company
+    if (this.role === UserRole.CompanyAdmin) {
+      return (
+        this.companyId?.toString() === targetUser.companyId?.toString() &&
+        (targetUser.role === UserRole.StoreAdmin ||
+          targetUser.role === UserRole.Librarian)
+      );
+    }
+
+    // Store Admin can manage Librarians in their store
+    if (this.role === UserRole.StoreAdmin) {
+      return (
+        this.storeId?.toString() === targetUser.storeId?.toString() &&
+        targetUser.role === UserRole.Librarian
+      );
+    }
+
+    // Librarians cannot manage other users
+    return false;
+  }
+
+  /** Get role display name */
+  public getRoleDisplayName(this: DocumentType<User>): string {
+    switch (this.role) {
+      case UserRole.Admin:
+        return 'Administrateur Plateforme';
+      case UserRole.CompanyAdmin:
+        return 'Administrateur Entreprise';
+      case UserRole.StoreAdmin:
+        return 'Administrateur Magasin';
+      case UserRole.Librarian:
+        return 'Libraire';
+      default:
+        return 'Utilisateur';
+    }
+  }
+
   // ---------- Static helpers ----------
   /** Get all users for a company */
   static forCompany(
@@ -94,12 +140,37 @@ export class User {
     return this.find(query);
   }
 
-  /** Get all librarians for a store */
+  /** Get all users for a store (librarians and store admins) */
   static forStore(
+    this: ReturnModelType<typeof User>,
+    storeId: Types.ObjectId | string,
+    role?: UserRole.StoreAdmin | UserRole.Librarian
+  ) {
+    const query = { storeId };
+    if (role) {
+      return this.find({ ...query, role });
+    }
+    // Return both store admins and librarians for the store
+    return this.find({
+      ...query,
+      role: { $in: [UserRole.StoreAdmin, UserRole.Librarian] },
+    });
+  }
+
+  /** Get librarians for a store */
+  static librariansForStore(
     this: ReturnModelType<typeof User>,
     storeId: Types.ObjectId | string
   ) {
     return this.find({ storeId, role: UserRole.Librarian });
+  }
+
+  /** Get store admins for a store */
+  static storeAdminsForStore(
+    this: ReturnModelType<typeof User>,
+    storeId: Types.ObjectId | string
+  ) {
+    return this.find({ storeId, role: UserRole.StoreAdmin });
   }
 
   /** Get company admins for a company */
@@ -108,6 +179,14 @@ export class User {
     companyId: Types.ObjectId | string
   ) {
     return this.find({ companyId, role: UserRole.CompanyAdmin });
+  }
+
+  /** Get store admins for a company */
+  static storeAdminsFor(
+    this: ReturnModelType<typeof User>,
+    companyId: Types.ObjectId | string
+  ) {
+    return this.find({ companyId, role: UserRole.StoreAdmin });
   }
 }
 
