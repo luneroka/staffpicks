@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { FaHome, FaUserCircle } from 'react-icons/fa';
 import { useEffect } from 'react';
 import { themeChange } from 'theme-change';
-import { MdDarkMode } from 'react-icons/md';
 
 const NavBar = () => {
   useEffect(() => {
@@ -62,15 +61,6 @@ const NavBar = () => {
           <div className='flex items-center gap-2 '>Mes listes</div>
         </Link>
       </div>
-
-      {/* Floating Dark Mode Button */}
-      <button
-        data-toggle-theme='dim,light'
-        data-act-class='ACTIVECLASS'
-        className='fixed bottom-4 right-4 z-50 bg-base-200 hover:bg-secondary-accent p-3 rounded-full shadow-lg transition-colors cursor-pointer'
-      >
-        <MdDarkMode className='size-6' />
-      </button>
 
       {/* RIGHT */}
       <div className='flex gap-2 items-center '>
