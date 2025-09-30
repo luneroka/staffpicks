@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import listData from '../lib/mock/lists.json';
 import booksData from '../lib/mock/books.json';
 import {
@@ -81,6 +82,16 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
 
             return <Book key={item.bookId} {...bookProps} />;
           })}
+        </div>
+
+        {/* Action Button */}
+        <div className='flex gap-4 mt-6'>
+          <div className='btn btn-soft btn-warning'>
+            <Link href={`/dashboard/lists/${list._id}/edit`}>Modifier</Link>
+          </div>
+          <div className='btn btn-error dark:btn-secondary btn-soft'>
+            Supprimer
+          </div>
         </div>
       </div>
     </div>
