@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MdCancel } from 'react-icons/md';
+import { FaTimes } from 'react-icons/fa';
 
 interface BookProps {
   coverUrl?: string;
@@ -13,27 +14,47 @@ interface BookProps {
 const Book = ({ coverUrl, isbn, title }: BookProps) => {
   const pathname = usePathname();
 
-  return (
-    <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center'>
-      <div className='hover:scale-105 transition-all duration-200'>
-        <Link href={`/dashboard/books/${isbn}`}>
-          <img
-            src={coverUrl}
-            alt={title || 'Couverture non disponible'}
-            className='w-full h-full cursor-pointer'
-            style={{ width: '121px', height: '170px' }}
-          />
-        </Link>
+  if (pathname === '/dashboard') {
+    return (
+      <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center'>
+        <div className='hover:scale-105 transition-all duration-200'>
+          <Link href={`/dashboard/books/${isbn}`}>
+            <img
+              src={coverUrl}
+              alt={title || 'Couverture non disponible'}
+              className='w-full h-full cursor-pointer'
+              style={{ width: '121px', height: '170px' }}
+            />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith('/dashboard/lists')) {
+    return (
+      <div className='relative'>
+        <div className='flex w-[96px] h-[135px] relative flex-shrink-0 items-center justify-center'>
+          <div>
+            <Link href={`/dashboard/books/${isbn}`}>
+              <img
+                src={coverUrl}
+                alt={title || 'Couverture non disponible'}
+                className='w-full h-full cursor-pointer'
+                style={{ width: '96px', height: '135px' }}
+              />
+            </Link>
+          </div>
+        </div>
         <button
-          className={`absolute top-1 right-1 rounded-full hover:text-primary-btn text-error cursor-pointer hover:scale-150 transition-all duration-200 ${
-            pathname === '/dashboard' ? 'hidden' : 'block'
-          }`}
+          type='button'
+          className='absolute -top-2 -right-2 bg-error text-error-content rounded-full p-1 hover:scale-110 transition-transform cursor-pointer'
         >
-          <MdCancel className='size-5' />
+          <FaTimes className='w-3 h-3' />
         </button>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default Book;
