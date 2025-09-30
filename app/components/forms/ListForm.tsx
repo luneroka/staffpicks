@@ -3,6 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
 import { FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
+import {
+  HiExclamationCircle,
+  HiCheckCircle,
+  HiExclamation,
+} from 'react-icons/hi';
 import listsData from '@/app/lib/mock/lists.json';
 import booksData from '@/app/lib/mock/books.json';
 import { findBookAndExtractProps } from '@/app/lib/utils';
@@ -212,16 +217,14 @@ const ListForm = ({ listId }: ListFormProps) => {
     setValidationErrors([]);
 
     // Basic validation
-    const requiredFields = ['title', 'slug'];
+    const requiredFields = ['title'];
     const missingFields = requiredFields.filter(
-      (field) =>
-        !listData[field as keyof Pick<ListData, 'title' | 'slug'>]?.trim()
+      (field) => !listData[field as keyof Pick<ListData, 'title'>]?.trim()
     );
 
     if (missingFields.length > 0) {
       const fieldLabels: { [key: string]: string } = {
         title: 'Titre',
-        slug: 'Slug',
       };
 
       const missingLabels = missingFields.map(
@@ -279,38 +282,14 @@ const ListForm = ({ listId }: ListFormProps) => {
           <div className='w-full mb-4'>
             {error && (
               <div className='alert alert-error alert-soft mb-1 shadow-sm'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='size-5 shrink-0 stroke-current'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
-                  />
-                </svg>
+                <HiExclamationCircle className='size-5 shrink-0 stroke-current' />
                 <span className='text-sm font-medium'>{error}</span>
               </div>
             )}
 
             {success && (
               <div className='alert alert-success alert-soft mb-1 shadow-sm'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='size-5 shrink-0 stroke-current'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth='2'
-                    d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-                  />
-                </svg>
+                <HiCheckCircle className='size-5 shrink-0 stroke-current' />
                 <span className='text-sm font-medium'>{success}</span>
               </div>
             )}
@@ -448,19 +427,7 @@ const ListForm = ({ listId }: ListFormProps) => {
 
         {validationErrors.length > 0 && (
           <div className='alert alert-warning alert-soft mt-4 shadow-sm'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              className='size-5 shrink-0 stroke-current'
-              fill='none'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
-              />
-            </svg>
+            <HiExclamation className='size-5 shrink-0 stroke-current' />
             <div className='text-sm font-medium'>
               {validationErrors.map((validationError, index) => (
                 <div key={index}>{validationError}</div>
