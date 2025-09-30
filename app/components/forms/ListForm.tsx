@@ -133,6 +133,9 @@ const ListForm = ({ listId }: ListFormProps) => {
 
   // Book search functionality
   const searchBooks = (query: string) => {
+    console.log('Searching for:', query);
+    console.log('Books data length:', booksData.length);
+
     if (!query.trim()) {
       setSearchResults([]);
       setShowSearchResults(false);
@@ -150,6 +153,7 @@ const ListForm = ({ listId }: ListFormProps) => {
       )
       .slice(0, 5); // Limit to 5 results
 
+    console.log('Search results:', results);
     setSearchResults(results);
     setShowSearchResults(true);
   };
@@ -362,51 +366,53 @@ const ListForm = ({ listId }: ListFormProps) => {
         </select>
 
         {/* Book Search */}
-        <div className='relative w-full max-w-md mx-auto mb-4'>
+        <div className='w-full max-w-md mx-auto mb-4'>
           <label className='label w-full max-w-md text-center mb-2'>
             Livres dans la liste
           </label>
-          <input
-            type='text'
-            value={bookSearchQuery}
-            onChange={(e) => {
-              setBookSearchQuery(e.target.value);
-              searchBooks(e.target.value);
-            }}
-            className='input w-full pr-10'
-            placeholder='Rechercher un livre à ajouter...'
-          />
-          <FaSearch className='absolute right-3 top-1/2 transform -translate-y-1/2 text-base-content/60' />
+          <div className='relative'>
+            <input
+              type='text'
+              value={bookSearchQuery}
+              onChange={(e) => {
+                setBookSearchQuery(e.target.value);
+                searchBooks(e.target.value);
+              }}
+              className='input w-full pr-10'
+              placeholder='Rechercher un livre à ajouter...'
+            />
+            <FaSearch className='absolute right-3 top-1/2 transform -translate-y-1/2 text-base-content/60' />
 
-          {/* Search Results */}
-          {showSearchResults && searchResults.length > 0 && (
-            <div className='absolute top-full left-0 right-0 bg-base-100 border border-base-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto'>
-              {searchResults.map((book) => (
-                <div
-                  key={book._id}
-                  className='p-2 hover:bg-base-200 cursor-pointer border-b border-base-300 last:border-b-0'
-                  onClick={() => addBookToList(book._id)}
-                >
-                  <div className='flex items-center gap-3'>
-                    <img
-                      src={book.bookData.cover}
-                      alt={book.bookData.title}
-                      className='w-8 h-12 object-cover rounded'
-                    />
-                    <div className='flex-1'>
-                      <div className='font-medium text-sm'>
-                        {book.bookData.title}
+            {/* Search Results */}
+            {showSearchResults && searchResults.length > 0 && (
+              <div className='absolute top-full left-0 right-0 bg-base-100 border border-base-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto'>
+                {searchResults.map((book) => (
+                  <div
+                    key={book._id}
+                    className='p-2 hover:bg-base-200 cursor-pointer border-b border-base-300 last:border-b-0'
+                    onClick={() => addBookToList(book._id)}
+                  >
+                    <div className='flex items-center gap-3'>
+                      <img
+                        src={book.bookData.cover}
+                        alt={book.bookData.title}
+                        className='w-8 h-12 object-cover rounded'
+                      />
+                      <div className='flex-1'>
+                        <div className='font-medium text-sm'>
+                          {book.bookData.title}
+                        </div>
+                        <div className='text-xs text-base-content/60'>
+                          {book.bookData.authors.join(', ')}
+                        </div>
                       </div>
-                      <div className='text-xs text-base-content/60'>
-                        {book.bookData.authors.join(', ')}
-                      </div>
+                      <FaPlus className='text-primary' />
                     </div>
-                    <FaPlus className='text-primary' />
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Selected Books */}
