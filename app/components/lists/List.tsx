@@ -10,7 +10,7 @@ interface ListProps {
 
 const List = ({ coverUrl, id, title, description }: ListProps) => {
   return (
-    <div className='card card-side bg-base-200 shadow-sm cursor-pointer p-4 max-w-lg'>
+    <div className='card card-side bg-base-200 shadow-sm p-4 max-w-lg hover:bg-base-300 transition-all duration-200'>
       <figure className='flex-shrink-0'>
         <img
           src={coverUrl}

@@ -56,7 +56,7 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
                 <h1 className='card-title text-2xl mb-2'>{list.title}</h1>
                 {visibilityConfig && (
                   <div
-                    className={`badge badge-soft badge-lg ${visibilityConfig.badgeClass}`}
+                    className={`badge badge-outline badge-lg ${visibilityConfig.badgeClass}`}
                   >
                     {visibilityConfig.label}
                   </div>

@@ -337,7 +337,7 @@ const ListForm = ({ listId }: ListFormProps) => {
           name='visibility'
           value={listData.visibility}
           onChange={handleInputChange}
-          className='select w-full max-w-md'
+          className='select w-full max-w-md cursor-pointer'
         >
           <option value='draft'>Brouillon</option>
           <option value='unlisted'>Non listée</option>

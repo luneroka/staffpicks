@@ -418,7 +418,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
           name='genre'
           value={bookData.genre}
           onChange={handleInputChange}
-          className='select w-full max-w-md'
+          className='select w-full max-w-md cursor-pointer'
         >
           <option value=''>Sélectionnez un genre</option>
           {genres.map((genre) => (
@@ -437,7 +437,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
           name='tone'
           value={bookData.tone}
           onChange={handleInputChange}
-          className='select w-full max-w-md'
+          className='select w-full max-w-md cursor-pointer'
         >
           <option value=''>Sélectionnez un ton</option>
           {tones.map((tone) => (
@@ -458,7 +458,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
           name='ageGroup'
           value={bookData.ageGroup}
           onChange={handleInputChange}
-          className='select w-full max-w-md'
+          className='select w-full max-w-md cursor-pointer'
         >
           <option value=''>Sélectionnez une tranche d'âge</option>
           {ageGroups.map((ageGroup) => (
