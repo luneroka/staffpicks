@@ -25,9 +25,11 @@ const Dashboard = () => {
         </Link>
 
         {/* Lists filtered to show only public ones */}
-        <div id='list-display' className='flex gap-8'>
+        <div className='carousel rounded-box space-x-8'>
           {getPublishedLists(listsData).map((list) => (
-            <List key={list._id} {...extractListProps(list)} />
+            <div className='carousel-item hover:scale-103 transition-all duration-200'>
+              <List key={list._id} {...extractListProps(list)} />
+            </div>
           ))}
         </div>
       </div>
