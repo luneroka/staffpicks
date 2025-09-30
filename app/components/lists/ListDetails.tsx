@@ -70,7 +70,7 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
               )}
 
               {/* Stats */}
-              <div className='stats shadow'>
+              <div className='stats shadow bg-base-300'>
                 <div className='stat'>
                   <div className='stat-value text-primary'>
                     {list.items.length}

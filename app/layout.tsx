@@ -29,7 +29,7 @@ export default function RootLayout({
         <button
           data-toggle-theme='dim,light'
           data-act-class='ACTIVECLASS'
-          className='fixed bottom-4 right-4 z-50 bg-base-200 hover:bg-primary-content p-3 rounded-full shadow-lg transition-colors cursor-pointer'
+          className='fixed bottom-5 right-5 z-50 bg-base-300 hover:bg-primary-content p-3 rounded-full shadow-lg transition-colors cursor-pointer'
         >
           <MdDarkMode className='size-6' />
         </button>
