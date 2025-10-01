@@ -68,6 +68,19 @@ export class User {
   public createdAt?: Date;
   public updatedAt?: Date;
 
+  /** Failed login tracking for rate limiting */
+  @prop({ default: 0 })
+  public failedLoginAttempts!: number;
+
+  @prop()
+  public lockedUntil?: Date;
+
+  @prop()
+  public lastLoginAt?: Date;
+
+  @prop()
+  public lastLoginIP?: string;
+
   // ---------- Instance helpers ----------
   public async setPassword(this: DocumentType<User>, plain: string) {
     const rounds = 12;
@@ -124,6 +137,40 @@ export class User {
       default:
         return 'Utilisateur';
     }
+  }
+
+  /** Check if account is currently locked */
+  public isLocked(this: DocumentType<User>): boolean {
+    if (!this.lockedUntil) return false;
+    return this.lockedUntil > new Date();
+  }
+
+  /** Record failed login attempt */
+  public async recordFailedLogin(this: DocumentType<User>): Promise<void> {
+    this.failedLoginAttempts += 1;
+
+    const maxAttempts = parseInt(process.env.MAX_LOGIN_ATTEMPTS || '5');
+    const lockoutMinutes = parseInt(
+      process.env.LOCKOUT_DURATION_MINUTES || '15'
+    );
+
+    if (this.failedLoginAttempts >= maxAttempts) {
+      this.lockedUntil = new Date(Date.now() + lockoutMinutes * 60 * 1000);
+    }
+
+    await this.save();
+  }
+
+  /** Record successful login */
+  public async recordSuccessfulLogin(
+    this: DocumentType<User>,
+    ip?: string
+  ): Promise<void> {
+    this.failedLoginAttempts = 0;
+    this.lockedUntil = undefined;
+    this.lastLoginAt = new Date();
+    if (ip) this.lastLoginIP = ip;
+    await this.save();
   }
 
   // ---------- Static helpers ----------
