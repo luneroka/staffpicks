@@ -26,3 +26,13 @@ export async function requireAuth() {
 
   return session;
 }
+
+export async function requireRole(allowedRoles: UserRole[]) {
+  const session = await requireAuth();
+
+  if (!allowedRoles.includes(session.user!.role)) {
+    redirect('/auth/unauthorized');
+  }
+
+  return session;
+}
