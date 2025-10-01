@@ -53,3 +53,20 @@ export async function requireCompanyAccess(companySlug: string) {
 
   return session;
 }
+
+export async function requireStoreAccess(storeId: string) {
+  const session = await requireAuth();
+  const user = session.user!;
+
+  // Plateform admin and company admin can access any store in their scope
+  if (user.role === UserRole.Admin || user.role === UserRole.CompanyAdmin) {
+    return session;
+  }
+
+  // Store admin and librarian need matching store
+  if (user.storeId !== storeId) {
+    redirect('/auth/unauthorized');
+  }
+
+  return session;
+}
