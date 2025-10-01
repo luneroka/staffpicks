@@ -36,3 +36,20 @@ export async function requireRole(allowedRoles: UserRole[]) {
 
   return session;
 }
+
+export async function requireCompanyAccess(companySlug: string) {
+  const session = await requireAuth();
+  const user = session.user!;
+
+  // Plateform admin can access any company
+  if (user.role === UserRole.Admin) {
+    return session;
+  }
+
+  // Other users need matching company
+  if (session.companySlug !== companySlug) {
+    redirect('/auth/unauthorized');
+  }
+
+  return session;
+}
