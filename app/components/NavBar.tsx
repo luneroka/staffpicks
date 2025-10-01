@@ -14,16 +14,25 @@ const NavBar = () => {
 
   const pathname = usePathname();
 
-  if (pathname === '/' || pathname === '/login' || pathname === 'register') {
+  if (pathname === '/' || pathname === '/login' || pathname === '/signup') {
     return (
-      <nav className='flex justify-between px-16 py-4 border-b border-b-card-background'>
+      <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>
         {/* LEFT */}
         <Link href={'/'}>
           <div className='flex items-center gap-2 home-link'>
-            {/* TODO: Use company logo from db */}
             <FaHome />
           </div>
         </Link>
+
+        {/* RIGHT */}
+        <ul className='menu menu-horizontal p-0'>
+          <li>
+            <Link href={'/login'}>Se connecter</Link>
+          </li>
+          <li>
+            <Link href={'/signup'}>S'inscrire</Link>
+          </li>
+        </ul>
       </nav>
     );
   }
