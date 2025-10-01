@@ -16,3 +16,13 @@ export async function getSession() {
 
   return session;
 }
+
+export async function requireAuth() {
+  const session = await getSession();
+
+  if (!session.isLoggedIn || !session.user) {
+    redirect('/auth/login');
+  }
+
+  return session;
+}
