@@ -1,5 +1,6 @@
 import React from 'react';
 import { requireCompanyAdmin } from '@/app/lib/auth/helpers';
+import CompanySettingsForm from '@/app/components/forms/CompanySettingsForm';
 
 const CompanySettings = async () => {
   // Require company admin access only
@@ -11,7 +12,7 @@ const CompanySettings = async () => {
 
       <div className='card bg-base-200 shadow-xl'>
         <div className='card-body'>
-          <p>Fonctionnalité à venir...</p>
+          <CompanySettingsForm />
         </div>
       </div>
     </div>

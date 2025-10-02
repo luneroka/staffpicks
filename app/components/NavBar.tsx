@@ -6,6 +6,7 @@ import { FaHome, FaUserCircle } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { themeChange } from 'theme-change';
 import { UserRole } from '@/app/lib/types/user';
+import Image from 'next/image';
 
 interface NavBarProps {
   companyName?: string;
@@ -13,16 +14,48 @@ interface NavBarProps {
   userRole?: UserRole;
 }
 
+interface CompanyData {
+  name: string;
+  logoUrl?: string;
+}
+
 const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  // Initialize with prop data to avoid flash
+  const [company, setCompany] = useState<CompanyData | null>(
+    companyName ? { name: companyName } : null
+  );
 
   useEffect(() => {
     themeChange(false);
     // 👆 false parameter is required for react project
   }, []);
 
-  const pathname = usePathname();
+  // Fetch company data to get the latest name and logo
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        const response = await fetch('/api/company');
+        if (response.ok) {
+          const data = await response.json();
+          setCompany({
+            name: data.name,
+            logoUrl: data.logoUrl,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching company data:', error);
+        // Keep the initial prop data on error
+      }
+    };
+
+    // Only fetch if user is authenticated (not on public pages)
+    if (pathname !== '/' && pathname !== '/login' && pathname !== '/signup') {
+      fetchCompanyData();
+    }
+  }, [pathname]);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -75,11 +108,23 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
     <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>
       {/* LEFT */}
       <Link href={'/dashboard'}>
-        <div className='flex items-center gap-2 home-link'>
-          {/* TODO: Use company logo from db */}
-          <FaHome />
-          {/* TODO: Use store name from db */}
-          <h3>{companyName}</h3>
+        <div className='flex items-center gap-2'>
+          {company?.logoUrl ? (
+            <div className='avatar'>
+              <div className='w-8 h-8 rounded'>
+                <Image
+                  src={company.logoUrl}
+                  alt='Logo entreprise'
+                  width={32}
+                  height={32}
+                  className='object-cover'
+                />
+              </div>
+            </div>
+          ) : (
+            <FaHome />
+          )}
+          <h3 className='hover:text-primary'>{company?.name || companyName}</h3>
         </div>
       </Link>
 
