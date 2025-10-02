@@ -8,8 +8,6 @@ import {
   HiExclamation,
 } from 'react-icons/hi';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
-import { redirect } from 'next/navigation';
-import booksData from '@/app/lib/mock/books.json';
 
 interface BookData {
   isbn: string;
@@ -29,9 +27,10 @@ interface BookData {
 
 interface BookEditFormProps {
   bookIsbn?: string; // Optional prop for editing existing books
+  initialData?: BookData; // Pre-populated data for editing
 }
 
-const BookForm = ({ bookIsbn }: BookEditFormProps) => {
+const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
   const [bookData, setBookData] = useState<BookData>({
     isbn: '',
     title: '',
@@ -58,37 +57,15 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
 
   // Load existing book data if bookIsbn is provided (for editing)
   useEffect(() => {
-    if (bookIsbn) {
+    if (bookIsbn && initialData) {
       setIsLoading(true);
 
-      // Find the book by ISBN from mock data
-      const existingBook = booksData.find((book) => book.isbn === bookIsbn);
-
-      if (existingBook) {
-        setBookData({
-          isbn: existingBook.isbn,
-          title: existingBook.bookData.title,
-          authors: existingBook.bookData.authors.join(', '),
-          publisher: existingBook.bookData.publisher,
-          publishedDate: existingBook.bookData.publishDate
-            ? existingBook.bookData.publishDate.split('T')[0]
-            : '', // Convert to YYYY-MM-DD format
-          description: existingBook.bookData.description,
-          coverImage: existingBook.bookData.cover,
-          pageCount: existingBook.bookData.pageCount?.toString() || '',
-          genre: existingBook.genre,
-          tone: existingBook.tone,
-          ageGroup: existingBook.ageGroup,
-          purchaseLink: existingBook.purchaseLink,
-          recommendation: existingBook.recommendation,
-        });
-      } else {
-        setError(`Aucun livre trouvé avec l'ISBN: ${bookIsbn}`);
-      }
+      // Use the initialData passed from the server
+      setBookData(initialData);
 
       setIsLoading(false);
     }
-  }, [bookIsbn]);
+  }, [bookIsbn, initialData]);
 
   // Auto-dismiss success message after 3 seconds
   useEffect(() => {
