@@ -6,7 +6,12 @@ import { FaHome, FaUserCircle } from 'react-icons/fa';
 import { useEffect } from 'react';
 import { themeChange } from 'theme-change';
 
-const NavBar = () => {
+interface NavBarProps {
+  companyName?: string;
+  userName?: string;
+}
+
+const NavBar = ({ companyName, userName }: NavBarProps) => {
   useEffect(() => {
     themeChange(false);
     // 👆 false parameter is required for react project
@@ -14,6 +19,7 @@ const NavBar = () => {
 
   const pathname = usePathname();
 
+  // Public pages (no auth required)
   if (pathname === '/' || pathname === '/login' || pathname === '/signup') {
     return (
       <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>
@@ -37,6 +43,28 @@ const NavBar = () => {
     );
   }
 
+  // Onboarding page - simplified navbar
+  if (pathname === '/onboarding') {
+    return (
+      <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>
+        {/* LEFT */}
+        <Link href={'/dashboard'}>
+          <div className='flex items-center gap-2 home-link'>
+            <FaHome />
+            <h3>{companyName || 'StaffPicks'}</h3>
+          </div>
+        </Link>
+
+        {/* RIGHT */}
+        <div className='flex gap-2 items-center '>
+          {userName && <h3>{userName}</h3>}
+          <FaUserCircle className='size-8' />
+        </div>
+      </nav>
+    );
+  }
+
+  // Dashboard navbar
   return (
     <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>
       {/* LEFT */}
@@ -73,7 +101,7 @@ const NavBar = () => {
 
       {/* RIGHT */}
       <div className='flex gap-2 items-center '>
-        <h3>Sarah</h3>
+        <h3>{userName || 'Sarah'}</h3>
         <FaUserCircle className='size-8' />
       </div>
     </nav>

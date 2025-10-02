@@ -3,6 +3,9 @@ import { Roboto } from 'next/font/google';
 import './globals.css';
 import NavBar from './components/NavBar';
 import { MdDarkMode } from 'react-icons/md';
+import { getIronSession } from 'iron-session';
+import { cookies } from 'next/headers';
+import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -17,11 +20,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get session data for NavBar
+  const session = await getIronSession<SessionData>(
+    await cookies(),
+    sessionOptions
+  );
+
   return (
     <html lang='en' data-theme='light'>
       <body className={roboto.className}>
@@ -36,7 +45,7 @@ export default function RootLayout({
 
         {/* Laout Content */}
         <div className='flex flex-col h-screen max-h-screen'>
-          <NavBar />
+          <NavBar companyName={session.companyName} userName={session.name} />
           <div className='px-16 py-8'>{children}</div>
         </div>
       </body>

@@ -8,6 +8,7 @@ export interface SessionData {
   isLoggedIn: boolean;
   role: UserRole;
   companyId?: string; // null for platform admin
+  companyName?: string; // Company display name
   storeId?: string; // null for company admin, set for store admin/librarian
 }
 
