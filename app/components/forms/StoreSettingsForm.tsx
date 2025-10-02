@@ -265,7 +265,7 @@ const StoreSettingsForm = ({
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               {/* Store Code */}
-              <div className='form-control'>
+              <div className='form-control w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Code *</span>
                 </label>
@@ -275,7 +275,7 @@ const StoreSettingsForm = ({
                     name='code'
                     value={editedData.code}
                     onChange={handleInputChange}
-                    className='input input-bordered'
+                    className='input input-bordered w-full'
                     placeholder='ex: PARIS_OPERA'
                     required
                     disabled={mode === 'edit'}
@@ -283,17 +283,10 @@ const StoreSettingsForm = ({
                 ) : (
                   <p className='p-3 bg-base-300 rounded-lg'>{storeData.code}</p>
                 )}
-                {isEditing && (
-                  <label className='label'>
-                    <span className='label-text-alt text-base-content/60'>
-                      Code unique (majuscules, tirets bas autorisés)
-                    </span>
-                  </label>
-                )}
               </div>
 
               {/* Store Name */}
-              <div className='form-control'>
+              <div className='form-control w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Nom *</span>
                 </label>
@@ -303,7 +296,7 @@ const StoreSettingsForm = ({
                     name='name'
                     value={editedData.name}
                     onChange={handleInputChange}
-                    className='input input-bordered'
+                    className='input input-bordered w-full'
                     placeholder='ex: Fnac Opéra'
                     required
                   />
@@ -313,7 +306,7 @@ const StoreSettingsForm = ({
               </div>
 
               {/* Status */}
-              <div className='form-control md:col-span-2'>
+              <div className='form-control md:col-span-2 w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Statut</span>
                 </label>
@@ -322,7 +315,7 @@ const StoreSettingsForm = ({
                     name='status'
                     value={editedData.status}
                     onChange={handleInputChange}
-                    className='select select-bordered'
+                    className='select select-bordered w-full'
                   >
                     <option value='active'>Actif</option>
                     <option value='inactive'>Inactif</option>
@@ -348,7 +341,7 @@ const StoreSettingsForm = ({
               </div>
 
               {/* Description */}
-              <div className='form-control md:col-span-2'>
+              <div className='form-control md:col-span-2 w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Description</span>
                 </label>
@@ -357,7 +350,7 @@ const StoreSettingsForm = ({
                     name='description'
                     value={editedData.description || ''}
                     onChange={handleInputChange}
-                    className='textarea textarea-bordered'
+                    className='textarea textarea-bordered w-full'
                     rows={3}
                     placeholder='Description du magasin...'
                   />
@@ -378,7 +371,7 @@ const StoreSettingsForm = ({
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               {/* Email */}
-              <div className='form-control'>
+              <div className='form-control w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Email</span>
                 </label>
@@ -388,7 +381,7 @@ const StoreSettingsForm = ({
                     name='contactEmail'
                     value={editedData.contactEmail || ''}
                     onChange={handleInputChange}
-                    className='input input-bordered'
+                    className='input input-bordered w-full'
                     placeholder='contact@magasin.fr'
                   />
                 ) : (
@@ -399,7 +392,7 @@ const StoreSettingsForm = ({
               </div>
 
               {/* Phone */}
-              <div className='form-control'>
+              <div className='form-control w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Téléphone</span>
                 </label>
@@ -409,7 +402,7 @@ const StoreSettingsForm = ({
                     name='contactPhone'
                     value={editedData.contactPhone || ''}
                     onChange={handleInputChange}
-                    className='input input-bordered'
+                    className='input input-bordered w-full'
                     placeholder='+33 1 23 45 67 89'
                   />
                 ) : (
@@ -429,7 +422,7 @@ const StoreSettingsForm = ({
 
             <div className='grid grid-cols-1 gap-4'>
               {/* Street */}
-              <div className='form-control'>
+              <div className='form-control w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Rue</span>
                 </label>
@@ -439,7 +432,7 @@ const StoreSettingsForm = ({
                     name='address.street'
                     value={editedData.address?.street || ''}
                     onChange={handleInputChange}
-                    className='input input-bordered'
+                    className='input input-bordered w-full'
                     placeholder='123 Rue de la Paix'
                   />
                 ) : (
@@ -451,7 +444,7 @@ const StoreSettingsForm = ({
 
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 {/* City */}
-                <div className='form-control'>
+                <div className='form-control w-full'>
                   <label className='label'>
                     <span className='label-text font-semibold'>Ville</span>
                   </label>
@@ -461,7 +454,7 @@ const StoreSettingsForm = ({
                       name='address.city'
                       value={editedData.address?.city || ''}
                       onChange={handleInputChange}
-                      className='input input-bordered'
+                      className='input input-bordered w-full'
                       placeholder='Paris'
                     />
                   ) : (
@@ -472,7 +465,7 @@ const StoreSettingsForm = ({
                 </div>
 
                 {/* State */}
-                <div className='form-control'>
+                <div className='form-control w-full'>
                   <label className='label'>
                     <span className='label-text font-semibold'>Région</span>
                   </label>
@@ -482,7 +475,7 @@ const StoreSettingsForm = ({
                       name='address.state'
                       value={editedData.address?.state || ''}
                       onChange={handleInputChange}
-                      className='input input-bordered'
+                      className='input input-bordered w-full'
                       placeholder='Île-de-France'
                     />
                   ) : (
@@ -493,7 +486,7 @@ const StoreSettingsForm = ({
                 </div>
 
                 {/* Zip Code */}
-                <div className='form-control'>
+                <div className='form-control w-full'>
                   <label className='label'>
                     <span className='label-text font-semibold'>
                       Code postal
@@ -505,7 +498,7 @@ const StoreSettingsForm = ({
                       name='address.zipCode'
                       value={editedData.address?.zipCode || ''}
                       onChange={handleInputChange}
-                      className='input input-bordered'
+                      className='input input-bordered w-full'
                       placeholder='75001'
                     />
                   ) : (
@@ -517,7 +510,7 @@ const StoreSettingsForm = ({
               </div>
 
               {/* Country */}
-              <div className='form-control'>
+              <div className='form-control w-full'>
                 <label className='label'>
                   <span className='label-text font-semibold'>Pays</span>
                 </label>
@@ -527,7 +520,7 @@ const StoreSettingsForm = ({
                     name='address.country'
                     value={editedData.address?.country || ''}
                     onChange={handleInputChange}
-                    className='input input-bordered'
+                    className='input input-bordered w-full'
                     placeholder='France'
                   />
                 ) : (

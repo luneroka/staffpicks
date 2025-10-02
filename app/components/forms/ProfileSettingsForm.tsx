@@ -277,7 +277,7 @@ const ProfileSettingsForm = () => {
       <form onSubmit={handleSubmit}>
         {/* Header with Edit/Save buttons */}
         <div className='flex justify-between items-center mb-6'>
-          <h2 className='text-2xl font-semibold'>Informations personnelles</h2>
+          <h3 className='text-xl font-semibold'>Informations personnelles</h3>
           {!isEditing ? (
             <button
               type='button'
@@ -367,7 +367,7 @@ const ProfileSettingsForm = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {/* First Name */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Prénom *</span>
             </label>
@@ -377,7 +377,7 @@ const ProfileSettingsForm = () => {
                 name='firstName'
                 value={editedData.firstName}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 required
               />
             ) : (
@@ -386,7 +386,7 @@ const ProfileSettingsForm = () => {
           </div>
 
           {/* Last Name */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Nom *</span>
             </label>
@@ -396,7 +396,7 @@ const ProfileSettingsForm = () => {
                 name='lastName'
                 value={editedData.lastName}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 required
               />
             ) : (
@@ -405,7 +405,7 @@ const ProfileSettingsForm = () => {
           </div>
 
           {/* Email */}
-          <div className='form-control md:col-span-2'>
+          <div className='form-control md:col-span-2 w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Email *</span>
             </label>
@@ -415,7 +415,7 @@ const ProfileSettingsForm = () => {
                 name='email'
                 value={editedData.email}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 required
               />
             ) : (
@@ -424,7 +424,7 @@ const ProfileSettingsForm = () => {
           </div>
 
           {/* Role (read-only) */}
-          <div className='form-control md:col-span-2'>
+          <div className='form-control md:col-span-2 w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Rôle</span>
             </label>
@@ -461,7 +461,7 @@ const ProfileSettingsForm = () => {
                 <span>Le mot de passe doit contenir au moins 8 caractères</span>
               </div>
 
-              <div className='form-control'>
+              <div className='form-control w-full'>
                 {/* <label className='label'>
                   <span className='label-text font-semibold'>
                     Mot de passe actuel *

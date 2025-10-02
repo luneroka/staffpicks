@@ -368,7 +368,7 @@ const CompanySettingsForm = () => {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {/* Company Name */}
-          <div className='form-control md:col-span-2'>
+          <div className='form-control md:col-span-2 w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>
                 Nom de l'entreprise *
@@ -380,7 +380,7 @@ const CompanySettingsForm = () => {
                 name='name'
                 value={editedData.name}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 required
               />
             ) : (
@@ -389,7 +389,7 @@ const CompanySettingsForm = () => {
           </div>
 
           {/* Contact Email */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Email de contact</span>
             </label>
@@ -399,7 +399,7 @@ const CompanySettingsForm = () => {
                 name='contactEmail'
                 value={editedData.contactEmail || ''}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 placeholder='contact@example.com'
               />
             ) : (
@@ -410,7 +410,7 @@ const CompanySettingsForm = () => {
           </div>
 
           {/* Contact Phone */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Téléphone</span>
             </label>
@@ -420,7 +420,7 @@ const CompanySettingsForm = () => {
                 name='contactPhone'
                 value={editedData.contactPhone || ''}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 placeholder='+33 1 23 45 67 89'
               />
             ) : (
@@ -432,7 +432,7 @@ const CompanySettingsForm = () => {
         </div>
 
         {/* Description */}
-        <div className='form-control mt-4'>
+        <div className='form-control mt-4 w-full'>
           <label className='label'>
             <span className='label-text font-semibold'>Description</span>
           </label>
@@ -441,7 +441,7 @@ const CompanySettingsForm = () => {
               name='description'
               value={editedData.description || ''}
               onChange={handleInputChange}
-              className='textarea textarea-bordered h-24'
+              className='textarea textarea-bordered h-24 w-full'
               placeholder='Décrivez votre entreprise...'
             />
           ) : (
@@ -457,7 +457,7 @@ const CompanySettingsForm = () => {
         <h3 className='text-xl font-semibold mb-4'>Adresse</h3>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {/* Street */}
-          <div className='form-control md:col-span-2'>
+          <div className='form-control md:col-span-2 w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Rue</span>
             </label>
@@ -467,7 +467,7 @@ const CompanySettingsForm = () => {
                 name='address.street'
                 value={editedData.address?.street || ''}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 placeholder='123 Rue de la Paix'
               />
             ) : (
@@ -478,7 +478,7 @@ const CompanySettingsForm = () => {
           </div>
 
           {/* City */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Ville</span>
             </label>
@@ -488,7 +488,7 @@ const CompanySettingsForm = () => {
                 name='address.city'
                 value={editedData.address?.city || ''}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 placeholder='Paris'
               />
             ) : (
@@ -499,7 +499,7 @@ const CompanySettingsForm = () => {
           </div>
 
           {/* State/Region */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Région</span>
             </label>
@@ -509,7 +509,7 @@ const CompanySettingsForm = () => {
                 name='address.state'
                 value={editedData.address?.state || ''}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 placeholder='Île-de-France'
               />
             ) : (
@@ -520,7 +520,7 @@ const CompanySettingsForm = () => {
           </div>
 
           {/* Zip Code */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Code postal</span>
             </label>
@@ -530,7 +530,7 @@ const CompanySettingsForm = () => {
                 name='address.zipCode'
                 value={editedData.address?.zipCode || ''}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 placeholder='75001'
               />
             ) : (
@@ -541,7 +541,7 @@ const CompanySettingsForm = () => {
           </div>
 
           {/* Country */}
-          <div className='form-control'>
+          <div className='form-control w-full'>
             <label className='label'>
               <span className='label-text font-semibold'>Pays</span>
             </label>
@@ -551,7 +551,7 @@ const CompanySettingsForm = () => {
                 name='address.country'
                 value={editedData.address?.country || ''}
                 onChange={handleInputChange}
-                className='input input-bordered'
+                className='input input-bordered w-full'
                 placeholder='France'
               />
             ) : (
