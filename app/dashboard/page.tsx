@@ -9,8 +9,12 @@ import {
   getPublishedLists,
 } from '../lib/utils';
 import Link from 'next/link';
+import { requireAuth } from '../lib/auth/helpers';
 
-const Dashboard = () => {
+const Dashboard = async () => {
+  // Ensure user is authenticated (will redirect if not)
+  const session = await requireAuth();
+
   return (
     <div className='flex flex-col gap-16'>
       {/* LISTS SECTION */}

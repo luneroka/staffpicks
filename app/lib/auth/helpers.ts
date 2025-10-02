@@ -23,7 +23,7 @@ export async function requireAuth() {
   const session = await getSession();
 
   if (!session.isLoggedIn) {
-    redirect('/auth/login');
+    redirect('/login');
   }
 
   return session;
@@ -34,7 +34,7 @@ export async function requirePlatformAdmin() {
   const session = await requireAuth();
 
   if (session.role !== UserRole.Admin) {
-    redirect('/auth/unauthorized');
+    redirect('/unauthorized');
   }
 
   return session;
@@ -51,7 +51,7 @@ export async function requireCompanyAccess(companyId: string) {
 
   // Check if user's company matches
   if (session.companyId !== companyId) {
-    redirect('/auth/unauthorized');
+    redirect('/unauthorized');
   }
 
   return session;
@@ -75,7 +75,7 @@ export async function requireStoreAccess(storeId: string) {
 
   // Store admin and librarians must have matching storeId
   if (session.storeId !== storeId) {
-    redirect('/auth/unauthorized');
+    redirect('/unauthorized');
   }
 
   return session;
@@ -86,7 +86,7 @@ export async function requireRole(allowedRoles: UserRole[]) {
   const session = await requireAuth();
 
   if (!allowedRoles.includes(session.role)) {
-    redirect('/auth/unauthorized');
+    redirect('/unauthorized');
   }
 
   return session;

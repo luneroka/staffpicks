@@ -20,7 +20,7 @@ export default async function OnboardingPage() {
     <div className='container mx-auto max-w-2xl px-4'>
       <div className='text-center mb-8'>
         <h1 className='text-3xl font-bold mb-2'>
-          Bienvenue sur StaffPicks, {session.name}! 🎉
+          Bienvenue sur StaffPicks, {session.name} ! 🎉
         </h1>
         <p className='text-base-content/70'>
           Votre compte a été créé avec succès. Voici quelques étapes pour
@@ -106,10 +106,10 @@ export default async function OnboardingPage() {
           <div className='text-center'>
             <p className='text-sm text-base-content/70 mb-4'>
               Vous pouvez revenir à cette page à tout moment depuis votre
-              tableau de bord.
+              profil.
             </p>
-            <Link href='/dashboard' className='btn btn-primary'>
-              Aller au tableau de bord
+            <Link href='/dashboard/profile' className='btn btn-primary'>
+              Voir mon profil
             </Link>
           </div>
         </div>
