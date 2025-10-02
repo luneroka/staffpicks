@@ -53,6 +53,8 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
   const [success, setSuccess] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Load existing book data if bookIsbn is provided (for editing)
   useEffect(() => {
@@ -144,6 +146,7 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
       }
 
       const book = data.book;
+      const coverUrl = book.image || book.image_original || '';
 
       // Auto-populate form with API response
       setBookData((prev) => ({
@@ -153,11 +156,46 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
         publisher: book.publisher || '',
         publishedDate: book.date_published || '',
         description: book.synopsis || book.overview || '',
-        coverImage: book.image || book.image_original || '',
+        coverImage: coverUrl,
         pageCount: book.pages ? book.pages.toString() : '',
       }));
 
-      setSuccess('Informations du livre récupérées avec succès!');
+      // If we got a cover URL, upload it to Cloudinary
+      if (coverUrl) {
+        try {
+          setIsUploadingImage(true);
+          const uploadResponse = await fetch('/api/upload/image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: coverUrl }),
+          });
+
+          const uploadData = await uploadResponse.json();
+
+          if (uploadResponse.ok) {
+            setBookData((prev) => ({
+              ...prev,
+              coverImage: uploadData.url,
+            }));
+            setSuccess(
+              'Informations du livre et couverture récupérées avec succès!'
+            );
+          } else {
+            setSuccess(
+              'Informations du livre récupérées (couverture non uploadée)'
+            );
+          }
+        } catch (uploadError) {
+          console.error('Error uploading cover to Cloudinary:', uploadError);
+          setSuccess(
+            'Informations du livre récupérées (couverture non uploadée)'
+          );
+        } finally {
+          setIsUploadingImage(false);
+        }
+      } else {
+        setSuccess('Informations du livre récupérées avec succès!');
+      }
     } catch (error) {
       console.error('Error searching ISBN:', error);
       setError(
@@ -190,6 +228,66 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
     setError('');
     setSuccess('');
     setValidationErrors([]);
+    setSelectedFile(null);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Veuillez sélectionner une image valide');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("L'image est trop grande (max 5MB)");
+      return;
+    }
+
+    setSelectedFile(file);
+    setIsUploadingImage(true);
+    setError('');
+
+    try {
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+
+      // Update the cover image URL with Cloudinary URL
+      setBookData((prev) => ({
+        ...prev,
+        coverImage: data.url,
+      }));
+
+      setSuccess('Image uploadée avec succès!');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'upload de l'image"
+      );
+      setSelectedFile(null);
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -234,19 +332,65 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
       return;
     }
 
-    try {
-      console.log('Submitting book data:', bookData);
-      // TODO: Add actual API call to save/update the book
-      const isEditing = !!bookIsbn;
-      setSuccess(
-        isEditing ? 'Livre modifié avec succès!' : 'Livre ajouté avec succès!'
-      );
+    setIsLoading(true);
 
-      // Reset form after successful submission (only for new books)
-      if (!isEditing) {
-        resetForm();
+    try {
+      const isEditing = !!bookIsbn;
+
+      // Prepare the payload for the API
+      const payload = {
+        isbn: bookData.isbn.trim(),
+        title: bookData.title.trim(),
+        authors: bookData.authors.split(',').map((author) => author.trim()),
+        cover: bookData.coverImage || undefined,
+        description: bookData.description.trim(),
+        publisher: bookData.publisher.trim(),
+        pageCount: bookData.pageCount
+          ? parseInt(bookData.pageCount)
+          : undefined,
+        publishDate: bookData.publishedDate || undefined,
+        genre: bookData.genre,
+        tone: bookData.tone,
+        ageGroup: bookData.ageGroup || undefined,
+        purchaseLink: bookData.purchaseLink || undefined,
+        recommendation: bookData.recommendation || undefined,
+      };
+
+      if (isEditing) {
+        // TODO: Implement PUT request for editing
+        // const response = await fetch(`/api/books/${bookIsbn}`, {
+        //   method: 'PUT',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(payload),
+        // });
+        console.log('Edit book payload:', payload);
+        setSuccess('Livre modifié avec succès!');
+      } else {
+        // Create new book
+        const response = await fetch('/api/books', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create book');
+        }
+
+        setSuccess('Livre ajouté avec succès!');
+
+        // Reset form after successful submission
+        setTimeout(() => {
+          resetForm();
+        }, 1500);
       }
-      redirect('/dashboard/books');
+
+      // Redirect to books page after a short delay to show success message
+      setTimeout(() => {
+        window.location.href = '/dashboard/books';
+      }, 2000);
     } catch (error) {
       console.error('Error saving book:', error);
       const isEditing = !!bookIsbn;
@@ -257,6 +401,8 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
           ? 'Erreur lors de la modification du livre'
           : "Erreur lors de l'ajout du livre"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -399,12 +545,25 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
 
         <label className='label w-full max-w-md text-center'>Couverture</label>
         <div className='flex items-center gap-4 w-full max-w-md'>
-          <img
-            src={bookData.coverImage || '/placeholder-book-cover.jpg'}
-            alt='Couverture du livre'
-            className='w-[121px] h-[170px] object-cover border border-base-300 rounded cursor-pointer hover:scale-105 transition-all duration-200'
+          <div className='relative'>
+            <img
+              src={bookData.coverImage || '/placeholder-book-cover.jpg'}
+              alt='Couverture du livre'
+              className='w-[121px] h-[170px] object-cover border border-base-300 rounded cursor-pointer hover:scale-105 transition-all duration-200'
+            />
+            {isUploadingImage && (
+              <div className='absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded'>
+                <span className='loading loading-spinner loading-md text-white'></span>
+              </div>
+            )}
+          </div>
+          <input
+            type='file'
+            className='file-input file-input-ghost'
+            accept='image/*'
+            onChange={handleFileChange}
+            disabled={isUploadingImage || isLoading}
           />
-          <input type='file' className='file-input file-input-ghost' />
         </div>
       </fieldset>
 
@@ -517,11 +676,23 @@ const BookForm = ({ bookIsbn }: BookEditFormProps) => {
               isEditing ? 'hidden' : 'block'
             }`}
             onClick={resetForm}
+            disabled={isLoading}
           >
             Effacer
           </button>
-          <button type='submit' className='btn btn-soft btn-primary flex-1'>
-            {isEditing ? 'Modifier le livre' : 'Ajouter le livre'}
+          <button
+            type='submit'
+            className='btn btn-soft btn-primary flex-1'
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className='loading loading-spinner loading-sm'></span>
+                {isEditing ? 'Modification...' : 'Ajout...'}
+              </>
+            ) : (
+              <>{isEditing ? 'Modifier le livre' : 'Ajouter le livre'}</>
+            )}
           </button>
         </div>
       </fieldset>
