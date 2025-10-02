@@ -62,11 +62,18 @@ export async function POST(request: NextRequest) {
 
     // Parse and validate request body
     const body = await request.json();
-    const { companyName, storeName, name, email, password, confirmPassword } =
-      body;
+    const {
+      companyName,
+      storeName,
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+    } = body;
 
     // Validation
-    if (!companyName || !name || !email || !password) {
+    if (!companyName || !firstName || !lastName || !email || !password) {
       return NextResponse.json(
         { error: 'Tous les champs obligatoires doivent être remplis.' },
         { status: 400 }
@@ -150,7 +157,8 @@ export async function POST(request: NextRequest) {
     const user = new UserModel({
       companyId: company._id,
       storeId: store._id,
-      name: name.trim(),
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
       email: email.toLowerCase(),
       role: UserRole.CompanyAdmin,
     });
@@ -165,7 +173,8 @@ export async function POST(request: NextRequest) {
     );
     session.userId = user._id.toString();
     session.email = user.email;
-    session.name = user.name;
+    session.firstName = user.firstName;
+    session.lastName = user.lastName;
     session.role = user.role;
     session.companyId = company._id.toString();
     session.companyName = company.name;
@@ -180,7 +189,8 @@ export async function POST(request: NextRequest) {
         redirectUrl: '/dashboard/settings/onboarding',
         user: {
           id: user._id.toString(),
-          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email,
           role: user.role,
         },

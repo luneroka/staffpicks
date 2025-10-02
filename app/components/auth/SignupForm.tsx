@@ -13,7 +13,8 @@ const SignupForm = () => {
   const [formData, setFormData] = useState({
     companyName: '',
     storeName: '',
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -103,13 +104,25 @@ const SignupForm = () => {
       <fieldset className='fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4'>
         <legend className='fieldset-legend'>Informations personnelles</legend>
 
-        <label className='label'>Votre nom *</label>
+        <label className='label'>Prénom *</label>
         <input
           type='text'
-          name='name'
+          name='firstName'
+          className='input'
+          placeholder='Votre prénom'
+          value={formData.firstName}
+          onChange={handleChange}
+          required
+          disabled={isSubmitting}
+        />
+
+        <label className='label'>Nom *</label>
+        <input
+          type='text'
+          name='lastName'
           className='input'
           placeholder='Votre nom'
-          value={formData.name}
+          value={formData.lastName}
           onChange={handleChange}
           required
           disabled={isSubmitting}

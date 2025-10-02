@@ -4,7 +4,8 @@ import { UserRole } from '../types/user';
 export interface SessionData {
   userId?: string;
   email?: string;
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   isLoggedIn: boolean;
   role: UserRole;
   companyId?: string; // null for platform admin

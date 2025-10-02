@@ -35,7 +35,8 @@ export async function GET() {
     // Return user data
     return NextResponse.json({
       _id: user._id.toString(),
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       avatarUrl: user.avatarUrl,
       role: user.role,
@@ -83,8 +84,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update allowed fields
-    if (body.name !== undefined && body.name.trim()) {
-      user.name = body.name.trim();
+    if (body.firstName !== undefined && body.firstName.trim()) {
+      user.firstName = body.firstName.trim();
+    }
+
+    if (body.lastName !== undefined && body.lastName.trim()) {
+      user.lastName = body.lastName.trim();
     }
 
     if (body.email !== undefined && body.email.trim()) {
@@ -146,9 +151,12 @@ export async function PUT(request: NextRequest) {
     // Save the updated user
     await user.save();
 
-    // Update session name if changed
-    if (body.name !== undefined) {
-      session.name = user.name;
+    // Update session names if changed
+    if (body.firstName !== undefined) {
+      session.firstName = user.firstName;
+    }
+    if (body.lastName !== undefined) {
+      session.lastName = user.lastName;
     }
 
     await session.save();
@@ -158,7 +166,8 @@ export async function PUT(request: NextRequest) {
       success: true,
       user: {
         _id: user._id.toString(),
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         avatarUrl: user.avatarUrl,
         role: user.role,

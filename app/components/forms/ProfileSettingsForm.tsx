@@ -7,7 +7,8 @@ import Image from 'next/image';
 
 interface UserData {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   avatarUrl?: string;
   role: string;
@@ -142,7 +143,12 @@ const ProfileSettingsForm = () => {
     if (!editedData) return;
 
     // Basic validation
-    if (!editedData.name?.trim()) {
+    if (!editedData.firstName?.trim()) {
+      setError('Le prénom est requis');
+      return;
+    }
+
+    if (!editedData.lastName?.trim()) {
       setError('Le nom est requis');
       return;
     }
@@ -183,7 +189,8 @@ const ProfileSettingsForm = () => {
 
     try {
       const body: any = {
-        name: editedData.name,
+        firstName: editedData.firstName,
+        lastName: editedData.lastName,
         email: editedData.email,
         avatarUrl: editedData.avatarUrl,
       };
@@ -357,27 +364,46 @@ const ProfileSettingsForm = () => {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          {/* Name */}
+          {/* First Name */}
           <div className='form-control'>
             <label className='label'>
-              <span className='label-text font-semibold'>Nom complet *</span>
+              <span className='label-text font-semibold'>Prénom *</span>
             </label>
             {isEditing ? (
               <input
                 type='text'
-                name='name'
-                value={editedData.name}
+                name='firstName'
+                value={editedData.firstName}
                 onChange={handleInputChange}
                 className='input input-bordered'
                 required
               />
             ) : (
-              <p className='p-3 bg-base-300 rounded-lg'>{userData.name}</p>
+              <p className='p-3 bg-base-300 rounded-lg'>{userData.firstName}</p>
+            )}
+          </div>
+
+          {/* Last Name */}
+          <div className='form-control'>
+            <label className='label'>
+              <span className='label-text font-semibold'>Nom *</span>
+            </label>
+            {isEditing ? (
+              <input
+                type='text'
+                name='lastName'
+                value={editedData.lastName}
+                onChange={handleInputChange}
+                className='input input-bordered'
+                required
+              />
+            ) : (
+              <p className='p-3 bg-base-300 rounded-lg'>{userData.lastName}</p>
             )}
           </div>
 
           {/* Email */}
-          <div className='form-control'>
+          <div className='form-control md:col-span-2'>
             <label className='label'>
               <span className='label-text font-semibold'>Email *</span>
             </label>

@@ -20,7 +20,7 @@ export default async function OnboardingPage() {
     <div className='container mx-auto max-w-2xl px-4'>
       <div className='text-center mb-8'>
         <h1 className='text-3xl font-bold mb-2'>
-          Bienvenue sur StaffPicks, {session.name} ! 🎉
+          Bienvenue sur StaffPicks, {session.firstName} ! 🎉
         </h1>
         <p className='text-base-content/70'>
           Votre compte a été créé avec succès. Voici quelques étapes pour

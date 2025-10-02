@@ -47,7 +47,7 @@ export default async function RootLayout({
         <div className='flex flex-col h-screen max-h-screen'>
           <NavBar
             companyName={session.companyName}
-            userName={session.name}
+            userName={session.firstName}
             userRole={session.role}
           />
           <div className='px-16 py-8'>{children}</div>

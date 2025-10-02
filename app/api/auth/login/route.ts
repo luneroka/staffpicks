@@ -98,7 +98,8 @@ export async function POST(request: NextRequest) {
 
     session.userId = user._id.toString();
     session.email = user.email;
-    session.name = user.name;
+    session.firstName = user.firstName;
+    session.lastName = user.lastName;
     session.isLoggedIn = true;
     session.role = user.role;
     session.companyId = user.companyId?.toString();
@@ -113,7 +114,8 @@ export async function POST(request: NextRequest) {
       user: {
         id: session.userId,
         email: session.email,
-        name: session.name,
+        firstName: session.firstName,
+        lastName: session.lastName,
         role: session.role,
         companyId: session.companyId,
         companyName: session.companyName,

@@ -20,7 +20,7 @@ interface CompanyData {
 }
 
 interface UserData {
-  name: string;
+  firstName: string;
   avatarUrl?: string;
 }
 
@@ -33,7 +33,7 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
     companyName ? { name: companyName } : null
   );
   const [user, setUser] = useState<UserData | null>(
-    userName ? { name: userName } : null
+    userName ? { firstName: userName } : null
   );
 
   useEffect(() => {
@@ -73,7 +73,7 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
         if (response.ok) {
           const data = await response.json();
           setUser({
-            name: data.name,
+            firstName: data.firstName,
             avatarUrl: data.avatarUrl,
           });
         }
@@ -184,7 +184,7 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
 
       {/* RIGHT */}
       <div className='flex gap-2 items-center '>
-        <h3>{user?.name || userName}</h3>
+        <h3>{user?.firstName || userName}</h3>
         <div className='dropdown dropdown-end'>
           <div
             tabIndex={0}

@@ -40,9 +40,13 @@ export class User {
   @prop({ ref: () => Company, required: false, index: true })
   public companyId?: Ref<Company>;
 
-  /** Display name */
+  /** User first name */
   @prop({ required: true, trim: true })
-  public name!: string;
+  public firstName!: string;
+
+  /** User last name */
+  @prop({ required: true, trim: true })
+  public lastName!: string;
 
   /** Unique login identifier */
   @prop({ required: true, lowercase: true, trim: true })
@@ -249,7 +253,8 @@ export type SessionUser = {
   id: string;
   email: string;
   role: UserRole;
-  name: string;
+  firstName: string;
+  lastName: string;
   companyId?: string;
   storeId?: string;
 };
