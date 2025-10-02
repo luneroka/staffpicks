@@ -5,6 +5,7 @@ import { BookModel } from '@/app/lib/models/Book';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
 import React from 'react';
+import BackButton from '@/app/components/BackButton';
 
 interface EditBookPageProps {
   params: Promise<{
@@ -58,8 +59,11 @@ const EditBookPage = async ({ params }: EditBookPageProps) => {
   };
 
   return (
-    <div className='mt-[-32px] flex items-start justify-center p-4 md:p-8'>
-      <BookForm bookId={id} initialData={bookData} />
+    <div>
+      <BackButton className='mt-[-16px]' />
+      <div className='flex items-start justify-center'>
+        <BookForm bookId={id} initialData={bookData} />
+      </div>
     </div>
   );
 };
