@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   formatDate,
   getVisibilityConfig,
@@ -27,9 +30,49 @@ interface ListCardProps {
 }
 
 const ListCard = ({ listData }: ListCardProps) => {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   if (!listData) {
     return null;
   }
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation to list detail page
+    e.stopPropagation();
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/lists/${listData._id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete list');
+      }
+
+      // Refresh the page to show updated list
+      router.refresh();
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la suppression de la liste'
+      );
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
+  const handleTrashClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation to list detail page
+    e.stopPropagation();
+    setShowDeleteModal(true);
+  };
 
   const visibilityConfig = getVisibilityConfig(listData.visibility);
 
@@ -76,10 +119,66 @@ const ListCard = ({ listData }: ListCardProps) => {
         </div>
 
         {/* Trash Icon */}
-        <div className='self-start btn btn-soft hover:btn-error'>
+        <button
+          onClick={handleTrashClick}
+          disabled={isDeleting}
+          className='self-start btn btn-soft hover:btn-error'
+        >
           <IoTrashBin />
-        </div>
+        </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <dialog className='modal modal-open'>
+          <div className='modal-box'>
+            <h3 className='font-bold text-lg mb-4'>Confirmer la suppression</h3>
+            <p className='py-4'>
+              Êtes-vous sûr de vouloir supprimer la liste "
+              <span className='font-semibold'>{listData.title}</span>" ? Cette
+              action est irréversible.
+            </p>
+            <div className='modal-action'>
+              <button
+                className='btn btn-ghost'
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowDeleteModal(false);
+                }}
+                disabled={isDeleting}
+              >
+                Annuler
+              </button>
+              <button
+                className='btn btn-error'
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <span className='loading loading-spinner loading-sm'></span>
+                    Suppression...
+                  </>
+                ) : (
+                  'Supprimer'
+                )}
+              </button>
+            </div>
+          </div>
+          <form method='dialog' className='modal-backdrop'>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowDeleteModal(false);
+              }}
+            >
+              close
+            </button>
+          </form>
+        </dialog>
+      )}
     </Link>
   );
 };
