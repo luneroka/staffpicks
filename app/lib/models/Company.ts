@@ -114,4 +114,10 @@ export class Company {
   }
 }
 
-export const CompanyModel = getModelForClass(Company);
+export const CompanyModel =
+  (global as any).CompanyModel || getModelForClass(Company);
+
+// Cache the model for hot reload in development
+if (process.env.NODE_ENV === 'development') {
+  (global as any).CompanyModel = CompanyModel;
+}

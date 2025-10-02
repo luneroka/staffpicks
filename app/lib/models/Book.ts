@@ -98,4 +98,9 @@ export class Book {
   }
 }
 
-export const BookModel = getModelForClass(Book);
+export const BookModel = (global as any).BookModel || getModelForClass(Book);
+
+// Cache the model for hot reload in development
+if (process.env.NODE_ENV === 'development') {
+  (global as any).BookModel = BookModel;
+}

@@ -237,7 +237,12 @@ export class User {
   }
 }
 
-export const UserModel = getModelForClass(User);
+export const UserModel = (global as any).UserModel || getModelForClass(User);
+
+// Cache the model for hot reload in development
+if (process.env.NODE_ENV === 'development') {
+  (global as any).UserModel = UserModel;
+}
 
 // ---------- Types to use with iron-session ----------
 export type SessionUser = {

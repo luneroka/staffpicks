@@ -123,4 +123,9 @@ export class Store {
   }
 }
 
-export const StoreModel = getModelForClass(Store);
+export const StoreModel = (global as any).StoreModel || getModelForClass(Store);
+
+// Cache the model for hot reload in development
+if (process.env.NODE_ENV === 'development') {
+  (global as any).StoreModel = StoreModel;
+}

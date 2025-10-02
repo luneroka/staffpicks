@@ -145,4 +145,9 @@ export class List {
   }
 }
 
-export const ListModel = getModelForClass(List);
+export const ListModel = (global as any).ListModel || getModelForClass(List);
+
+// Cache the model for hot reload in development
+if (process.env.NODE_ENV === 'development') {
+  (global as any).ListModel = ListModel;
+}
