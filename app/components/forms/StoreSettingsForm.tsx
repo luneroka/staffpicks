@@ -115,6 +115,17 @@ const StoreSettingsForm = ({
     setError('');
   };
 
+  // Function to generate store code from name
+  const generateStoreCode = (name: string): string => {
+    return name
+      .toUpperCase()
+      .normalize('NFD') // Normalize to decompose accented characters
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/[^A-Z0-9\s]/g, '') // Keep only uppercase letters, numbers, and spaces
+      .trim()
+      .replace(/\s+/g, '_'); // Replace spaces with underscores
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -132,7 +143,16 @@ const StoreSettingsForm = ({
         },
       }));
     } else {
-      setEditedData((prev) => ({ ...prev, [name]: value }));
+      // Auto-generate code from name when in create mode
+      if (name === 'name' && mode === 'create') {
+        setEditedData((prev) => ({
+          ...prev,
+          [name]: value,
+          code: generateStoreCode(value),
+        }));
+      } else {
+        setEditedData((prev) => ({ ...prev, [name]: value }));
+      }
     }
     setError('');
   };
@@ -186,10 +206,10 @@ const StoreSettingsForm = ({
         onSuccess();
       }
 
-      // Redirect to the store detail page after creation
+      // Redirect to the stores index
       if (mode === 'create' && data.store._id) {
         setTimeout(() => {
-          router.push(`/dashboard/settings/stores/${data.store._id}`);
+          router.push('/dashboard/settings/stores/');
         }, 1500);
       }
     } catch (err) {
@@ -264,27 +284,6 @@ const StoreSettingsForm = ({
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              {/* Store Code */}
-              <div className='form-control w-full'>
-                <label className='label'>
-                  <span className='label-text font-semibold'>Code *</span>
-                </label>
-                {isEditing ? (
-                  <input
-                    type='text'
-                    name='code'
-                    value={editedData.code}
-                    onChange={handleInputChange}
-                    className='input input-bordered w-full'
-                    placeholder='ex: PARIS_OPERA'
-                    required
-                    disabled={mode === 'edit'}
-                  />
-                ) : (
-                  <p className='p-3 bg-base-300 rounded-lg'>{storeData.code}</p>
-                )}
-              </div>
-
               {/* Store Name */}
               <div className='form-control w-full'>
                 <label className='label'>
@@ -302,6 +301,36 @@ const StoreSettingsForm = ({
                   />
                 ) : (
                   <p className='p-3 bg-base-300 rounded-lg'>{storeData.name}</p>
+                )}
+              </div>
+
+              {/* Store Code */}
+              <div className='form-control w-full'>
+                <label className='label'>
+                  <span className='label-text font-semibold'>Code *</span>
+                </label>
+                {isEditing ? (
+                  <>
+                    <input
+                      type='text'
+                      name='code'
+                      value={editedData.code}
+                      onChange={handleInputChange}
+                      className='input input-bordered w-full'
+                      placeholder='ex: FNAC_OPERA'
+                      required
+                      disabled
+                    />
+                    {mode === 'create' && (
+                      <label className='label'>
+                        <span className='label-text-alt text-base-content/60'>
+                          Généré automatiquement depuis le nom
+                        </span>
+                      </label>
+                    )}
+                  </>
+                ) : (
+                  <p className='p-3 bg-base-300 rounded-lg'>{storeData.code}</p>
                 )}
               </div>
 

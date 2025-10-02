@@ -93,7 +93,11 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
       </div>
 
       {/* Store Settings Form */}
-      <StoreSettingsForm mode='edit' initialData={storeData} />
+      <StoreSettingsForm
+        mode='edit'
+        storeId={params.id}
+        initialData={storeData}
+      />
 
       {/* Assigned Users Panel */}
       <div className='card bg-base-200 shadow-sm'>
