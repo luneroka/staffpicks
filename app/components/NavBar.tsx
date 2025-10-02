@@ -98,7 +98,7 @@ const NavBar = ({ companyName, userName }: NavBarProps) => {
           {/* TODO: Use company logo from db */}
           <FaHome />
           {/* TODO: Use store name from db */}
-          <h3>Genève - Balexert</h3>
+          <h3>{companyName}</h3>
         </div>
       </Link>
 
@@ -145,13 +145,10 @@ const NavBar = ({ companyName, userName }: NavBarProps) => {
             className='menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow'
           >
             <li>
-              <a className='justify-between'>
-                Profil
-                <span className='badge'>New</span>
-              </a>
+              <Link href={'/dashboard/profile'}>Profil</Link>
             </li>
             <li>
-              <a>Réglages</a>
+              <Link href={'/dashboard/settings'}>Réglages</Link>
             </li>
             <li>
               <button
