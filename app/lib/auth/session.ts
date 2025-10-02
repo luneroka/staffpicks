@@ -1,5 +1,5 @@
 import { SessionOptions } from 'iron-session';
-import { UserRole } from '../models/User';
+import { UserRole } from '../types/user';
 
 export interface SessionData {
   userId?: string;

@@ -2,7 +2,7 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { sessionOptions, SessionData, defaultSession } from './session';
-import { UserRole } from '../models/User';
+import { UserRole } from '../types/user';
 
 /** Get the current session (or default if not logged in) */
 export async function getSession() {
@@ -119,4 +119,33 @@ export function canManageUsers(session: SessionData): boolean {
   return (
     session.role === UserRole.Admin || session.role === UserRole.CompanyAdmin
   );
+}
+
+/** Require company admin or higher access */
+export async function requireCompanyAdmin() {
+  const session = await requireAuth();
+
+  if (
+    session.role !== UserRole.Admin &&
+    session.role !== UserRole.CompanyAdmin
+  ) {
+    redirect('/unauthorized');
+  }
+
+  return session;
+}
+
+/** Require company admin or store admin access (excludes librarians) */
+export async function requireAdminAccess() {
+  const session = await requireAuth();
+
+  if (
+    session.role !== UserRole.Admin &&
+    session.role !== UserRole.CompanyAdmin &&
+    session.role !== UserRole.StoreAdmin
+  ) {
+    redirect('/unauthorized');
+  }
+
+  return session;
 }

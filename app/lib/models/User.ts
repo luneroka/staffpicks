@@ -11,12 +11,9 @@ import bcrypt from 'bcrypt';
 import { Company } from './Company';
 import { Store } from './Store';
 
-export enum UserRole {
-  Admin = 'admin', // Platform admin (manages all companies and users)
-  CompanyAdmin = 'companyAdmin', // Company admin (sets up company + can add store admins and librarians)
-  StoreAdmin = 'storeAdmin', // Store admin (can manage their librarians within their store)
-  Librarian = 'librarian', // Librarian (manages books and lists for their store)
-}
+// Re-export UserRole from types to maintain backwards compatibility
+export { UserRole } from '@/app/lib/types/user';
+import { UserRole } from '@/app/lib/types/user';
 
 @index({ email: 1 }, { unique: true })
 @index({ companyId: 1, role: 1, createdAt: -1 }) // Fast company user lookup
