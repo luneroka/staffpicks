@@ -7,22 +7,27 @@ import { notFound } from 'next/navigation';
 
 interface BookPageProps {
   params: Promise<{
-    bookId: string;
+    id: string;
   }>;
 }
 
 const BookPage = async ({ params }: BookPageProps) => {
-  const { bookId } = await params;
+  const { id } = await params;
 
   // Ensure user is authenticated
   const session = await requireAuth();
 
+  // Validate ObjectId format
+  if (!Types.ObjectId.isValid(id)) {
+    notFound();
+  }
+
   // Connect to database
   await connectDB();
 
-  // Fetch the book by ISBN and company
+  // Fetch the book by ID and company
   const book = await BookModel.findOne({
-    isbn: bookId,
+    _id: new Types.ObjectId(id),
     companyId: new Types.ObjectId(session.companyId!),
   })
     .populate('ownerUserId', 'name email')

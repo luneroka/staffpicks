@@ -59,7 +59,7 @@ const Books = async () => {
               <Book
                 key={book.id}
                 coverUrl={book.cover}
-                isbn={book.isbn}
+                id={book.id}
                 title={book.title}
               />
             ))}

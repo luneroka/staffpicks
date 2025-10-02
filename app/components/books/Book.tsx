@@ -6,18 +6,18 @@ import { FaTimes } from 'react-icons/fa';
 
 interface BookProps {
   coverUrl?: string;
-  isbn?: string;
+  id?: string; // Changed from isbn to id
   title?: string;
 }
 
-const Book = ({ coverUrl, isbn, title }: BookProps) => {
+const Book = ({ coverUrl, id, title }: BookProps) => {
   const pathname = usePathname();
 
   if (pathname === '/dashboard' || pathname.startsWith('/dashboard/books')) {
     return (
       <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center'>
         <div className='hover:scale-105 transition-all duration-200'>
-          <Link href={`/dashboard/books/${isbn}`}>
+          <Link href={`/dashboard/books/${id}`}>
             <img
               src={coverUrl}
               alt={title || 'Couverture non disponible'}
@@ -35,7 +35,7 @@ const Book = ({ coverUrl, isbn, title }: BookProps) => {
       <div className='relative'>
         <div className='flex w-[96px] h-[135px] relative flex-shrink-0 items-center justify-center'>
           <div>
-            <Link href={`/dashboard/books/${isbn}`}>
+            <Link href={`/dashboard/books/${id}`}>
               <img
                 src={coverUrl}
                 alt={title || 'Couverture non disponible'}

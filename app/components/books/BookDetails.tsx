@@ -120,7 +120,7 @@ const BookDetails = ({ book }: BookDetailsProps) => {
                   </a>
                 )}
                 <Link
-                  href={`/dashboard/books/${book.isbn}/edit`}
+                  href={`/dashboard/books/${book.id}/edit`}
                   className='btn btn-soft btn-primary'
                 >
                   <HiPencilAlt className='h-5 w-5' />

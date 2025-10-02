@@ -10,6 +10,7 @@ import {
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 
 interface BookData {
+  id?: string; // Optional ID for editing existing books
   isbn: string;
   title: string;
   authors: string;
@@ -26,11 +27,11 @@ interface BookData {
 }
 
 interface BookEditFormProps {
-  bookIsbn?: string; // Optional prop for editing existing books
+  bookId?: string; // Optional book ID for editing existing books
   initialData?: BookData; // Pre-populated data for editing
 }
 
-const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
+const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
   const [bookData, setBookData] = useState<BookData>({
     isbn: '',
     title: '',
@@ -55,9 +56,9 @@ const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Load existing book data if bookIsbn is provided (for editing)
+  // Load existing book data if bookId is provided (for editing)
   useEffect(() => {
-    if (bookIsbn && initialData) {
+    if (bookId && initialData) {
       setIsLoading(true);
 
       // Use the initialData passed from the server
@@ -65,7 +66,7 @@ const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
 
       setIsLoading(false);
     }
-  }, [bookIsbn, initialData]);
+  }, [bookId, initialData]);
 
   // Auto-dismiss success message after 3 seconds
   useEffect(() => {
@@ -312,7 +313,7 @@ const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
     setIsLoading(true);
 
     try {
-      const isEditing = !!bookIsbn;
+      const isEditing = !!bookId;
 
       // Prepare the payload for the API
       const payload = {
@@ -334,13 +335,19 @@ const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
       };
 
       if (isEditing) {
-        // TODO: Implement PUT request for editing
-        // const response = await fetch(`/api/books/${bookIsbn}`, {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(payload),
-        // });
-        console.log('Edit book payload:', payload);
+        // Update existing book
+        const response = await fetch(`/api/books/${bookId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to update book');
+        }
+
         setSuccess('Livre modifié avec succès!');
       } else {
         // Create new book
@@ -370,7 +377,7 @@ const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
       }, 2000);
     } catch (error) {
       console.error('Error saving book:', error);
-      const isEditing = !!bookIsbn;
+      const isEditing = !!bookId;
       setError(
         error instanceof Error
           ? error.message
@@ -393,7 +400,7 @@ const BookForm = ({ bookIsbn, initialData }: BookEditFormProps) => {
     );
   }
 
-  const isEditing = !!bookIsbn;
+  const isEditing = !!bookId;
 
   return (
     <form

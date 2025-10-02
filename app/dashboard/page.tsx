@@ -78,7 +78,7 @@ const Dashboard = async () => {
               <Book
                 key={book.id}
                 coverUrl={book.coverUrl}
-                isbn={book.isbn}
+                id={book.id}
                 title={book.title}
               />
             ))
