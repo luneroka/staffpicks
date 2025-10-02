@@ -36,6 +36,14 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
     userName ? { firstName: userName } : null
   );
 
+  // Close dropdown when clicking on a link
+  const closeDropdown = () => {
+    const elem = document.activeElement as HTMLElement;
+    if (elem) {
+      elem.blur();
+    }
+  };
+
   useEffect(() => {
     themeChange(false);
     // 👆 false parameter is required for react project
@@ -212,12 +220,16 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
             className='menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow'
           >
             <li>
-              <Link href={'/dashboard/profile'}>Profil</Link>
+              <Link href={'/dashboard/profile'} onClick={closeDropdown}>
+                Profil
+              </Link>
             </li>
             {/* Settings - Only visible for Admin, CompanyAdmin, and StoreAdmin */}
             {userRole && userRole !== UserRole.Librarian && (
               <li>
-                <Link href={'/dashboard/settings'}>Réglages</Link>
+                <Link href={'/dashboard/settings'} onClick={closeDropdown}>
+                  Réglages
+                </Link>
               </li>
             )}
             <li>
