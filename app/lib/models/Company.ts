@@ -3,6 +3,7 @@ import {
   prop,
   index,
   modelOptions,
+  Severity,
 } from '@typegoose/typegoose';
 import type { ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
@@ -26,6 +27,9 @@ export enum CompanyPlan {
     timestamps: true,
     collection: 'companies',
     minimize: true,
+  },
+  options: {
+    allowMixed: Severity.ALLOW,
   },
 })
 export class Company {

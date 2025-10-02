@@ -19,14 +19,16 @@ const Dashboard = async () => {
     <div className='flex flex-col gap-16'>
       {/* LISTS SECTION */}
       <div className='flex flex-col gap-8'>
-        <Link href='/dashboard/lists' className='group'>
-          <div className='flex gap-2 items-center'>
-            <h2 className='h2-light group-hover:underline'>
-              Mes listes publiques
-            </h2>
-            <IoIosArrowForward />
-          </div>
-        </Link>
+        <div className='flex gap-2 items-center'>
+          <Link href='/dashboard/lists' className='group'>
+            <div className='flex gap-2 items-center'>
+              <h2 className='h2-light group-hover:underline'>
+                Mes listes publiques
+              </h2>
+              <IoIosArrowForward />
+            </div>
+          </Link>
+        </div>
 
         {/* Lists filtered to show only public ones */}
         <div className='carousel rounded-box space-x-8'>
@@ -40,14 +42,16 @@ const Dashboard = async () => {
 
       {/* BOOKS SECTION */}
       <div className='flex flex-col gap-8'>
-        <Link href='/dashboard/books' className='group'>
-          <div className='flex gap-2 items-center'>
-            <h2 className='h2-light group-hover:underline'>
-              Mes livres par genre
-            </h2>
-            <IoIosArrowForward />
-          </div>
-        </Link>
+        <div className='flex gap-2 items-center'>
+          <Link href='/dashboard/books' className='group'>
+            <div className='flex gap-2 items-center'>
+              <h2 className='h2-light group-hover:underline'>
+                Mes livres par genre
+              </h2>
+              <IoIosArrowForward />
+            </div>
+          </Link>
+        </div>
 
         {/* Books mapped dynamically from JSON data */}
         <div id='book-display' className='flex flex-wrap gap-8'>

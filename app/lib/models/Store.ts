@@ -3,6 +3,7 @@ import {
   prop,
   index,
   modelOptions,
+  Severity,
 } from '@typegoose/typegoose';
 import type { Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
@@ -22,6 +23,9 @@ export enum StoreStatus {
     timestamps: true,
     collection: 'stores',
     minimize: true,
+  },
+  options: {
+    allowMixed: Severity.ALLOW,
   },
 })
 export class Store {
