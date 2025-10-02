@@ -1,20 +1,21 @@
 import { IoIosArrowForward } from 'react-icons/io';
 import List from '../components/lists/List';
 import Book from '../components/books/Book';
-import listsData from '../lib/mock/lists.json';
-import { extractListProps, getPublishedLists } from '../lib/utils';
 import Link from 'next/link';
 import { requireAuth } from '../lib/auth/helpers';
 import connectDB from '../lib/mongodb';
 import { BookModel } from '../lib/models/Book';
+import { ListModel } from '../lib/models/List';
 import { Types } from 'mongoose';
 
 const Dashboard = async () => {
   // Ensure user is authenticated (will redirect if not)
   const session = await requireAuth();
 
-  // Connect to database and fetch books
+  // Connect to database
   await connectDB();
+
+  // Fetch books
   const books = await BookModel.find({
     companyId: new Types.ObjectId(session.companyId!),
   })
@@ -27,6 +28,24 @@ const Dashboard = async () => {
     isbn: book.isbn,
     title: book.bookData.title,
     coverUrl: book.bookData.cover,
+  }));
+
+  // Fetch public lists
+  const lists = await ListModel.find({
+    companyId: new Types.ObjectId(session.companyId!),
+    visibility: 'public',
+    deletedAt: { $exists: false },
+  })
+    .sort({ updatedAt: -1 })
+    .limit(10) // Show only first 10 lists on dashboard
+    .lean();
+
+  const listsData = lists.map((list: any) => ({
+    id: list._id.toString(),
+    title: list.title,
+    slug: list.slug,
+    description: list.description,
+    coverUrl: list.coverImage,
   }));
 
   return (
@@ -46,11 +65,20 @@ const Dashboard = async () => {
 
         {/* Lists filtered to show only public ones */}
         <div className='carousel rounded-box space-x-8'>
-          {getPublishedLists(listsData).map((list) => (
-            <div key={list._id} className='carousel-item'>
-              <List {...extractListProps(list)} />
-            </div>
-          ))}
+          {listsData.length === 0 ? (
+            <p className='text-base-content/60'>Aucune liste publique</p>
+          ) : (
+            listsData.map((list: any) => (
+              <div key={list.id} className='carousel-item'>
+                <List
+                  id={list.id}
+                  coverUrl={list.coverUrl}
+                  title={list.title}
+                  description={list.description}
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
 

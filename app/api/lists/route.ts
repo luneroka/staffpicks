@@ -64,7 +64,7 @@ async function uploadCoverToCloudinary(coverUrl: string): Promise<string> {
     const result = await cloudinary.uploader.upload(coverUrl, {
       folder: 'staffpicks/list-covers',
       transformation: [
-        { width: 800, height: 450, crop: 'fill', gravity: 'center' },
+        { width: 800, height: 450, crop: 'limit' },
         { quality: 'auto', fetch_format: 'auto' },
       ],
     });

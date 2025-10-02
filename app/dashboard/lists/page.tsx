@@ -1,8 +1,32 @@
 import Link from 'next/link';
-import listsData from '../../lib/mock/lists.json';
 import ListCard from '@/app/components/lists/ListCard';
+import { requireAuth } from '@/app/lib/auth/helpers';
+import connectDB from '@/app/lib/mongodb';
+import { ListModel } from '@/app/lib/models/List';
+import { Types } from 'mongoose';
 
-const Lists = () => {
+const Lists = async () => {
+  // Ensure user is authenticated
+  const session = await requireAuth();
+
+  // Connect to database and fetch lists
+  await connectDB();
+  const lists = await ListModel.find({
+    companyId: new Types.ObjectId(session.companyId!),
+    deletedAt: { $exists: false },
+  })
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  const listsData = lists.map((list: any) => ({
+    _id: list._id.toString(),
+    coverImage: list.coverImage || '/placeholder-list-cover.jpg',
+    title: list.title,
+    visibility: list.visibility,
+    items: list.items || [],
+    updatedAt: list.updatedAt,
+  }));
+
   return (
     <div className='flex flex-col gap-16'>
       <Link href={'/dashboard/lists/new'}>
@@ -10,9 +34,13 @@ const Lists = () => {
       </Link>
 
       <div id='list-display' className='flex flex-wrap gap-8 mt-[-16px]'>
-        {listsData.map((list) => (
-          <ListCard key={list._id} listData={list} />
-        ))}
+        {listsData.length === 0 ? (
+          <p className='text-base-content/60'>Aucune liste créée</p>
+        ) : (
+          listsData.map((list: any) => (
+            <ListCard key={list._id} listData={list} />
+          ))
+        )}
       </div>
     </div>
   );
