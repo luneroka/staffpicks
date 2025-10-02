@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/app/lib/mongodb';
 import { UserModel } from '@/app/lib/models/User';
+import { CompanyModel } from '@/app/lib/models/Company';
 import { cookies } from 'next/headers';
 import { getIronSession } from 'iron-session';
 import { SessionData, sessionOptions } from '@/app/lib/auth/session';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,6 +82,13 @@ export async function POST(request: NextRequest) {
       'unknown';
     await user.recordSuccessfulLogin(clientIP);
 
+    // Fetch company name if user has a company
+    let companyName: string | undefined;
+    if (user.companyId) {
+      const company = await CompanyModel.findById(user.companyId);
+      companyName = company?.name;
+    }
+
     // Create session
     const cookieStore = await cookies();
     const session = await getIronSession<SessionData>(
@@ -92,18 +102,21 @@ export async function POST(request: NextRequest) {
     session.isLoggedIn = true;
     session.role = user.role;
     session.companyId = user.companyId?.toString();
+    session.companyName = companyName;
     session.storeId = user.storeId?.toString();
 
     await session.save();
 
     return NextResponse.json({
       success: true,
+      redirectUrl: '/dashboard',
       user: {
         id: session.userId,
         email: session.email,
         name: session.name,
         role: session.role,
         companyId: session.companyId,
+        companyName: session.companyName,
         storeId: session.storeId,
       },
     });
