@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { FaHome, FaUserCircle } from 'react-icons/fa';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { themeChange } from 'theme-change';
 
 interface NavBarProps {
@@ -12,12 +12,37 @@ interface NavBarProps {
 }
 
 const NavBar = ({ companyName, userName }: NavBarProps) => {
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   useEffect(() => {
     themeChange(false);
     // 👆 false parameter is required for react project
   }, []);
 
   const pathname = usePathname();
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        // Redirect to login page after successful logout
+        router.push('/login');
+      } else {
+        console.error('Logout failed');
+        setIsLoggingOut(false);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      setIsLoggingOut(false);
+    }
+  };
 
   // Public pages (no auth required)
   if (pathname === '/' || pathname === '/login' || pathname === '/signup') {
@@ -101,8 +126,44 @@ const NavBar = ({ companyName, userName }: NavBarProps) => {
 
       {/* RIGHT */}
       <div className='flex gap-2 items-center '>
-        <h3>{userName || 'Sarah'}</h3>
-        <FaUserCircle className='size-8' />
+        <h3>{userName}</h3>
+        <div className='dropdown dropdown-end'>
+          <div
+            tabIndex={0}
+            role='button'
+            className='btn btn-ghost btn-circle avatar'
+          >
+            <div className='w-10 rounded-full'>
+              <img
+                alt='Tailwind CSS Navbar component'
+                src='https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
+              />
+            </div>
+          </div>
+          <ul
+            tabIndex={0}
+            className='menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow'
+          >
+            <li>
+              <a className='justify-between'>
+                Profil
+                <span className='badge'>New</span>
+              </a>
+            </li>
+            <li>
+              <a>Réglages</a>
+            </li>
+            <li>
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className='w-full text-left'
+              >
+                {isLoggingOut ? 'Déconnexion...' : 'Déconnexion'}
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
   );
