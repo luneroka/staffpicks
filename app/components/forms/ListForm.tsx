@@ -478,7 +478,10 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
         <div className='flex items-center gap-4 w-full max-w-md'>
           <div className='relative'>
             <img
-              src={listData.coverImage || '/placeholder-list-cover.jpg'}
+              src={
+                listData.coverImage ||
+                'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png'
+              }
               alt='Couverture de la liste'
               className='w-[160px] h-[90px] object-cover border border-base-300 rounded cursor-pointer hover:scale-105 transition-all duration-200'
             />

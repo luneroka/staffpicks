@@ -50,7 +50,9 @@ const ListPage = async ({ params }: ListPageProps) => {
     title: list.title,
     slug: list.slug,
     description: list.description,
-    coverImage: list.coverImage,
+    coverImage:
+      list.coverImage ||
+      'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png',
     visibility: list.visibility,
     publishAt: list.publishAt,
     unpublishAt: list.unpublishAt,

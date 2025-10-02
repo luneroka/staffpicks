@@ -94,7 +94,10 @@ const ListDetails = ({ list }: ListDetailsProps) => {
             <div className='flex-shrink-0'>
               <div className='shadow-lg'>
                 <img
-                  src={list.coverImage}
+                  src={
+                    list.coverImage ||
+                    'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png'
+                  }
                   alt={list.title}
                   className='w-48 h-auto rounded-lg '
                 />

@@ -45,7 +45,9 @@ const Dashboard = async () => {
     title: list.title,
     slug: list.slug,
     description: list.description,
-    coverUrl: list.coverImage,
+    coverUrl:
+      list.coverImage ||
+      'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png',
   }));
 
   return (

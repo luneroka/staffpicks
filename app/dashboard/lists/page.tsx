@@ -20,7 +20,9 @@ const Lists = async () => {
 
   const listsData = lists.map((list: any) => ({
     _id: list._id.toString(),
-    coverImage: list.coverImage || '/placeholder-list-cover.jpg',
+    coverImage:
+      list.coverImage ||
+      'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png',
     title: list.title,
     visibility: list.visibility,
     items: list.items || [],
