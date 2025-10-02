@@ -1,11 +1,9 @@
+'use client';
+
 import Link from 'next/link';
-import listData from '../../lib/mock/lists.json';
-import booksData from '../../lib/mock/books.json';
-import {
-  formatDate,
-  getVisibilityConfig,
-  findBookAndExtractProps,
-} from '../../lib/utils';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { formatDate, getVisibilityConfig } from '../../lib/utils';
 import Book from '../books/Book';
 import {
   HiExclamationCircle,
@@ -14,22 +12,75 @@ import {
   HiBookOpen,
 } from 'react-icons/hi';
 
-interface ListDetailsProps {
-  listId: string;
+interface ListItem {
+  bookId: string;
+  isbn: string;
+  title: string;
+  authors: string[];
+  cover?: string;
+  genre?: string;
+  tone?: string;
+  ageGroup?: string;
+  position: number;
+  addedAt?: Date;
 }
 
-const ListDetails = ({ listId }: ListDetailsProps) => {
-  // Find the list by _id passed from the URL
-  const list = listData.find((list) => list._id === listId);
+interface ListDetailsProps {
+  list: {
+    id: string;
+    title: string;
+    slug: string;
+    description?: string;
+    coverImage?: string;
+    visibility: string;
+    publishAt?: Date;
+    unpublishAt?: Date;
+    items: ListItem[];
+    owner?: {
+      name: string;
+      email: string;
+    };
+    createdBy?: {
+      name: string;
+      email: string;
+    };
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+}
 
-  if (!list) {
-    return (
-      <div role='alert' className='alert alert-soft alert-error'>
-        <HiExclamationCircle className='h-6 w-6 shrink-0 stroke-current' />
-        <span>List not found</span>
-      </div>
-    );
-  }
+const ListDetails = ({ list }: ListDetailsProps) => {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/lists/${list.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete list');
+      }
+
+      // Redirect to lists page after successful deletion
+      router.push('/dashboard/lists');
+      router.refresh();
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la suppression de la liste'
+      );
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   const visibilityConfig = getVisibilityConfig(list.visibility);
 
@@ -80,7 +131,9 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
 
                 <div className='stat'>
                   <div className='stat-title'>Créée par</div>
-                  <div className='stat-value text-sm'>{list.createdBy}</div>
+                  <div className='stat-value text-sm'>
+                    {list.createdBy?.name || 'Inconnu'}
+                  </div>
                   {list.visibility === 'public' && list.publishAt && (
                     <div className='stat-desc'>
                       Publiée le {formatDate(list.publishAt)}
@@ -92,13 +145,17 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
               {/* Action Buttons */}
               <div className='flex card-actions justify-start gap-6'>
                 <Link
-                  href={`/dashboard/lists/${list._id}/edit`}
+                  href={`/dashboard/lists/${list.id}/edit`}
                   className='btn btn-soft btn-primary'
                 >
                   <HiPencilAlt className='h-4 w-4' />
                   Modifier
                 </Link>
-                <button className='btn btn-soft btn-error'>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className='btn btn-soft btn-error'
+                  disabled={isDeleting}
+                >
                   <HiTrash className='h-4 w-4' />
                   Supprimer
                 </button>
@@ -107,6 +164,46 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <dialog className='modal modal-open'>
+          <div className='modal-box'>
+            <h3 className='font-bold text-lg mb-4'>Confirmer la suppression</h3>
+            <p className='py-4'>
+              Êtes-vous sûr de vouloir supprimer la liste "
+              <span className='font-semibold'>{list.title}</span>" ? Cette
+              action est irréversible.
+            </p>
+            <div className='modal-action'>
+              <button
+                className='btn btn-ghost'
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+              >
+                Annuler
+              </button>
+              <button
+                className='btn btn-error'
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <span className='loading loading-spinner loading-sm'></span>
+                    Suppression...
+                  </>
+                ) : (
+                  'Supprimer'
+                )}
+              </button>
+            </div>
+          </div>
+          <form method='dialog' className='modal-backdrop'>
+            <button onClick={() => setShowDeleteModal(false)}>close</button>
+          </form>
+        </dialog>
+      )}
 
       {/* Books Section */}
       {list.items.length > 0 && (
@@ -117,14 +214,14 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
               Livres de la liste
             </h2>
             <div className='flex gap-4'>
-              {list.items.map((item) => {
-                const bookProps = findBookAndExtractProps(
-                  booksData,
-                  item.bookId
-                );
-                if (!bookProps) return null;
-                return <Book key={item.bookId} {...bookProps} />;
-              })}
+              {list.items.map((item) => (
+                <Book
+                  key={item.bookId}
+                  id={item.bookId}
+                  coverUrl={item.cover}
+                  title={item.title}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -141,7 +238,7 @@ const ListDetails = ({ listId }: ListDetailsProps) => {
                 Cette liste ne contient encore aucun livre.
               </p>
               <Link
-                href={`/dashboard/lists/${list._id}/edit`}
+                href={`/dashboard/lists/${list.id}/edit`}
                 className='btn btn-primary'
               >
                 Ajouter des livres

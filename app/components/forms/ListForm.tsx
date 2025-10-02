@@ -11,6 +11,7 @@ import {
 import Book from '../books/Book';
 
 interface ListData {
+  id?: string; // Optional ID for editing existing lists
   title: string;
   slug: string;
   description: string;
@@ -19,6 +20,13 @@ interface ListData {
   publishAt: string;
   items: Array<{
     bookId: string;
+    isbn?: string;
+    title?: string;
+    authors?: string[];
+    cover?: string;
+    genre?: string;
+    tone?: string;
+    ageGroup?: string;
     position: number;
   }>;
 }
@@ -35,10 +43,11 @@ interface BookSearchResult {
 }
 
 interface ListFormProps {
-  listId?: string; // Optional prop for editing existing lists
+  id?: string; // Optional prop for editing existing lists
+  initialData?: ListData; // Pre-populated data for editing
 }
 
-const ListForm = ({ listId }: ListFormProps) => {
+const ListForm = ({ id, initialData }: ListFormProps) => {
   const router = useRouter();
   const [listData, setListData] = useState<ListData>({
     title: '',
@@ -66,16 +75,39 @@ const ListForm = ({ listId }: ListFormProps) => {
   // Store selected books with full details
   const [selectedBooks, setSelectedBooks] = useState<BookSearchResult[]>([]);
 
-  // Load existing list data if listId is provided (for editing)
+  // Load existing list data if initialData is provided (for editing)
   useEffect(() => {
-    if (listId) {
-      setIsLoading(true);
+    if (initialData) {
+      setListData({
+        id: initialData.id,
+        title: initialData.title,
+        slug: initialData.slug,
+        description: initialData.description,
+        coverImage: initialData.coverImage,
+        visibility: initialData.visibility,
+        publishAt: initialData.publishAt,
+        items: initialData.items.map((item) => ({
+          bookId: item.bookId,
+          position: item.position,
+        })),
+      });
 
-      // TODO: Fetch list from API
-      // For now, just set loading to false
-      setIsLoading(false);
+      // Load books into selectedBooks for display
+      const books: BookSearchResult[] = initialData.items
+        .filter((item) => item.isbn && item.title && item.authors) // Only include items with full book data
+        .map((item) => ({
+          id: item.bookId,
+          isbn: item.isbn!,
+          title: item.title!,
+          cover: item.cover,
+          authors: item.authors!,
+          genre: item.genre,
+          tone: item.tone,
+          ageGroup: item.ageGroup,
+        }));
+      setSelectedBooks(books);
     }
-  }, [listId]);
+  }, [initialData]);
 
   // Auto-dismiss success message after 3 seconds
   useEffect(() => {
@@ -99,8 +131,8 @@ const ListForm = ({ listId }: ListFormProps) => {
       [name]: value,
     }));
 
-    // Auto-generate slug from title
-    if (name === 'title') {
+    // Auto-generate slug from title (only for new lists)
+    if (name === 'title' && !id) {
       const slug = value
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
@@ -307,7 +339,7 @@ const ListForm = ({ listId }: ListFormProps) => {
     setIsLoading(true);
 
     try {
-      const isEditing = !!listId;
+      const isEditing = !!id;
 
       // Prepare the payload for the API
       const payload = {
@@ -320,9 +352,26 @@ const ListForm = ({ listId }: ListFormProps) => {
       };
 
       if (isEditing) {
-        // TODO: Implement PUT request for editing
-        console.log('Edit list payload:', payload);
+        // Update existing list
+        const response = await fetch(`/api/lists/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to update list');
+        }
+
         setSuccess('Liste modifiée avec succès!');
+
+        // Redirect to the updated list detail page
+        setTimeout(() => {
+          router.push(`/dashboard/lists/${id}`);
+          router.refresh();
+        }, 1500);
       } else {
         // Create new list
         const response = await fetch('/api/lists', {
@@ -343,16 +392,16 @@ const ListForm = ({ listId }: ListFormProps) => {
         setTimeout(() => {
           resetForm();
         }, 1500);
-      }
 
-      // Redirect to lists page after a short delay to show success message
-      setTimeout(() => {
-        router.push('/dashboard/lists');
-        router.refresh();
-      }, 2000);
+        // Redirect to lists page after a short delay to show success message
+        setTimeout(() => {
+          router.push('/dashboard/lists');
+          router.refresh();
+        }, 2000);
+      }
     } catch (error) {
       console.error('Error saving list:', error);
-      const isEditing = !!listId;
+      const isEditing = !!id;
       setError(
         error instanceof Error
           ? error.message
@@ -375,7 +424,7 @@ const ListForm = ({ listId }: ListFormProps) => {
     );
   }
 
-  const isEditing = !!listId;
+  const isEditing = !!id;
 
   return (
     <form onSubmit={handleSubmit} className='w-full max-w-4xl items-stretch'>
