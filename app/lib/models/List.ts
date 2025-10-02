@@ -7,7 +7,6 @@ import {
 import type { Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import type { User } from './User';
-import type { Book } from './Book';
 import { Company } from './Company';
 
 export enum ListVisibility {
@@ -17,8 +16,8 @@ export enum ListVisibility {
 }
 
 class ListItem {
-  @prop({ ref: () => ({} as unknown as typeof Book), required: true })
-  public bookId!: Ref<Book>;
+  @prop({ ref: 'Book', required: true })
+  public bookId!: Ref<any>;
 
   /** Manual order (lower first) **/
   @prop({ required: true })
@@ -58,15 +57,15 @@ export class List {
   public companyId!: Ref<Company>;
 
   /** Tenant boundary: the librarian who owns the list */
-  @prop({ ref: () => ({} as unknown as typeof User), required: true })
-  public ownerUserId!: Ref<User>;
+  @prop({ ref: 'User', required: true })
+  public ownerUserId!: Ref<any>;
 
   /** Who created / last updated (owner or admin) */
-  @prop({ ref: () => ({} as unknown as typeof User), required: true })
-  public createdBy!: Ref<User>;
+  @prop({ ref: 'User', required: true })
+  public createdBy!: Ref<any>;
 
-  @prop({ ref: () => ({} as unknown as typeof User) })
-  public updatedBy?: Ref<User>;
+  @prop({ ref: 'User' })
+  public updatedBy?: Ref<any>;
 
   /** Human title & optional URL slug (unique per owner when not deleted) */
   @prop({ required: true, trim: true })
