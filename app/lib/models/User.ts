@@ -64,6 +64,10 @@ export class User {
   @prop({ ref: () => Store })
   public storeId?: Ref<Store>;
 
+  /** Sections/departments (rayons) assigned to librarians - multiple sections allowed */
+  @prop({ type: () => [String], default: [] })
+  public sections?: string[];
+
   /** Optional avatar for UI */
   @prop()
   public avatarUrl?: string;
