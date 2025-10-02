@@ -43,6 +43,21 @@ const Settings = async () => {
           </Link>
         )}
 
+        {/* Stores Settings - Only for Company Admins */}
+        {(session.role === UserRole.Admin ||
+          session.role === UserRole.CompanyAdmin) && (
+          <Link href='/dashboard/settings/stores'>
+            <div className='card bg-base-200 shadow-xl hover:bg-base-300 transition-all cursor-pointer'>
+              <div className='card-body'>
+                <h2 className='card-title'>Gestion des magasins</h2>
+                <p>
+                  Gérer les informations et la configuration de vos magasins
+                </p>
+              </div>
+            </div>
+          </Link>
+        )}
+
         {/* Users Settings - For Company Admins and Store Admins */}
         {(session.role === UserRole.Admin ||
           session.role === UserRole.CompanyAdmin ||

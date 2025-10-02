@@ -276,7 +276,7 @@ const CompanySettingsForm = () => {
       <form onSubmit={handleSubmit}>
         {/* Header with Edit/Save buttons */}
         <div className='flex justify-between items-center mb-6'>
-          <h2 className='text-2xl font-semibold'>Informations générales</h2>
+          <h3 className='text-xl font-semibold'>Informations générales</h3>
           {!isEditing ? (
             <button
               type='button'

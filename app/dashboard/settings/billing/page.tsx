@@ -11,6 +11,8 @@ import {
 import connectDB from '@/app/lib/mongodb';
 import { formatDate } from '@/app/lib/utils/dateUtils';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const BillingSettings = async () => {
   // Require company admin access only
@@ -60,112 +62,123 @@ const BillingSettings = async () => {
   };
 
   return (
-    <div className='flex flex-col gap-8'>
-      <h1 className='text-3xl font-bold'>Facturation et abonnement</h1>
+    <div className='flex flex-col'>
+      <Link href='/dashboard/settings/'>
+        <button className='btn btn-ghost mb-4'>
+          <FaArrowLeft />
+          Retour
+        </button>
+      </Link>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        {/* Trial Period Banner - Only show if in trial */}
-        {isTrial && (
-          <div className='card bg-info/10 border border-info/20'>
+      <div className='flex flex-col gap-8'>
+        <h1 className='text-3xl font-bold'>Facturation et abonnement</h1>
+
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          {/* Trial Period Banner - Only show if in trial */}
+          {isTrial && (
+            <div className='card bg-info/10 border border-info/20'>
+              <div className='card-body'>
+                <h3 className='card-title text-info'>
+                  🎁 Période d&apos;essai de 30 jours
+                </h3>
+                <p className='text-sm'>
+                  Profitez de toutes les fonctionnalités de StaffPicks
+                  gratuitement pendant 30 jours. Aucune carte bancaire requise.
+                </p>
+                <div className='mt-4'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm font-semibold'>
+                      Jours restants :
+                    </span>
+                    <span
+                      className={`badge badge-lg ${
+                        daysRemaining > 7
+                          ? 'badge-info'
+                          : daysRemaining > 3
+                          ? 'badge-warning'
+                          : 'badge-error'
+                      }`}
+                    >
+                      {daysRemaining} {daysRemaining > 1 ? 'jours' : 'jour'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Subscription Information */}
+          <div className='card bg-base-200 shadow-xl'>
             <div className='card-body'>
-              <h3 className='card-title text-info'>
-                🎁 Période d&apos;essai de 30 jours
-              </h3>
-              <p className='text-sm'>
-                Profitez de toutes les fonctionnalités de StaffPicks
-                gratuitement pendant 30 jours. Aucune carte bancaire requise.
-              </p>
-              <div className='mt-4'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-sm font-semibold'>
-                    Jours restants :
+              <h2 className='card-title'>Informations d&apos;abonnement</h2>
+              <div className='divider'></div>
+              <div className='space-y-4'>
+                <div className='flex justify-between'>
+                  <span className='font-semibold'>Plan actuel :</span>
+                  <span>
+                    {isTrial
+                      ? 'Essai gratuit'
+                      : planNames[company.plan as CompanyPlan]}
                   </span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='font-semibold'>Statut :</span>
                   <span
-                    className={`badge badge-lg ${
-                      daysRemaining > 7
-                        ? 'badge-info'
-                        : daysRemaining > 3
-                        ? 'badge-warning'
-                        : 'badge-error'
+                    className={`badge ${
+                      isActive
+                        ? 'badge-success'
+                        : isSuspended
+                        ? 'badge-error'
+                        : 'badge-info'
                     }`}
                   >
-                    {daysRemaining} {daysRemaining > 1 ? 'jours' : 'jour'}
+                    {isActive && 'Actif'}
+                    {isSuspended && 'Suspendu'}
+                    {isTrial && 'Essai'}
                   </span>
                 </div>
+                {isTrial && (
+                  <div className='flex justify-between'>
+                    <span className='font-semibold'>Fin de l&apos;essai :</span>
+                    <span>{trialEndDate}</span>
+                  </div>
+                )}
+                {company.billingEmail && (
+                  <div className='flex justify-between'>
+                    <span className='font-semibold'>
+                      Email de facturation :
+                    </span>
+                    <span>{company.billingEmail}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        )}
 
-        {/* Subscription Information */}
-        <div className='card bg-base-200 shadow-xl'>
-          <div className='card-body'>
-            <h2 className='card-title'>Informations d&apos;abonnement</h2>
-            <div className='divider'></div>
-            <div className='space-y-4'>
-              <div className='flex justify-between'>
-                <span className='font-semibold'>Plan actuel :</span>
-                <span>
-                  {isTrial
-                    ? 'Essai gratuit'
-                    : planNames[company.plan as CompanyPlan]}
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='font-semibold'>Statut :</span>
-                <span
-                  className={`badge ${
-                    isActive
-                      ? 'badge-success'
-                      : isSuspended
-                      ? 'badge-error'
-                      : 'badge-info'
-                  }`}
-                >
-                  {isActive && 'Actif'}
-                  {isSuspended && 'Suspendu'}
-                  {isTrial && 'Essai'}
-                </span>
-              </div>
-              {isTrial && (
-                <div className='flex justify-between'>
-                  <span className='font-semibold'>Fin de l&apos;essai :</span>
-                  <span>{trialEndDate}</span>
-                </div>
-              )}
-              {company.billingEmail && (
-                <div className='flex justify-between'>
-                  <span className='font-semibold'>Email de facturation :</span>
-                  <span>{company.billingEmail}</span>
-                </div>
-              )}
+          {/* Payment Method */}
+          <div className='card bg-base-200 shadow-xl'>
+            <div className='card-body'>
+              <h2 className='card-title'>Moyen de paiement</h2>
+              <div className='divider'></div>
+              <p className='text-sm text-base-content/70 mb-4'>
+                Aucun moyen de paiement enregistré. Vous pourrez en ajouter un
+                avant la fin de votre période d&apos;essai.
+              </p>
+              <button className='btn btn-primary w-fit' disabled>
+                Ajouter une carte bancaire (Bientôt disponible)
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Payment Method */}
-        <div className='card bg-base-200 shadow-xl'>
-          <div className='card-body'>
-            <h2 className='card-title'>Moyen de paiement</h2>
-            <div className='divider'></div>
-            <p className='text-sm text-base-content/70 mb-4'>
-              Aucun moyen de paiement enregistré. Vous pourrez en ajouter un
-              avant la fin de votre période d&apos;essai.
-            </p>
-            <button className='btn btn-primary w-fit' disabled>
-              Ajouter une carte bancaire (Bientôt disponible)
-            </button>
-          </div>
-        </div>
-
-        {/* Billing History */}
-        <div className='card bg-base-200 shadow-xl'>
-          <div className='card-body'>
-            <h2 className='card-title'>Historique de facturation</h2>
-            <div className='divider'></div>
-            <p className='text-sm text-base-content/70'>
-              Aucune facture disponible pour le moment.
-            </p>
+          {/* Billing History */}
+          <div className='card bg-base-200 shadow-xl'>
+            <div className='card-body'>
+              <h2 className='card-title'>Historique de facturation</h2>
+              <div className='divider'></div>
+              <p className='text-sm text-base-content/70'>
+                Aucune facture disponible pour le moment.
+              </p>
+            </div>
           </div>
         </div>
       </div>
