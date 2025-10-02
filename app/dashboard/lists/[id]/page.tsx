@@ -66,8 +66,20 @@ const ListPage = async ({ params }: ListPageProps) => {
       position: item.position,
       addedAt: item.addedAt,
     })),
-    owner: list.ownerUserId,
-    createdBy: list.createdBy,
+    owner: list.ownerUserId
+      ? {
+          _id: list.ownerUserId._id.toString(),
+          name: list.ownerUserId.name,
+          email: list.ownerUserId.email,
+        }
+      : undefined,
+    createdBy: list.createdBy
+      ? {
+          _id: list.createdBy._id.toString(),
+          name: list.createdBy.name,
+          email: list.createdBy.email,
+        }
+      : undefined,
     createdAt: list.createdAt,
     updatedAt: list.updatedAt,
   };

@@ -57,8 +57,16 @@ const BookPage = async ({ params }: BookPageProps) => {
     recommendation: book.recommendation,
     owner: book.ownerUserId
       ? {
-          name: (book.ownerUserId as any).name,
-          email: (book.ownerUserId as any).email,
+          _id: book.ownerUserId._id.toString(),
+          name: book.ownerUserId.name,
+          email: book.ownerUserId.email,
+        }
+      : undefined,
+    createdBy: book.createdBy
+      ? {
+          _id: book.createdBy._id.toString(),
+          name: book.createdBy.name,
+          email: book.createdBy.email,
         }
       : undefined,
     createdAt: book.createdAt,
