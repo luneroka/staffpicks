@@ -16,36 +16,35 @@ const Lists = async () => {
     companyId: new Types.ObjectId(session.companyId!),
     deletedAt: { $exists: false },
   })
-    .populate('createdBy', 'firstName lastName') // Populate user data
+    .populate('createdBy', 'firstName lastName email')
     .sort({ updatedAt: -1 })
     .lean();
 
-  const listsData = lists.map((list: any) => {
-    const createdByUser = list.createdBy;
-    const createdByName =
-      createdByUser && createdByUser.firstName && createdByUser.lastName
-        ? `${createdByUser.firstName} ${createdByUser.lastName}`
-        : 'Utilisateur inconnu';
-
-    return {
-      _id: list._id.toString(),
-      coverImage:
-        list.coverImage ||
-        'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png',
-      title: list.title,
-      visibility: list.visibility,
-      items: (list.items || []).map((item: any) => ({
-        bookId: item.bookId?.toString() || item.bookId,
-        position: item.position,
-        addedAt: item.addedAt,
-      })),
-      createdBy: createdByName,
-      updatedAt: list.updatedAt,
-    };
-  });
+  const listsData = lists.map((list: any) => ({
+    _id: list._id.toString(),
+    coverImage:
+      list.coverImage ||
+      'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png',
+    title: list.title,
+    visibility: list.visibility,
+    items: (list.items || []).map((item: any) => ({
+      bookId: item.bookId?.toString() || item.bookId,
+      position: item.position,
+      addedAt: item.addedAt,
+    })),
+    createdBy: list.createdBy
+      ? {
+          _id: list.createdBy._id?.toString(),
+          firstName: list.createdBy.firstName,
+          lastName: list.createdBy.lastName,
+          email: list.createdBy.email,
+        }
+      : null,
+    updatedAt: list.updatedAt,
+  }));
 
   return (
-    <div className='flex flex-col gap-16'>
+    <div className='flex flex-col gap-12'>
       <Link href={'/dashboard/lists/new'}>
         <div className='btn btn-primary btn-soft w-fit'>Ajouter une liste</div>
       </Link>

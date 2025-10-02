@@ -2,6 +2,7 @@ import React from 'react';
 import { requireAdminAccess } from '@/app/lib/auth/helpers';
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
+import BackButton from '@/app/components/BackButton';
 
 const UsersSettings = async () => {
   // Require admin access (CompanyAdmin, StoreAdmin, or Platform Admin)
@@ -9,12 +10,7 @@ const UsersSettings = async () => {
 
   return (
     <div className='flex flex-col'>
-      <Link href='/dashboard/settings/'>
-        <button className='btn btn-ghost mb-4'>
-          <FaArrowLeft />
-          Retour
-        </button>
-      </Link>
+      <BackButton className='mb-4 w-fit' />
       <div className='flex flex-col gap-8'>
         <h1 className='text-3xl font-bold'>Gestion des utilisateurs</h1>
 

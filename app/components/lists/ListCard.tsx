@@ -16,13 +16,20 @@ interface Items {
   addedAt: string;
 }
 
+interface CreatedByUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 interface ListData {
   _id: string;
   coverImage: string;
   title?: string;
   visibility?: string;
   items?: Items[];
-  createdBy?: string;
+  createdBy?: CreatedByUser | null;
   updatedAt?: Date | string;
 }
 
@@ -114,7 +121,11 @@ const ListCard = ({ listData }: ListCardProps) => {
             {/* CreatedBy */}
             <div className='flex gap-1'>
               <p className='small-text'>Crée par :</p>
-              <div className='small-text'>{listData.createdBy}</div>
+              <div className='small-text'>
+                {listData.createdBy
+                  ? `${listData.createdBy.firstName} ${listData.createdBy.lastName}`
+                  : 'Inconnu'}
+              </div>
             </div>
 
             {/* Last Updated At */}

@@ -4,6 +4,7 @@ import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
+import BackButton from '@/app/components/BackButton';
 
 interface ListPageProps {
   params: Promise<{
@@ -88,6 +89,7 @@ const ListPage = async ({ params }: ListPageProps) => {
 
   return (
     <div>
+      <BackButton className='mt-[-16px]' />
       <ListDetails list={listData} />
     </div>
   );

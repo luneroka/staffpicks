@@ -7,6 +7,7 @@ import { Types } from 'mongoose';
 import { FaStore, FaUser, FaTrash, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import BackButton from '@/app/components/BackButton';
 
 interface StoreDetailsPageProps {
   params: {
@@ -73,12 +74,8 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
 
   return (
     <div className='space-y-6'>
-      <Link href='/dashboard/settings/stores'>
-        <button className='btn btn-ghost mb-4'>
-          <FaArrowLeft />
-          Retour
-        </button>
-      </Link>
+      <BackButton className='mb-4 w-fit' />
+
       {/* Header */}
       <div className='flex items-center gap-4'>
         <div>

@@ -5,6 +5,8 @@ import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
+import BackButton from '@/app/components/BackButton';
+import { DiVim } from 'react-icons/di';
 
 interface EditListPageProps {
   params: Promise<{
@@ -68,8 +70,11 @@ const EditListPage = async ({ params }: EditListPageProps) => {
   };
 
   return (
-    <div className='mt-[-32px] flex items-start justify-center p-4 md:p-8'>
-      <ListForm id={id} initialData={listData} />
+    <div>
+      <BackButton className='mt-[-16px]' />
+      <div className='flex items-start justify-center'>
+        <ListForm id={id} initialData={listData} />
+      </div>{' '}
     </div>
   );
 };

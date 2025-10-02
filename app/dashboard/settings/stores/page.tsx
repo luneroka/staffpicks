@@ -5,6 +5,7 @@ import { StoreModel } from '@/app/lib/models/Store';
 import { UserModel } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import { FaStore, FaPlus, FaArrowLeft } from 'react-icons/fa';
+import BackButton from '@/app/components/BackButton';
 
 const StoresSettings = async () => {
   // Require company admin access
@@ -40,12 +41,8 @@ const StoresSettings = async () => {
 
   return (
     <div className='space-y-6'>
-      <Link href='/dashboard/settings/'>
-        <button className='btn btn-ghost mb-4'>
-          <FaArrowLeft />
-          Retour
-        </button>
-      </Link>
+      <BackButton className='mb-4 w-fit' />
+
       {/* Header */}
       <div className='flex justify-between items-center'>
         <div>

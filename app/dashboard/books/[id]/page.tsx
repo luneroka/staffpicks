@@ -1,4 +1,5 @@
 import BookDetails from '@/app/components/books/BookDetails';
+import BackButton from '@/app/components/BackButton';
 import { requireAuth } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
@@ -75,6 +76,7 @@ const BookPage = async ({ params }: BookPageProps) => {
 
   return (
     <div>
+      <BackButton className='mt-[-16px]' />
       <BookDetails book={bookData} />
     </div>
   );

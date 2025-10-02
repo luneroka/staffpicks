@@ -7,6 +7,7 @@ import { FaBuildingColumns } from 'react-icons/fa6';
 import connectDB from '@/app/lib/mongodb';
 import { CompanyModel } from '@/app/lib/models/Company';
 import { Types } from 'mongoose';
+import BackButton from '@/app/components/BackButton';
 
 const CompanySettings = async () => {
   // Require company admin access only
@@ -25,12 +26,7 @@ const CompanySettings = async () => {
 
   return (
     <div className='flex flex-col'>
-      <Link href='/dashboard/settings/'>
-        <button className='btn btn-ghost mb-4'>
-          <FaArrowLeft />
-          Retour
-        </button>
-      </Link>
+      <BackButton className='mb-4 w-fit' />
 
       <div className='flex flex-col gap-8'>
         <div>

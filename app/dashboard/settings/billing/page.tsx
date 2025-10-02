@@ -13,6 +13,7 @@ import { formatDate } from '@/app/lib/utils/dateUtils';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
+import BackButton from '@/app/components/BackButton';
 
 const BillingSettings = async () => {
   // Require company admin access only
@@ -63,12 +64,7 @@ const BillingSettings = async () => {
 
   return (
     <div className='flex flex-col'>
-      <Link href='/dashboard/settings/'>
-        <button className='btn btn-ghost mb-4'>
-          <FaArrowLeft />
-          Retour
-        </button>
-      </Link>
+      <BackButton className='mb-4 w-fit' />
 
       <div className='flex flex-col gap-8'>
         <h1 className='text-3xl font-bold'>Facturation et abonnement</h1>

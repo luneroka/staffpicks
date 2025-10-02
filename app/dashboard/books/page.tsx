@@ -38,7 +38,7 @@ const Books = async () => {
   }));
 
   return (
-    <div className='flex flex-col gap-16'>
+    <div className='flex flex-col gap-12'>
       <Link href={'/dashboard/books/new'}>
         <div className='btn btn-soft btn-primary w-fit'>Ajouter un livre</div>
       </Link>
