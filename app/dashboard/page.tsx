@@ -1,19 +1,33 @@
 import { IoIosArrowForward } from 'react-icons/io';
 import List from '../components/lists/List';
 import Book from '../components/books/Book';
-import booksData from '../lib/mock/books.json';
 import listsData from '../lib/mock/lists.json';
-import {
-  extractBookProps,
-  extractListProps,
-  getPublishedLists,
-} from '../lib/utils';
+import { extractListProps, getPublishedLists } from '../lib/utils';
 import Link from 'next/link';
 import { requireAuth } from '../lib/auth/helpers';
+import connectDB from '../lib/mongodb';
+import { BookModel } from '../lib/models/Book';
+import { Types } from 'mongoose';
 
 const Dashboard = async () => {
   // Ensure user is authenticated (will redirect if not)
   const session = await requireAuth();
+
+  // Connect to database and fetch books
+  await connectDB();
+  const books = await BookModel.find({
+    companyId: new Types.ObjectId(session.companyId!),
+  })
+    .sort({ createdAt: -1 })
+    .limit(10) // Show only first 10 books on dashboard
+    .lean();
+
+  const booksData = books.map((book: any) => ({
+    id: book._id.toString(),
+    isbn: book.isbn,
+    title: book.bookData.title,
+    coverUrl: book.bookData.cover,
+  }));
 
   return (
     <div className='flex flex-col gap-16'>
@@ -55,9 +69,20 @@ const Dashboard = async () => {
 
         {/* Books mapped dynamically from JSON data */}
         <div id='book-display' className='flex flex-wrap gap-8'>
-          {booksData.map((book) => (
-            <Book key={book._id} {...extractBookProps(book)} />
-          ))}
+          {booksData.length === 0 ? (
+            <p className='text-base-content/60'>
+              Aucun livre dans votre bibliothèque
+            </p>
+          ) : (
+            booksData.map((book: any) => (
+              <Book
+                key={book.id}
+                coverUrl={book.coverUrl}
+                isbn={book.isbn}
+                title={book.title}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
