@@ -1,4 +1,8 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
   HiShoppingBag,
   HiPencilAlt,
@@ -33,6 +37,38 @@ interface BookDetailsProps {
 }
 
 const BookDetails = ({ book }: BookDetailsProps) => {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/books/${book.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete book');
+      }
+
+      // Redirect to books list after successful deletion
+      router.push('/dashboard/books');
+      router.refresh();
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la suppression du livre'
+      );
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   return (
     <div className='max-w-6xl mx-auto space-y-6'>
       {/* Header Card */}
@@ -126,7 +162,11 @@ const BookDetails = ({ book }: BookDetailsProps) => {
                   <HiPencilAlt className='h-5 w-5' />
                   Modifier
                 </Link>
-                <button className='btn btn-soft btn-error'>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className='btn btn-soft btn-error'
+                  disabled={isDeleting}
+                >
                   <HiTrash className='h-5 w-5' />
                   Supprimer
                 </button>
@@ -135,6 +175,46 @@ const BookDetails = ({ book }: BookDetailsProps) => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <dialog className='modal modal-open'>
+          <div className='modal-box'>
+            <h3 className='font-bold text-lg mb-4'>Confirmer la suppression</h3>
+            <p className='py-4'>
+              Êtes-vous sûr de vouloir supprimer le livre "
+              <span className='font-semibold'>{book.title}</span>" ? Cette
+              action est irréversible.
+            </p>
+            <div className='modal-action'>
+              <button
+                className='btn btn-ghost'
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+              >
+                Annuler
+              </button>
+              <button
+                className='btn btn-error'
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <span className='loading loading-spinner loading-sm'></span>
+                    Suppression...
+                  </>
+                ) : (
+                  'Supprimer'
+                )}
+              </button>
+            </div>
+          </div>
+          <form method='dialog' className='modal-backdrop'>
+            <button onClick={() => setShowDeleteModal(false)}>close</button>
+          </form>
+        </dialog>
+      )}
 
       {/* Description Card */}
       {book.description && (
