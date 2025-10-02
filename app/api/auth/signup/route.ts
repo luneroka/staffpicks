@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        redirectUrl: '/onboarding',
+        redirectUrl: '/dashboard/settings/onboarding',
         user: {
           id: user._id.toString(),
           name: user.name,

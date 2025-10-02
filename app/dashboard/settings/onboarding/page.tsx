@@ -105,26 +105,12 @@ export default async function OnboardingPage() {
 
           <div className='text-center'>
             <p className='text-sm text-base-content/70 mb-4'>
-              Vous pouvez revenir à cette page à tout moment depuis votre
-              profil.
+              Vous pouvez revenir à cette page à tout moment depuis vos
+              réglages.
             </p>
-            <Link href='/dashboard/profile' className='btn btn-primary'>
-              Voir mon profil
+            <Link href='/dashboard/settings' className='btn btn-primary'>
+              Voir mes réglages
             </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className='mt-8 text-center'>
-        <div className='card bg-info/10 border border-info/20'>
-          <div className='card-body'>
-            <h3 className='card-title text-info'>
-              🎁 Période d'essai de 30 jours
-            </h3>
-            <p className='text-sm'>
-              Profitez de toutes les fonctionnalités de StaffPicks gratuitement
-              pendant 30 jours. Aucune carte bancaire requise.
-            </p>
           </div>
         </div>
       </div>

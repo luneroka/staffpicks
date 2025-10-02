@@ -70,27 +70,6 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
     );
   }
 
-  // Onboarding page - simplified navbar
-  if (pathname === '/onboarding') {
-    return (
-      <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>
-        {/* LEFT */}
-        <Link href={'/dashboard'}>
-          <div className='flex items-center gap-2 home-link'>
-            <FaHome />
-            <h3>{companyName || 'StaffPicks'}</h3>
-          </div>
-        </Link>
-
-        {/* RIGHT */}
-        <div className='flex gap-2 items-center '>
-          {userName && <h3>{userName}</h3>}
-          <FaUserCircle className='size-8' />
-        </div>
-      </nav>
-    );
-  }
-
   // Dashboard navbar
   return (
     <nav className='flex justify-between items-center px-16 py-2 border-b border-b-neutral-content/40'>

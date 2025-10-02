@@ -54,8 +54,8 @@ const SignupForm = () => {
         return;
       }
 
-      // Success - redirect to onboarding
-      router.push(data.redirectUrl || '/onboarding');
+      // Success - redirect to onboarding in settings
+      router.push(data.redirectUrl || '/dashboard/settings/onboarding');
     } catch (err) {
       console.error('Signup error:', err);
       setError('Une erreur réseau est survenue. Veuillez réessayer.');
