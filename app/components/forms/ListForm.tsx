@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
 import {
   HiExclamationCircle,
   HiCheckCircle,
   HiExclamation,
 } from 'react-icons/hi';
-import listsData from '@/app/lib/mock/lists.json';
-import booksData from '@/app/lib/mock/books.json';
-import { findBookAndExtractProps } from '@/app/lib/utils';
 import Book from '../books/Book';
 
 interface ListData {
@@ -27,13 +24,14 @@ interface ListData {
 }
 
 interface BookSearchResult {
-  _id: string;
+  id: string;
   isbn: string;
-  bookData: {
-    title: string;
-    cover: string;
-    authors: string[];
-  };
+  title: string;
+  cover?: string;
+  authors: string[];
+  genre?: string;
+  tone?: string;
+  ageGroup?: string;
 }
 
 interface ListFormProps {
@@ -41,6 +39,7 @@ interface ListFormProps {
 }
 
 const ListForm = ({ listId }: ListFormProps) => {
+  const router = useRouter();
   const [listData, setListData] = useState<ListData>({
     title: '',
     slug: '',
@@ -55,39 +54,25 @@ const ListForm = ({ listId }: ListFormProps) => {
   const [success, setSuccess] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Book search state
   const [bookSearchQuery, setBookSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<BookSearchResult[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Store selected books with full details
+  const [selectedBooks, setSelectedBooks] = useState<BookSearchResult[]>([]);
 
   // Load existing list data if listId is provided (for editing)
   useEffect(() => {
     if (listId) {
       setIsLoading(true);
 
-      // Find the list by ID from mock data
-      const existingList = listsData.find((list) => list._id === listId);
-
-      if (existingList) {
-        setListData({
-          title: existingList.title,
-          slug: existingList.slug,
-          description: existingList.description || '',
-          coverImage: existingList.coverImage || '',
-          visibility: existingList.visibility as
-            | 'draft'
-            | 'unlisted'
-            | 'public',
-          publishAt: existingList.publishAt
-            ? existingList.publishAt.split('T')[0]
-            : '', // Convert to YYYY-MM-DD format
-          items: existingList.items || [],
-        });
-      } else {
-        setError(`Aucune liste trouvée avec l'ID: ${listId}`);
-      }
-
+      // TODO: Fetch list from API
+      // For now, just set loading to false
       setIsLoading(false);
     }
   }, [listId]);
@@ -137,44 +122,63 @@ const ListForm = ({ listId }: ListFormProps) => {
   };
 
   // Book search functionality
-  const searchBooks = (query: string) => {
-    console.log('Searching for:', query);
-    console.log('Books data length:', booksData.length);
-
+  const searchBooks = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
       setShowSearchResults(false);
       return;
     }
 
-    const results = booksData
-      .filter(
-        (book) =>
-          book.bookData.title.toLowerCase().includes(query.toLowerCase()) ||
-          book.bookData.authors.some((author) =>
-            author.toLowerCase().includes(query.toLowerCase())
-          ) ||
-          book.isbn.includes(query)
-      )
-      .slice(0, 5); // Limit to 5 results
+    setIsSearching(true);
 
-    console.log('Search results:', results);
-    setSearchResults(results);
-    setShowSearchResults(true);
+    try {
+      // Fetch books from API
+      const response = await fetch(
+        `/api/books?search=${encodeURIComponent(query)}&limit=5`
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to search books');
+      }
+
+      // Transform API response to match our interface
+      const results: BookSearchResult[] = data.books.map((book: any) => ({
+        id: book.id,
+        isbn: book.isbn,
+        title: book.title,
+        cover: book.cover,
+        authors: book.authors,
+        genre: book.genre,
+        tone: book.tone,
+        ageGroup: book.ageGroup,
+      }));
+
+      setSearchResults(results);
+      setShowSearchResults(true);
+    } catch (error) {
+      console.error('Error searching books:', error);
+      setError('Erreur lors de la recherche de livres');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const addBookToList = (bookId: string) => {
+  const addBookToList = (book: BookSearchResult) => {
     // Check if book is already in the list
-    if (listData.items.some((item) => item.bookId === bookId)) {
+    if (listData.items.some((item) => item.bookId === book.id)) {
       setError('Ce livre est déjà dans la liste');
       return;
     }
 
-    const newPosition = listData.items.length + 1;
+    const newPosition = listData.items.length;
     setListData((prev) => ({
       ...prev,
-      items: [...prev.items, { bookId, position: newPosition }],
+      items: [...prev.items, { bookId: book.id, position: newPosition }],
     }));
+
+    // Add to selected books for display
+    setSelectedBooks((prev) => [...prev, book]);
 
     // Clear search
     setBookSearchQuery('');
@@ -188,8 +192,11 @@ const ListForm = ({ listId }: ListFormProps) => {
       ...prev,
       items: prev.items
         .filter((item) => item.bookId !== bookId)
-        .map((item, index) => ({ ...item, position: index + 1 })), // Reorder positions
+        .map((item, index) => ({ ...item, position: index })), // Reorder positions
     }));
+
+    // Remove from selected books
+    setSelectedBooks((prev) => prev.filter((book) => book.id !== bookId));
   };
 
   const resetForm = () => {
@@ -202,10 +209,71 @@ const ListForm = ({ listId }: ListFormProps) => {
       publishAt: '',
       items: [],
     });
+    setSelectedBooks([]);
     // Clear all messages when resetting
     setError('');
     setSuccess('');
     setValidationErrors([]);
+    setSelectedFile(null);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Veuillez sélectionner une image valide');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("L'image est trop grande (max 5MB)");
+      return;
+    }
+
+    setSelectedFile(file);
+    setIsUploadingImage(true);
+    setError('');
+
+    try {
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+
+      // Update the cover image URL with Cloudinary URL
+      setListData((prev) => ({
+        ...prev,
+        coverImage: data.url,
+      }));
+
+      setSuccess('Image uploadée avec succès!');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'upload de l'image"
+      );
+      setSelectedFile(null);
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -236,19 +304,52 @@ const ListForm = ({ listId }: ListFormProps) => {
       return;
     }
 
-    try {
-      console.log('Submitting list data:', listData);
-      // TODO: Add actual API call to save/update the list
-      const isEditing = !!listId;
-      setSuccess(
-        isEditing ? 'Liste modifiée avec succès!' : 'Liste ajoutée avec succès!'
-      );
+    setIsLoading(true);
 
-      // Reset form after successful submission (only for new lists)
-      if (!isEditing) {
-        resetForm();
+    try {
+      const isEditing = !!listId;
+
+      // Prepare the payload for the API
+      const payload = {
+        title: listData.title.trim(),
+        description: listData.description?.trim(),
+        coverImage: listData.coverImage || undefined,
+        visibility: listData.visibility,
+        publishAt: listData.publishAt || undefined,
+        items: listData.items,
+      };
+
+      if (isEditing) {
+        // TODO: Implement PUT request for editing
+        console.log('Edit list payload:', payload);
+        setSuccess('Liste modifiée avec succès!');
+      } else {
+        // Create new list
+        const response = await fetch('/api/lists', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create list');
+        }
+
+        setSuccess('Liste ajoutée avec succès!');
+
+        // Reset form after successful submission
+        setTimeout(() => {
+          resetForm();
+        }, 1500);
       }
-      redirect('/dashboard/lists');
+
+      // Redirect to lists page after a short delay to show success message
+      setTimeout(() => {
+        router.push('/dashboard/lists');
+        router.refresh();
+      }, 2000);
     } catch (error) {
       console.error('Error saving list:', error);
       const isEditing = !!listId;
@@ -259,6 +360,8 @@ const ListForm = ({ listId }: ListFormProps) => {
           ? 'Erreur lors de la modification de la liste'
           : "Erreur lors de l'ajout de la liste"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -324,12 +427,25 @@ const ListForm = ({ listId }: ListFormProps) => {
           Image de couverture
         </label>
         <div className='flex items-center gap-4 w-full max-w-md'>
-          <img
-            src={listData.coverImage || '/placeholder-list-cover.jpg'}
-            alt='Couverture de la liste'
-            className='w-[96px] h-[135px] object-cover border border-base-300 rounded cursor-pointer'
+          <div className='relative'>
+            <img
+              src={listData.coverImage || '/placeholder-list-cover.jpg'}
+              alt='Couverture de la liste'
+              className='w-[160px] h-[90px] object-cover border border-base-300 rounded cursor-pointer hover:scale-105 transition-all duration-200'
+            />
+            {isUploadingImage && (
+              <div className='absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded'>
+                <span className='loading loading-spinner loading-md text-white'></span>
+              </div>
+            )}
+          </div>
+          <input
+            type='file'
+            className='file-input file-input-ghost'
+            accept='image/*'
+            onChange={handleFileChange}
+            disabled={isUploadingImage || isLoading}
           />
-          <input type='file' className='file-input file-input-ghost' />
         </div>
 
         <label className='label w-full max-w-md text-center'>Visibilité</label>
@@ -367,22 +483,20 @@ const ListForm = ({ listId }: ListFormProps) => {
               <div className='absolute top-full left-0 right-0 bg-base-100 border border-base-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto'>
                 {searchResults.map((book) => (
                   <div
-                    key={book._id}
+                    key={book.id}
                     className='p-2 hover:bg-base-200 cursor-pointer border-b border-base-300 last:border-b-0'
-                    onClick={() => addBookToList(book._id)}
+                    onClick={() => addBookToList(book)}
                   >
                     <div className='flex items-center gap-3'>
                       <img
-                        src={book.bookData.cover}
-                        alt={book.bookData.title}
+                        src={book.cover || '/placeholder-book-cover.jpg'}
+                        alt={book.title}
                         className='w-8 h-12 object-cover rounded'
                       />
                       <div className='flex-1'>
-                        <div className='font-medium text-sm'>
-                          {book.bookData.title}
-                        </div>
+                        <div className='font-medium text-sm'>{book.title}</div>
                         <div className='text-xs text-base-content/60'>
-                          {book.bookData.authors.join(', ')}
+                          {book.authors.join(', ')}
                         </div>
                       </div>
                       <FaPlus className='text-primary' />
@@ -395,32 +509,24 @@ const ListForm = ({ listId }: ListFormProps) => {
         </div>
 
         {/* Selected Books */}
-        {listData.items.length > 0 && (
+        {selectedBooks.length > 0 && (
           <div className='w-full'>
             <p className='text-center mb-4 text-sm text-base-content/70'>
-              {listData.items.length} livre(s) sélectionné(s)
+              {selectedBooks.length} livre(s) sélectionné(s)
             </p>
             <div className='flex flex-wrap gap-4 justify-center'>
-              {listData.items.map((item) => {
-                const bookProps = findBookAndExtractProps(
-                  booksData,
-                  item.bookId
-                );
-                if (!bookProps) return null;
-
-                return (
-                  <div key={item.bookId} className='relative'>
-                    <Book {...bookProps} />
-                    <button
-                      type='button'
-                      onClick={() => removeBookFromList(item.bookId)}
-                      className='absolute -top-2 -right-2 bg-error text-error-content rounded-full p-1 hover:scale-110 transition-transform cursor-pointer'
-                    >
-                      <FaTimes className='w-3 h-3' />
-                    </button>
-                  </div>
-                );
-              })}
+              {selectedBooks.map((book) => (
+                <div key={book.id} className='relative'>
+                  <Book id={book.id} coverUrl={book.cover} title={book.title} />
+                  <button
+                    type='button'
+                    onClick={() => removeBookFromList(book.id)}
+                    className='absolute -top-2 -right-2 bg-error text-error-content rounded-full p-1 hover:scale-110 transition-transform cursor-pointer'
+                  >
+                    <FaTimes className='w-3 h-3' />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}

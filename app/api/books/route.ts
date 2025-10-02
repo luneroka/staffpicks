@@ -150,6 +150,7 @@ export async function GET(request: NextRequest) {
     const genre = searchParams.get('genre');
     const tone = searchParams.get('tone');
     const ageGroup = searchParams.get('ageGroup');
+    const search = searchParams.get('search');
     const limit = parseInt(searchParams.get('limit') || '50');
     const skip = parseInt(searchParams.get('skip') || '0');
 
@@ -170,6 +171,15 @@ export async function GET(request: NextRequest) {
     if (genre) query.genre = genre;
     if (tone) query.tone = tone;
     if (ageGroup) query.ageGroup = ageGroup;
+
+    // Search filter (title, authors, or ISBN)
+    if (search) {
+      query.$or = [
+        { 'bookData.title': { $regex: search, $options: 'i' } },
+        { 'bookData.authors': { $regex: search, $options: 'i' } },
+        { isbn: { $regex: search, $options: 'i' } },
+      ];
+    }
 
     // 5. Fetch books
     const books = await BookModel.find(query)
