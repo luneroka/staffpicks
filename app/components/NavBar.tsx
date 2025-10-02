@@ -19,6 +19,11 @@ interface CompanyData {
   logoUrl?: string;
 }
 
+interface UserData {
+  name: string;
+  avatarUrl?: string;
+}
+
 const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -26,6 +31,9 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
   // Initialize with prop data to avoid flash
   const [company, setCompany] = useState<CompanyData | null>(
     companyName ? { name: companyName } : null
+  );
+  const [user, setUser] = useState<UserData | null>(
+    userName ? { name: userName } : null
   );
 
   useEffect(() => {
@@ -54,6 +62,30 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
     // Only fetch if user is authenticated (not on public pages)
     if (pathname !== '/' && pathname !== '/login' && pathname !== '/signup') {
       fetchCompanyData();
+    }
+  }, [pathname]);
+
+  // Fetch user data to get the latest name and avatar
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/user/profile');
+        if (response.ok) {
+          const data = await response.json();
+          setUser({
+            name: data.name,
+            avatarUrl: data.avatarUrl,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Keep the initial prop data on error
+      }
+    };
+
+    // Only fetch if user is authenticated (not on public pages)
+    if (pathname !== '/' && pathname !== '/login' && pathname !== '/signup') {
+      fetchUserData();
     }
   }, [pathname]);
 
@@ -152,7 +184,7 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
 
       {/* RIGHT */}
       <div className='flex gap-2 items-center '>
-        <h3>{userName}</h3>
+        <h3>{user?.name || userName}</h3>
         <div className='dropdown dropdown-end'>
           <div
             tabIndex={0}
@@ -160,10 +192,19 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
             className='btn btn-ghost btn-circle avatar'
           >
             <div className='w-10 rounded-full'>
-              <img
-                alt='Tailwind CSS Navbar component'
-                src='https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
-              />
+              {user?.avatarUrl ? (
+                <Image
+                  src={user.avatarUrl}
+                  alt='Avatar utilisateur'
+                  width={40}
+                  height={40}
+                  className='object-cover'
+                />
+              ) : (
+                <div className='flex items-center justify-center w-full h-full bg-base-200'>
+                  <FaUserCircle className='text-3xl text-base-content opacity-60' />
+                </div>
+              )}
             </div>
           </div>
           <ul
