@@ -236,6 +236,7 @@ const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
       // Upload to Cloudinary
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('folder', 'book-covers'); // Specify folder for book covers
 
       const response = await fetch('/api/upload/image', {
         method: 'POST',

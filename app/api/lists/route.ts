@@ -4,14 +4,6 @@ import connectDB from '@/app/lib/mongodb';
 import { ListModel, ListVisibility } from '@/app/lib/models/List';
 import { BookModel } from '@/app/lib/models/Book';
 import { Types } from 'mongoose';
-import { v2 as cloudinary } from 'cloudinary';
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 /**
  * Helper function to generate URL-friendly slug from title
@@ -53,26 +45,6 @@ async function ensureUniqueSlug(
 
     slug = `${baseSlug}-${counter}`;
     counter++;
-  }
-}
-
-/**
- * Helper function to upload cover image to Cloudinary
- */
-async function uploadCoverToCloudinary(coverUrl: string): Promise<string> {
-  try {
-    const result = await cloudinary.uploader.upload(coverUrl, {
-      folder: 'staffpicks/list-covers',
-      transformation: [
-        { width: 800, height: 450, crop: 'limit' },
-        { quality: 'auto', fetch_format: 'auto' },
-      ],
-    });
-
-    return result.secure_url;
-  } catch (error) {
-    console.error('Error uploading to Cloudinary:', error);
-    throw new Error('Failed to upload cover image');
   }
 }
 
@@ -163,16 +135,8 @@ export async function POST(request: NextRequest) {
       processedItems.sort((a, b) => a.position - b.position);
     }
 
-    // 8. Upload cover image to Cloudinary if provided
-    let cloudinaryCoverUrl = undefined;
-    if (coverImage && coverImage.trim()) {
-      try {
-        cloudinaryCoverUrl = await uploadCoverToCloudinary(coverImage.trim());
-      } catch (error) {
-        console.error('Failed to upload cover image:', error);
-        // Continue without cover image rather than failing the entire request
-      }
-    }
+    // 8. Use the cover image URL directly (already uploaded to Cloudinary by the form)
+    const cloudinaryCoverUrl = coverImage?.trim() || undefined;
 
     // 9. Create the list
     const newList = await ListModel.create({

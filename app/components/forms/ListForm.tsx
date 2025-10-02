@@ -276,6 +276,7 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
       // Upload to Cloudinary
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('folder', 'list-covers'); // Specify folder for list covers
 
       const response = await fetch('/api/upload/image', {
         method: 'POST',

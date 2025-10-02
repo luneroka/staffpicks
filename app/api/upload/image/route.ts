@@ -29,11 +29,13 @@ export async function POST(request: NextRequest) {
 
     let uploadSource: string | File;
     let uploadType: 'file' | 'url';
+    let folder = 'staffpicks/book-covers'; // Default folder
 
     if (contentType.includes('multipart/form-data')) {
       // Handle file upload
       const formData = await request.formData();
       const file = formData.get('file') as File;
+      const folderParam = formData.get('folder') as string;
 
       if (!file) {
         return NextResponse.json(
@@ -42,15 +44,25 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Use custom folder if provided
+      if (folderParam) {
+        folder = `staffpicks/${folderParam}`;
+      }
+
       uploadSource = file;
       uploadType = 'file';
     } else {
       // Handle URL upload
       const body = await request.json();
-      const { url } = body;
+      const { url, folder: folderParam } = body;
 
       if (!url) {
         return NextResponse.json({ error: 'No URL provided' }, { status: 400 });
+      }
+
+      // Use custom folder if provided
+      if (folderParam) {
+        folder = `staffpicks/${folderParam}`;
       }
 
       uploadSource = url;
@@ -69,7 +81,7 @@ export async function POST(request: NextRequest) {
       const dataURI = `data:${file.type};base64,${base64}`;
 
       cloudinaryResult = await cloudinary.uploader.upload(dataURI, {
-        folder: 'staffpicks/book-covers',
+        folder: folder,
         resource_type: 'image',
         transformation: [
           { width: 500, height: 700, crop: 'limit' },
@@ -81,7 +93,7 @@ export async function POST(request: NextRequest) {
       const url = uploadSource as string;
 
       cloudinaryResult = await cloudinary.uploader.upload(url, {
-        folder: 'staffpicks/book-covers',
+        folder: folder,
         resource_type: 'image',
         transformation: [
           { width: 500, height: 700, crop: 'limit' },

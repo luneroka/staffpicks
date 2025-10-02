@@ -161,6 +161,7 @@ const CompanySettingsForm = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('folder', 'company-logos'); // Specify folder for company logos
 
       const response = await fetch('/api/upload/image', {
         method: 'POST',
