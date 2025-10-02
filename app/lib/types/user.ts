@@ -1,5 +1,9 @@
 /**
- * User role types - extracted to avoid importing server-side dependencies in client components
+ * User role types - re-exported for use in client components
+ * This avoids importing the full User model which has server-side dependencies (bcrypt)
+ *
+ * Note: This is a duplicate of the enum in User.ts to avoid circular dependencies
+ * and server-side imports in client components. Keep both in sync!
  */
 export enum UserRole {
   Admin = 'admin', // Platform admin (manages all companies and users)

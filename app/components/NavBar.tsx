@@ -5,13 +5,15 @@ import { usePathname, useRouter } from 'next/navigation';
 import { FaHome, FaUserCircle } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { themeChange } from 'theme-change';
+import { UserRole } from '@/app/lib/types/user';
 
 interface NavBarProps {
   companyName?: string;
   userName?: string;
+  userRole?: UserRole;
 }
 
-const NavBar = ({ companyName, userName }: NavBarProps) => {
+const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -147,9 +149,12 @@ const NavBar = ({ companyName, userName }: NavBarProps) => {
             <li>
               <Link href={'/dashboard/profile'}>Profil</Link>
             </li>
-            <li>
-              <Link href={'/dashboard/settings'}>Réglages</Link>
-            </li>
+            {/* Settings - Only visible for Admin, CompanyAdmin, and StoreAdmin */}
+            {userRole && userRole !== UserRole.Librarian && (
+              <li>
+                <Link href={'/dashboard/settings'}>Réglages</Link>
+              </li>
+            )}
             <li>
               <button
                 onClick={handleLogout}
