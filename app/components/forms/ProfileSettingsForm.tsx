@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaUpload, FaKey } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
 import Image from 'next/image';
@@ -15,6 +16,7 @@ interface UserData {
 }
 
 const ProfileSettingsForm = () => {
+  const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [editedData, setEditedData] = useState<UserData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -247,7 +249,7 @@ const ProfileSettingsForm = () => {
 
   if (!userData || !editedData) {
     return (
-      <div className='alert alert-error'>
+      <div className='alert alert-soft alert-error'>
         <HiExclamationCircle className='text-xl' />
         <span>Impossible de charger les données du profil</span>
       </div>
@@ -258,7 +260,7 @@ const ProfileSettingsForm = () => {
     <div className='space-y-6'>
       {/* Success Message */}
       {success && (
-        <div className='alert alert-success'>
+        <div className='alert alert-soft alert-success'>
           <HiCheckCircle className='text-xl' />
           <span>{success}</span>
         </div>
@@ -266,7 +268,7 @@ const ProfileSettingsForm = () => {
 
       {/* Error Message */}
       {error && (
-        <div className='alert alert-error'>
+        <div className='alert alert-soft alert-error'>
           <HiExclamationCircle className='text-xl' />
           <span>{error}</span>
         </div>
@@ -280,7 +282,7 @@ const ProfileSettingsForm = () => {
             <button
               type='button'
               onClick={handleEdit}
-              className='btn btn-primary btn-sm'
+              className='btn btn-soft btn-primary btn-sm'
             >
               <FaPencilAlt /> Modifier
             </button>
@@ -436,77 +438,75 @@ const ProfileSettingsForm = () => {
         </div>
 
         {/* Password Change Section */}
-        {isEditing && (
-          <>
-            <div className='divider my-8'></div>
+        <>
+          <div className='divider my-8'></div>
 
-            <div className='flex justify-between items-center mb-4'>
-              <h3 className='text-xl font-semibold'>Mot de passe</h3>
-              {!isChangingPassword && (
-                <button
-                  type='button'
-                  onClick={() => setIsChangingPassword(true)}
-                  className='btn btn-outline btn-sm'
-                >
-                  <FaKey /> Changer le mot de passe
-                </button>
-              )}
-            </div>
+          <div className='flex justify-between items-center mb-4'>
+            <h3 className='text-xl font-semibold'>Mot de passe</h3>
+            {!isChangingPassword && (
+              <button
+                type='button'
+                onClick={() => setIsChangingPassword(true)}
+                className='btn btn-outline btn-sm'
+              >
+                <FaKey /> Changer le mot de passe
+              </button>
+            )}
+          </div>
 
-            {isChangingPassword && (
-              <div className='space-y-4'>
-                <div className='alert alert-info'>
-                  <HiExclamationCircle />
-                  <span>
-                    Le mot de passe doit contenir au moins 8 caractères
+          {isChangingPassword && (
+            <div className='space-y-4'>
+              <div className='alert alert-soft alert-info'>
+                <HiExclamationCircle />
+                <span>Le mot de passe doit contenir au moins 8 caractères</span>
+              </div>
+
+              <div className='form-control'>
+                {/* <label className='label'>
+                  <span className='label-text font-semibold'>
+                    Mot de passe actuel *
                   </span>
-                </div>
+                </label> */}
+                <input
+                  type='password'
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className='input input-bordered'
+                  placeholder='Votre mot de passe actuel'
+                />
+              </div>
 
-                <div className='form-control'>
-                  <label className='label'>
-                    <span className='label-text font-semibold'>
-                      Mot de passe actuel *
-                    </span>
-                  </label>
-                  <input
-                    type='password'
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className='input input-bordered'
-                    placeholder='Votre mot de passe actuel'
-                  />
-                </div>
+              <div className='form-control'>
+                {/* <label className='label'>
+                  <span className='label-text font-semibold'>
+                    Nouveau mot de passe *
+                  </span>
+                </label> */}
+                <input
+                  type='password'
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className='input input-bordered'
+                  placeholder='Minimum 8 caractères'
+                />
+              </div>
 
-                <div className='form-control'>
-                  <label className='label'>
-                    <span className='label-text font-semibold'>
-                      Nouveau mot de passe *
-                    </span>
-                  </label>
-                  <input
-                    type='password'
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className='input input-bordered'
-                    placeholder='Minimum 8 caractères'
-                  />
-                </div>
+              <div className='form-control'>
+                {/* <label className='label'>
+                  <span className='label-text font-semibold'>
+                    Confirmer le nouveau mot de passe *
+                  </span>
+                </label> */}
+                <input
+                  type='password'
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className='input input-bordered'
+                  placeholder='Re-saisir le nouveau mot de passe'
+                />
+              </div>
 
-                <div className='form-control'>
-                  <label className='label'>
-                    <span className='label-text font-semibold'>
-                      Confirmer le nouveau mot de passe *
-                    </span>
-                  </label>
-                  <input
-                    type='password'
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className='input input-bordered'
-                    placeholder='Re-saisir le nouveau mot de passe'
-                  />
-                </div>
-
+              <div className='flex gap-2 mt-4'>
                 <button
                   type='button'
                   onClick={() => {
@@ -514,15 +514,99 @@ const ProfileSettingsForm = () => {
                     setCurrentPassword('');
                     setNewPassword('');
                     setConfirmPassword('');
+                    setError('');
                   }}
                   className='btn btn-ghost btn-sm'
+                  disabled={isSaving}
                 >
-                  Annuler le changement de mot de passe
+                  Annuler
+                </button>
+                <button
+                  type='button'
+                  onClick={async () => {
+                    // Validate password fields
+                    if (!currentPassword) {
+                      setError('Le mot de passe actuel est requis');
+                      return;
+                    }
+
+                    if (!newPassword || newPassword.length < 8) {
+                      setError(
+                        'Le nouveau mot de passe doit contenir au moins 8 caractères'
+                      );
+                      return;
+                    }
+
+                    if (newPassword !== confirmPassword) {
+                      setError(
+                        'Les nouveaux mots de passe ne correspondent pas'
+                      );
+                      return;
+                    }
+
+                    setIsSaving(true);
+                    setError('');
+                    setSuccess('');
+
+                    try {
+                      const body = {
+                        currentPassword,
+                        newPassword,
+                        confirmPassword,
+                      };
+
+                      const response = await fetch('/api/user/profile', {
+                        method: 'PUT',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(body),
+                      });
+
+                      const data = await response.json();
+
+                      if (!response.ok) {
+                        throw new Error(
+                          data.error || 'Erreur lors de la sauvegarde'
+                        );
+                      }
+
+                      setIsChangingPassword(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                      setSuccess('Mot de passe mis à jour avec succès!');
+
+                      // Redirect to login after 1.5 seconds
+                      setTimeout(() => {
+                        router.push('/login');
+                      }, 1500);
+                    } catch (err) {
+                      console.error('Error updating password:', err);
+                      setError(
+                        err instanceof Error
+                          ? err.message
+                          : 'Erreur lors de la mise à jour du mot de passe'
+                      );
+                    } finally {
+                      setIsSaving(false);
+                    }
+                  }}
+                  className='btn btn-soft btn-primary btn-sm'
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <span className='loading loading-spinner loading-sm'></span>
+                  ) : (
+                    <>
+                      <FaKey /> Mettre à jour le mot de passe
+                    </>
+                  )}
                 </button>
               </div>
-            )}
-          </>
-        )}
+            </div>
+          )}
+        </>
       </form>
     </div>
   );

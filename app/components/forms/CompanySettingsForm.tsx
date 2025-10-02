@@ -259,7 +259,7 @@ const CompanySettingsForm = () => {
     <div className='space-y-6'>
       {/* Success Message */}
       {success && (
-        <div className='alert alert-success'>
+        <div className='alert alert-soft alert-success'>
           <HiCheckCircle className='text-xl' />
           <span>{success}</span>
         </div>
@@ -267,7 +267,7 @@ const CompanySettingsForm = () => {
 
       {/* Error Message */}
       {error && (
-        <div className='alert alert-error'>
+        <div className='alert alert-soft alert-error'>
           <HiExclamationCircle className='text-xl' />
           <span>{error}</span>
         </div>
@@ -281,7 +281,7 @@ const CompanySettingsForm = () => {
             <button
               type='button'
               onClick={handleEdit}
-              className='btn btn-primary btn-sm'
+              className='btn btn-soft btn-primary btn-sm'
             >
               <FaPencilAlt /> Modifier
             </button>
