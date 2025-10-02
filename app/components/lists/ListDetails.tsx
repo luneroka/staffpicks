@@ -129,7 +129,10 @@ const ListDetails = ({ list }: ListDetailsProps) => {
                   <div className='stat-value text-primary'>
                     {list.items.length}
                   </div>
-                  <div className='stat-desc'>livres dans cette liste</div>
+                  <div className='stat-desc'>
+                    {list.items.length < 2 ? 'livre' : 'livres'} dans cette
+                    liste
+                  </div>
                 </div>
 
                 <div className='stat'>

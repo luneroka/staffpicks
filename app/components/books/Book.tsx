@@ -30,7 +30,7 @@ const Book = ({ coverUrl, id, title }: BookProps) => {
     );
   }
 
-  if (pathname.startsWith('/dashboard/lists')) {
+  if (pathname.startsWith('/dashboard/lists') && pathname.endsWith('/edit')) {
     return (
       <div className='relative'>
         <div className='flex w-[96px] h-[135px] relative flex-shrink-0 items-center justify-center'>
@@ -51,6 +51,23 @@ const Book = ({ coverUrl, id, title }: BookProps) => {
         >
           <FaTimes className='w-3 h-3' />
         </button>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith('/dashboard/lists')) {
+    return (
+      <div className='flex w-[96px] h-[135px] relative flex-shrink-0 items-center justify-center'>
+        <div>
+          <Link href={`/dashboard/books/${id}`}>
+            <img
+              src={coverUrl}
+              alt={title || 'Couverture non disponible'}
+              className='w-full h-full cursor-pointer'
+              style={{ width: '96px', height: '135px' }}
+            />
+          </Link>
+        </div>
       </div>
     );
   }

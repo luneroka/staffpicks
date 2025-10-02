@@ -22,6 +22,7 @@ interface ListData {
   title?: string;
   visibility?: string;
   items?: Items[];
+  createdBy?: string;
   updatedAt?: Date | string;
 }
 
@@ -78,7 +79,7 @@ const ListCard = ({ listData }: ListCardProps) => {
 
   return (
     <Link href={`/dashboard/lists/${listData._id}`}>
-      <div className='bg-base-200 w-96 shadow-sm rounded-lg p-4 flex justify-between gap-8 cursor-pointer hover:bg-base-300 hover:scale-102 transition-all duration-200 min-w-lg'>
+      <div className='bg-base-200 w-96 shadow-sm rounded-lg p-4 flex justify-between cursor-pointer hover:bg-base-300 hover:scale-102 transition-all duration-200 min-w-lg'>
         <div className='flex gap-8'>
           {/* LIST COVER */}
           <div className='flex w-[121px] h-[170px] relative flex-shrink-0 items-center justify-center'>
@@ -91,7 +92,7 @@ const ListCard = ({ listData }: ListCardProps) => {
           </div>
 
           {/* LIST INFOS */}
-          <div className='flex flex-col gap-4'>
+          <div className='flex flex-col justify-between'>
             {/* List Title */}
             <p>{listData.title}</p>
 
@@ -107,11 +108,17 @@ const ListCard = ({ listData }: ListCardProps) => {
             {/* List Items */}
             <div className='flex gap-1'>
               <div>{getListBookCount(listData)}</div>
-              <p>livres</p>
+              <p>{(listData.items?.length || 0) < 2 ? 'livre' : 'livres'}</p>
+            </div>
+
+            {/* CreatedBy */}
+            <div className='flex gap-1'>
+              <p className='small-text'>Crée par :</p>
+              <div className='small-text'>{listData.createdBy}</div>
             </div>
 
             {/* Last Updated At */}
-            <div className='flex gap-1 text-muted-text'>
+            <div className='flex gap-1 text-base-content/60 italic'>
               <p className='small-text'>Dernière modification :</p>
               <div className='small-text'>{formatDate(listData.updatedAt)}</div>
             </div>

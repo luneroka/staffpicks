@@ -35,8 +35,8 @@ const ListPage = async ({ params }: ListPageProps) => {
       path: 'items.bookId',
       select: 'isbn bookData genre tone ageGroup',
     })
-    .populate('ownerUserId', 'name email')
-    .populate('createdBy', 'name email')
+    .populate('ownerUserId', 'firstName lastName email')
+    .populate('createdBy', 'firstName lastName email')
     .lean();
 
   // If list not found, show 404
@@ -71,14 +71,14 @@ const ListPage = async ({ params }: ListPageProps) => {
     owner: list.ownerUserId
       ? {
           _id: list.ownerUserId._id.toString(),
-          name: list.ownerUserId.name,
+          name: `${list.ownerUserId.firstName} ${list.ownerUserId.lastName}`,
           email: list.ownerUserId.email,
         }
       : undefined,
     createdBy: list.createdBy
       ? {
           _id: list.createdBy._id.toString(),
-          name: list.createdBy.name,
+          name: `${list.createdBy.firstName} ${list.createdBy.lastName}`,
           email: list.createdBy.email,
         }
       : undefined,
