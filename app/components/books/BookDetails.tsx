@@ -150,6 +150,15 @@ const BookDetails = ({ book, userRole }: BookDetailsProps) => {
                     {book.isbn}
                   </div>
                 </div>
+
+                {book.createdBy && (
+                  <div className='stat'>
+                    <div className='stat-title'>Ajouté par</div>
+                    <div className='stat-value text-sm'>
+                      {book.createdBy.name}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -184,12 +193,6 @@ const BookDetails = ({ book, userRole }: BookDetailsProps) => {
                       Supprimer
                     </button>
                   </>
-                )}
-
-                {book.createdBy && (
-                  <div className='text-sm text-base-content/70 italic'>
-                    Ajouté par : {book.createdBy.name}
-                  </div>
                 )}
               </div>
             </div>
