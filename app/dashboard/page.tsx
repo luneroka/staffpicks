@@ -56,62 +56,74 @@ const Dashboard = async () => {
         {/* Stats Grid */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
           {/* Total Stores */}
-          <div className='card bg-primary/10 border border-primary/20'>
-            <div className='card-body'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-base-content/60 text-sm'>Total Magasins</p>
-                  <p className='text-3xl font-bold text-primary'>
-                    {totalStores}
-                  </p>
+          <Link href='/dashboard/settings/stores'>
+            <div className='card bg-primary/10 border border-primary/20'>
+              <div className='card-body'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-base-content/60 text-sm'>
+                      Total Magasins
+                    </p>
+                    <p className='text-3xl font-bold text-primary'>
+                      {totalStores}
+                    </p>
+                  </div>
+                  <FaStore className='text-4xl text-primary/40' />
                 </div>
-                <FaStore className='text-4xl text-primary/40' />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Total Users */}
-          <div className='card bg-secondary/10 border border-secondary/20'>
-            <div className='card-body'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-base-content/60 text-sm'>
-                    Total Utilisateurs
-                  </p>
-                  <p className='text-3xl font-bold text-secondary'>
-                    {totalUsers}
-                  </p>
+          <Link href='/dashboard/settings/users'>
+            <div className='card bg-secondary/10 border border-secondary/20'>
+              <div className='card-body'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-base-content/60 text-sm'>
+                      Total Utilisateurs
+                    </p>
+                    <p className='text-3xl font-bold text-secondary'>
+                      {totalUsers}
+                    </p>
+                  </div>
+                  <FaUsers className='text-4xl text-secondary/40' />
                 </div>
-                <FaUsers className='text-4xl text-secondary/40' />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Total Books */}
-          <div className='card bg-accent/10 border border-accent/20'>
-            <div className='card-body'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-base-content/60 text-sm'>Total Livres</p>
-                  <p className='text-3xl font-bold text-accent'>{totalBooks}</p>
+          <Link href='/dashboard/books'>
+            <div className='card bg-accent/10 border border-accent/20'>
+              <div className='card-body'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-base-content/60 text-sm'>Total Livres</p>
+                    <p className='text-3xl font-bold text-accent'>
+                      {totalBooks}
+                    </p>
+                  </div>
+                  <FaBook className='text-4xl text-accent/40' />
                 </div>
-                <FaBook className='text-4xl text-accent/40' />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Total Lists */}
-          <div className='card bg-info/10 border border-info/20'>
-            <div className='card-body'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-base-content/60 text-sm'>Total Listes</p>
-                  <p className='text-3xl font-bold text-info'>{totalLists}</p>
+          <Link href='/dashboard/lists'>
+            <div className='card bg-info/10 border border-info/20'>
+              <div className='card-body'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-base-content/60 text-sm'>Total Listes</p>
+                    <p className='text-3xl font-bold text-info'>{totalLists}</p>
+                  </div>
+                  <FaList className='text-4xl text-info/40' />
                 </div>
-                <FaList className='text-4xl text-info/40' />
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* List Status Breakdown */}

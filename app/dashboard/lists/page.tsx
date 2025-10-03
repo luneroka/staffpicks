@@ -5,6 +5,7 @@ import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
 import { UserModel, UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
+import BackButton from '@/app/components/BackButton';
 
 const Lists = async () => {
   // Ensure user is authenticated
@@ -63,26 +64,31 @@ const Lists = async () => {
   }));
 
   return (
-    <div className='flex flex-col gap-12'>
-      {/* Hide "Add List" button for CompanyAdmin */}
-      {session.role !== UserRole.CompanyAdmin && (
-        <Link href={'/dashboard/lists/new'}>
-          <div className='btn btn-primary btn-soft w-fit'>
-            Ajouter une liste
-          </div>
-        </Link>
+    <>
+      {session.role === UserRole.CompanyAdmin && (
+        <BackButton className='mb-8' />
       )}
-
-      <div id='list-display' className='flex flex-wrap gap-8 mt-[-16px]'>
-        {listsData.length === 0 ? (
-          <p className='text-base-content/60'>Aucune liste créée</p>
-        ) : (
-          listsData.map((list: any) => (
-            <ListCard key={list._id} listData={list} />
-          ))
+      <div className='flex flex-col gap-12'>
+        {/* Hide "Add List" button for CompanyAdmin */}
+        {session.role !== UserRole.CompanyAdmin && (
+          <Link href={'/dashboard/lists/new'}>
+            <div className='btn btn-primary btn-soft w-fit'>
+              Ajouter une liste
+            </div>
+          </Link>
         )}
+
+        <div id='list-display' className='flex flex-wrap gap-8'>
+          {listsData.length === 0 ? (
+            <p className='text-base-content/60'>Aucune liste créée</p>
+          ) : (
+            listsData.map((list: any) => (
+              <ListCard key={list._id} listData={list} />
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
