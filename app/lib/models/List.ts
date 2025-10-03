@@ -6,8 +6,8 @@ import {
 } from '@typegoose/typegoose';
 import type { Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
-import type { User } from './User';
 import { Company } from './Company';
+import { Store } from './Store';
 
 export enum ListVisibility {
   Draft = 'draft',
@@ -38,6 +38,10 @@ class ListItem {
 )
 // Dashboards (active lists by company)
 @index({ companyId: 1, ownerUserId: 1, visibility: 1, updatedAt: -1 })
+// Store-scoped queries for StoreAdmin
+@index({ companyId: 1, storeId: 1, visibility: 1, updatedAt: -1 })
+// Librarian-scoped queries (assigned to or created by)
+@index({ companyId: 1, assignedTo: 1, visibility: 1, updatedAt: -1 })
 // Company-wide lists
 @index({ companyId: 1, visibility: 1, updatedAt: -1 })
 // Trash (fast lookup by company, owner & deletedAt)
@@ -56,9 +60,21 @@ export class List {
   @prop({ ref: () => Company, required: true, index: true })
   public companyId!: Ref<Company>;
 
+  /** Store boundary - which store this list belongs to */
+  @prop({ ref: () => Store, required: true, index: true })
+  public storeId!: Ref<Store>;
+
   /** Tenant boundary: the librarian who owns the list */
   @prop({ ref: 'User', required: true })
   public ownerUserId!: Ref<any>;
+
+  /** Users this list is assigned to (for visibility by librarians) */
+  @prop({ ref: 'User', type: () => [Types.ObjectId], default: [] })
+  public assignedTo!: Types.ObjectId[];
+
+  /** Sections this list is assigned to */
+  @prop({ type: () => [String], default: [] })
+  public sections!: string[];
 
   /** Who created / last updated (owner or admin) */
   @prop({ ref: 'User', required: true })
@@ -129,6 +145,32 @@ export class List {
       return this.find({ ...query, visibility });
     }
     return this.find(query);
+  }
+
+  /** Get lists for a specific store */
+  static forStore(
+    this: ReturnModelType<typeof List>,
+    companyId: Types.ObjectId | string,
+    storeId: Types.ObjectId | string
+  ) {
+    return this.find({ companyId, storeId, deletedAt: { $exists: false } });
+  }
+
+  /** Get lists visible to a librarian (created by them or assigned to them) */
+  static forLibrarian(
+    this: ReturnModelType<typeof List>,
+    companyId: Types.ObjectId | string,
+    userId: Types.ObjectId | string
+  ) {
+    return this.find({
+      companyId,
+      deletedAt: { $exists: false },
+      $or: [
+        { ownerUserId: userId },
+        { createdBy: userId },
+        { assignedTo: userId },
+      ],
+    });
   }
 
   /** Get public lists for a company */

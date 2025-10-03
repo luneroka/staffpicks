@@ -8,6 +8,7 @@ import type { Ref, ReturnModelType } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { User } from './User';
 import { Company } from './Company';
+import { Store } from './Store';
 
 class BookData {
   @prop({ required: true, trim: true })
@@ -33,6 +34,10 @@ class BookData {
 @index({ companyId: 1, isbn: 1 }, { unique: true })
 /** Fast dashboard listing by owner within company */
 @index({ companyId: 1, ownerUserId: 1, createdAt: -1 })
+/** Store-scoped queries for StoreAdmin */
+@index({ companyId: 1, storeId: 1, createdAt: -1 })
+/** Librarian-scoped queries (assigned to or created by) */
+@index({ companyId: 1, assignedTo: 1, createdAt: -1 })
 /** Company-wide book search */
 @index({ companyId: 1, createdAt: -1 })
 @modelOptions({
@@ -49,9 +54,21 @@ export class Book {
   @prop({ ref: () => Company, required: true, index: true })
   public companyId!: Ref<Company>;
 
+  /** Store boundary - which store this book belongs to */
+  @prop({ ref: () => Store, required: true, index: true })
+  public storeId!: Ref<Store>;
+
   /** The library owner (the librarian's user id) */
   @prop({ ref: () => User, required: true })
   public ownerUserId!: Ref<User>;
+
+  /** Users this book is assigned to (for visibility by librarians) */
+  @prop({ ref: () => User, type: () => [Types.ObjectId], default: [] })
+  public assignedTo!: Types.ObjectId[];
+
+  /** Sections this book is assigned to */
+  @prop({ type: () => [String], default: [] })
+  public sections!: string[];
 
   /** Audit: who created/last updated this record (can be owner or admin) */
   @prop({ ref: () => User, required: true })
@@ -95,6 +112,31 @@ export class Book {
     companyId: Types.ObjectId | string
   ) {
     return this.find({ companyId });
+  }
+
+  /** Get books for a specific store */
+  static forStore(
+    this: ReturnModelType<typeof Book>,
+    companyId: Types.ObjectId | string,
+    storeId: Types.ObjectId | string
+  ) {
+    return this.find({ companyId, storeId });
+  }
+
+  /** Get books visible to a librarian (created by them or assigned to them) */
+  static forLibrarian(
+    this: ReturnModelType<typeof Book>,
+    companyId: Types.ObjectId | string,
+    userId: Types.ObjectId | string
+  ) {
+    return this.find({
+      companyId,
+      $or: [
+        { ownerUserId: userId },
+        { createdBy: userId },
+        { assignedTo: userId },
+      ],
+    });
   }
 }
 
