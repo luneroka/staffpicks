@@ -97,7 +97,11 @@ const BookForm = ({
           );
           if (response.ok) {
             const data = await response.json();
-            setLibrarians(data.users || []);
+            // Filter out inactive and suspended users
+            const activeLibrarians = (data.users || []).filter(
+              (user: any) => user.status === 'active'
+            );
+            setLibrarians(activeLibrarians);
           }
         } catch (error) {
           console.error('Error fetching librarians:', error);
