@@ -55,8 +55,9 @@ const SignupForm = () => {
         return;
       }
 
-      // Success - redirect to onboarding in settings
+      // Success - redirect to onboarding in settings and refresh to update server components
       router.push(data.redirectUrl || '/dashboard/settings/onboarding');
+      router.refresh(); // Force refresh to update NavBar and other server components
     } catch (err) {
       console.error('Signup error:', err);
       setError('Une erreur réseau est survenue. Veuillez réessayer.');

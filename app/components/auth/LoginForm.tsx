@@ -45,8 +45,9 @@ const LoginForm = () => {
         return;
       }
 
-      // Success - redirect to dashboard
+      // Success - redirect to dashboard and refresh to update server components
       router.push(data.redirectUrl || '/dashboard');
+      router.refresh(); // Force refresh to update NavBar and other server components
     } catch (err) {
       console.error('Login error:', err);
       setError('Une erreur réseau est survenue. Veuillez réessayer.');
