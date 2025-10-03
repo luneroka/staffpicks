@@ -35,10 +35,14 @@ export async function GET(request: NextRequest) {
     // Build query based on role
     let query: any = {};
 
+    // Parse query parameters
+    const { searchParams } = new URL(request.url);
+    const storeIdParam = searchParams.get('storeId');
+    const roleParam = searchParams.get('role');
+
     if (session.role === UserRole.Admin) {
       // Platform Admin can see all users
       // Optionally filter by companyId from query params
-      const { searchParams } = new URL(request.url);
       const companyId = searchParams.get('companyId');
       if (companyId) {
         query.companyId = new Types.ObjectId(companyId);
@@ -47,9 +51,20 @@ export async function GET(request: NextRequest) {
       // Company Admin sees users in their company
       query.companyId = new Types.ObjectId(session.companyId!);
     } else if (session.role === UserRole.StoreAdmin) {
-      // Store Admin sees only librarians in their store
+      // Store Admin sees users in their store
       query.storeId = new Types.ObjectId(session.storeId!);
-      query.role = UserRole.Librarian;
+      // Allow filtering by role (default to showing only librarians)
+      if (roleParam) {
+        query.role = roleParam;
+      } else {
+        query.role = UserRole.Librarian;
+      }
+    }
+
+    // Apply additional filters from query params (for StoreAdmin fetching librarians)
+    if (storeIdParam && session.role === UserRole.StoreAdmin) {
+      // StoreAdmin should only see their own store
+      query.storeId = new Types.ObjectId(session.storeId!);
     }
 
     // Exclude deleted users (deletedAt is null or undefined)
@@ -78,7 +93,7 @@ export async function GET(request: NextRequest) {
       lastLoginAt: user.lastLoginAt,
     }));
 
-    return NextResponse.json(usersData);
+    return NextResponse.json({ users: usersData });
   } catch (error) {
     console.error('Error fetching users:', error);
     return NextResponse.json(

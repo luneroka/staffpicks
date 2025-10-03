@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
+import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 /**
  * POST /api/books
  * Create a new book for the authenticated user's library
+ * Authorization: StoreAdmin and Librarian only (CompanyAdmin cannot create)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +21,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Parse request body
+    // 2. CompanyAdmin cannot create books
+    if (session.role === UserRole.CompanyAdmin) {
+      return NextResponse.json(
+        {
+          error:
+            'CompanyAdmin cannot create books. Use StoreAdmin or Librarian account.',
+        },
+        { status: 403 }
+      );
+    }
+
+    // 3. StoreAdmin and Librarian must have a storeId
+    if (!session.storeId) {
+      return NextResponse.json(
+        { error: 'User must be assigned to a store to create books' },
+        { status: 403 }
+      );
+    }
+
+    // 4. Parse request body
     const body = await request.json();
     const {
       isbn,
@@ -35,9 +56,11 @@ export async function POST(request: NextRequest) {
       ageGroup,
       purchaseLink,
       recommendation,
+      assignedTo,
+      sections,
     } = body;
 
-    // 3. Validate required fields
+    // 5. Validate required fields
     if (!isbn || !title || !authors || authors.length === 0) {
       return NextResponse.json(
         {
@@ -48,10 +71,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Connect to database
+    // 6. Connect to database
     await connectDB();
 
-    // 5. Check if book with same ISBN already exists for this company
+    // 7. Check if book with same ISBN already exists for this company
     const existingBook = await BookModel.findOne({
       companyId: new Types.ObjectId(session.companyId),
       isbn: isbn.trim(),
@@ -64,11 +87,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 6. Create new book
+    // 8. Create new book with store and assignment data
     const newBook = await BookModel.create({
       companyId: new Types.ObjectId(session.companyId),
+      storeId: new Types.ObjectId(session.storeId),
       ownerUserId: new Types.ObjectId(session.userId),
       createdBy: new Types.ObjectId(session.userId),
+      assignedTo: assignedTo
+        ? assignedTo.map((id: string) => new Types.ObjectId(id))
+        : [],
+      sections: sections || [],
       isbn: isbn.trim(),
       bookData: {
         title: title.trim(),
@@ -86,7 +114,7 @@ export async function POST(request: NextRequest) {
       recommendation,
     });
 
-    // 7. Return created book
+    // 9. Return created book
     return NextResponse.json(
       {
         message: 'Book created successfully',
@@ -105,6 +133,8 @@ export async function POST(request: NextRequest) {
           ageGroup: newBook.ageGroup,
           purchaseLink: newBook.purchaseLink,
           recommendation: newBook.recommendation,
+          assignedTo: newBook.assignedTo,
+          sections: newBook.sections,
           createdAt: newBook.createdAt,
           updatedAt: newBook.updatedAt,
         },
@@ -131,7 +161,10 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/books
- * Get all books for the authenticated user's company
+ * Get books based on user role:
+ * - CompanyAdmin: Read-only access to all books in company
+ * - StoreAdmin: Only books from their store
+ * - Librarian: Only books created by them or assigned to them
  */
 export async function GET(request: NextRequest) {
   try {
@@ -146,7 +179,6 @@ export async function GET(request: NextRequest) {
 
     // 2. Parse query parameters for filtering
     const { searchParams } = new URL(request.url);
-    const ownerUserId = searchParams.get('ownerUserId');
     const genre = searchParams.get('genre');
     const tone = searchParams.get('tone');
     const ageGroup = searchParams.get('ageGroup');
@@ -157,14 +189,37 @@ export async function GET(request: NextRequest) {
     // 3. Connect to database
     await connectDB();
 
-    // 4. Build query
+    // 4. Build query based on role
     const query: any = {
       companyId: new Types.ObjectId(session.companyId),
     };
 
-    // Filter by owner if specified
-    if (ownerUserId) {
-      query.ownerUserId = new Types.ObjectId(ownerUserId);
+    // Role-based filtering
+    if (session.role === UserRole.CompanyAdmin) {
+      // CompanyAdmin sees all books in company (read-only)
+      // No additional filter needed
+    } else if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin sees only books from their store
+      if (!session.storeId) {
+        return NextResponse.json(
+          { error: 'StoreAdmin must be assigned to a store' },
+          { status: 403 }
+        );
+      }
+      query.storeId = new Types.ObjectId(session.storeId);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian sees only books they created or are assigned to
+      if (!session.userId) {
+        return NextResponse.json(
+          { error: 'User ID not found in session' },
+          { status: 403 }
+        );
+      }
+      query.$or = [
+        { ownerUserId: new Types.ObjectId(session.userId) },
+        { createdBy: new Types.ObjectId(session.userId) },
+        { assignedTo: new Types.ObjectId(session.userId) },
+      ];
     }
 
     // Filter by facets if specified
@@ -174,11 +229,21 @@ export async function GET(request: NextRequest) {
 
     // Search filter (title, authors, or ISBN)
     if (search) {
-      query.$or = [
-        { 'bookData.title': { $regex: search, $options: 'i' } },
-        { 'bookData.authors': { $regex: search, $options: 'i' } },
-        { isbn: { $regex: search, $options: 'i' } },
-      ];
+      const searchQuery = {
+        $or: [
+          { 'bookData.title': { $regex: search, $options: 'i' } },
+          { 'bookData.authors': { $regex: search, $options: 'i' } },
+          { isbn: { $regex: search, $options: 'i' } },
+        ],
+      };
+
+      // Combine with existing $or if it exists (for librarian filtering)
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, searchQuery];
+        delete query.$or;
+      } else {
+        Object.assign(query, searchQuery);
+      }
     }
 
     // 5. Fetch books
@@ -186,8 +251,9 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(skip)
-      .populate('ownerUserId', 'name email')
-      .populate('createdBy', 'name email')
+      .populate('ownerUserId', 'firstName lastName email')
+      .populate('createdBy', 'firstName lastName email')
+      .populate('storeId', 'name code')
       .lean();
 
     // 6. Get total count for pagination
@@ -212,6 +278,9 @@ export async function GET(request: NextRequest) {
         recommendation: book.recommendation,
         owner: book.ownerUserId,
         createdBy: book.createdBy,
+        store: book.storeId,
+        assignedTo: book.assignedTo,
+        sections: book.sections,
         createdAt: book.createdAt,
         updatedAt: book.updatedAt,
       })),

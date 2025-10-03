@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
+import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 /**
  * DELETE /api/books/[id]
  * Delete a book by ID
+ * Authorization: CompanyAdmin cannot delete, StoreAdmin can delete from their store, Librarian can delete their own
  */
 export async function DELETE(
   request: NextRequest,
@@ -22,7 +24,15 @@ export async function DELETE(
       );
     }
 
-    // 2. Get ID from params
+    // 2. CompanyAdmin cannot delete books
+    if (session.role === UserRole.CompanyAdmin) {
+      return NextResponse.json(
+        { error: 'CompanyAdmin cannot delete books' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Get ID from params
     const { id } = await params;
 
     if (!id) {
@@ -40,17 +50,36 @@ export async function DELETE(
       );
     }
 
-    // 3. Connect to database
+    // 4. Connect to database
     await connectDB();
 
-    // 4. Find and delete the book
-    // Only allow deletion if book belongs to user's company
-    const deletedBook = await BookModel.findOneAndDelete({
+    // 5. Build delete query based on role
+    const deleteQuery: any = {
       _id: new Types.ObjectId(id),
       companyId: new Types.ObjectId(session.companyId),
-    });
+    };
 
-    // 5. Check if book was found and deleted
+    if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin can only delete books from their store
+      if (!session.storeId) {
+        return NextResponse.json(
+          { error: 'StoreAdmin must be assigned to a store' },
+          { status: 403 }
+        );
+      }
+      deleteQuery.storeId = new Types.ObjectId(session.storeId);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian can only delete their own books
+      deleteQuery.$or = [
+        { ownerUserId: new Types.ObjectId(session.userId) },
+        { createdBy: new Types.ObjectId(session.userId) },
+      ];
+    }
+
+    // 6. Find and delete the book
+    const deletedBook = await BookModel.findOneAndDelete(deleteQuery);
+
+    // 7. Check if book was found and deleted
     if (!deletedBook) {
       return NextResponse.json(
         { error: 'Book not found or you do not have permission to delete it' },
@@ -58,7 +87,7 @@ export async function DELETE(
       );
     }
 
-    // 6. Return success response
+    // 8. Return success response
     return NextResponse.json(
       {
         message: 'Book deleted successfully',
@@ -82,6 +111,7 @@ export async function DELETE(
 /**
  * GET /api/books/[id]
  * Get a single book by ID
+ * Authorization: Role-based visibility (CompanyAdmin: all, StoreAdmin: their store, Librarian: assigned/owned)
  */
 export async function GET(
   request: NextRequest,
@@ -118,21 +148,49 @@ export async function GET(
     // 3. Connect to database
     await connectDB();
 
-    // 4. Find the book
-    const book = await BookModel.findOne({
+    // 4. Build query based on role
+    const query: any = {
       _id: new Types.ObjectId(id),
       companyId: new Types.ObjectId(session.companyId),
-    })
-      .populate('ownerUserId', 'name email')
-      .populate('createdBy', 'name email')
+    };
+
+    if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin can only see books from their store
+      if (!session.storeId) {
+        return NextResponse.json(
+          { error: 'StoreAdmin must be assigned to a store' },
+          { status: 403 }
+        );
+      }
+      query.storeId = new Types.ObjectId(session.storeId);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian can only see books they created or are assigned to
+      if (!session.userId) {
+        return NextResponse.json(
+          { error: 'User ID not found in session' },
+          { status: 403 }
+        );
+      }
+      query.$or = [
+        { ownerUserId: new Types.ObjectId(session.userId) },
+        { createdBy: new Types.ObjectId(session.userId) },
+        { assignedTo: new Types.ObjectId(session.userId) },
+      ];
+    }
+
+    // 5. Find the book
+    const book = await BookModel.findOne(query)
+      .populate('ownerUserId', 'firstName lastName email')
+      .populate('createdBy', 'firstName lastName email')
+      .populate('storeId', 'name code')
       .lean();
 
-    // 5. Check if book exists
+    // 6. Check if book exists
     if (!book) {
       return NextResponse.json({ error: 'Book not found' }, { status: 404 });
     }
 
-    // 6. Return book
+    // 7. Return book
     return NextResponse.json({
       book: {
         id: book._id.toString(),
@@ -151,6 +209,9 @@ export async function GET(
         recommendation: book.recommendation,
         owner: book.ownerUserId,
         createdBy: book.createdBy,
+        store: book.storeId,
+        assignedTo: book.assignedTo,
+        sections: book.sections,
         createdAt: book.createdAt,
         updatedAt: book.updatedAt,
       },
@@ -167,6 +228,7 @@ export async function GET(
 /**
  * PUT /api/books/[id]
  * Update a book by ID
+ * Authorization: CompanyAdmin cannot edit, StoreAdmin can edit their store's books, Librarian can edit their own
  */
 export async function PUT(
   request: NextRequest,
@@ -182,7 +244,15 @@ export async function PUT(
       );
     }
 
-    // 2. Get ID from params
+    // 2. CompanyAdmin cannot edit books
+    if (session.role === UserRole.CompanyAdmin) {
+      return NextResponse.json(
+        { error: 'CompanyAdmin cannot edit books' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Get ID from params
     const { id } = await params;
 
     if (!id) {
@@ -200,7 +270,7 @@ export async function PUT(
       );
     }
 
-    // 3. Parse request body
+    // 4. Parse request body
     const body = await request.json();
     const {
       title,
@@ -215,9 +285,11 @@ export async function PUT(
       ageGroup,
       purchaseLink,
       recommendation,
+      assignedTo,
+      sections,
     } = body;
 
-    // 4. Validate required fields
+    // 5. Validate required fields
     if (!title || !authors || authors.length === 0) {
       return NextResponse.json(
         { error: 'Missing required fields: title and authors are required' },
@@ -225,38 +297,70 @@ export async function PUT(
       );
     }
 
-    // 5. Connect to database
+    // 6. Connect to database
     await connectDB();
 
-    // 6. Find and update the book
+    // 7. Build query based on role
+    const updateQuery: any = {
+      _id: new Types.ObjectId(id),
+      companyId: new Types.ObjectId(session.companyId),
+    };
+
+    if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin can only edit books from their store
+      if (!session.storeId) {
+        return NextResponse.json(
+          { error: 'StoreAdmin must be assigned to a store' },
+          { status: 403 }
+        );
+      }
+      updateQuery.storeId = new Types.ObjectId(session.storeId);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian can only edit their own books
+      updateQuery.$or = [
+        { ownerUserId: new Types.ObjectId(session.userId) },
+        { createdBy: new Types.ObjectId(session.userId) },
+      ];
+    }
+
+    // 8. Find and update the book
+    const updateData: any = {
+      bookData: {
+        title: title.trim(),
+        authors: authors.map((author: string) => author.trim()),
+        cover,
+        description,
+        publisher,
+        pageCount,
+        publishDate: publishDate ? new Date(publishDate) : undefined,
+      },
+      genre,
+      tone,
+      ageGroup,
+      purchaseLink,
+      recommendation,
+      updatedBy: new Types.ObjectId(session.userId),
+    };
+
+    // Only StoreAdmin can update assignedTo and sections
+    if (session.role === UserRole.StoreAdmin) {
+      if (assignedTo !== undefined) {
+        updateData.assignedTo = assignedTo.map(
+          (id: string) => new Types.ObjectId(id)
+        );
+      }
+      if (sections !== undefined) {
+        updateData.sections = sections;
+      }
+    }
+
     const updatedBook = await BookModel.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(id),
-        companyId: new Types.ObjectId(session.companyId),
-      },
-      {
-        $set: {
-          bookData: {
-            title: title.trim(),
-            authors: authors.map((author: string) => author.trim()),
-            cover,
-            description,
-            publisher,
-            pageCount,
-            publishDate: publishDate ? new Date(publishDate) : undefined,
-          },
-          genre,
-          tone,
-          ageGroup,
-          purchaseLink,
-          recommendation,
-          updatedBy: new Types.ObjectId(session.userId),
-        },
-      },
+      updateQuery,
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 
-    // 7. Check if book was found and updated
+    // 9. Check if book was found and updated
     if (!updatedBook) {
       return NextResponse.json(
         { error: 'Book not found or you do not have permission to update it' },
@@ -264,7 +368,7 @@ export async function PUT(
       );
     }
 
-    // 8. Return updated book
+    // 10. Return updated book
     return NextResponse.json(
       {
         message: 'Book updated successfully',
@@ -283,6 +387,8 @@ export async function PUT(
           ageGroup: updatedBook.ageGroup,
           purchaseLink: updatedBook.purchaseLink,
           recommendation: updatedBook.recommendation,
+          assignedTo: updatedBook.assignedTo,
+          sections: updatedBook.sections,
           updatedAt: updatedBook.updatedAt,
         },
       },
