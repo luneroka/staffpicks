@@ -57,6 +57,7 @@ const UserSettingsForm = ({
   const [success, setSuccess] = useState<string>('');
   const [stores, setStores] = useState<any[]>([]);
   const [loadingStores, setLoadingStores] = useState(false);
+  const [currentStoreName, setCurrentStoreName] = useState<string>('');
   const [newSection, setNewSection] = useState('');
 
   // Remove session fetching - we get it from props now
@@ -69,14 +70,46 @@ const UserSettingsForm = ({
   }, [initialData]);
 
   useEffect(() => {
-    // Fetch stores when role requires store assignment
+    // Fetch current store name for StoreAdmin
+    const fetchCurrentStore = async () => {
+      if (currentUserRole === 'storeAdmin' && currentUserStoreId) {
+        try {
+          const response = await fetch(`/api/stores/${currentUserStoreId}`);
+          const data = await response.json();
+          if (response.ok) {
+            setCurrentStoreName(data.name);
+          }
+        } catch (err) {
+          console.error('Error fetching current store:', err);
+        }
+      }
+    };
+
+    fetchCurrentStore();
+  }, [currentUserRole, currentUserStoreId]);
+
+  useEffect(() => {
+    // Auto-set storeId for StoreAdmin creating users
+    if (
+      mode === 'create' &&
+      currentUserRole === 'storeAdmin' &&
+      currentUserStoreId &&
+      !editedData.storeId
+    ) {
+      setEditedData((prev) => ({ ...prev, storeId: currentUserStoreId }));
+    }
+  }, [mode, currentUserRole, currentUserStoreId, editedData.storeId]);
+
+  useEffect(() => {
+    // Fetch stores when role requires store assignment (but not for StoreAdmin creating users)
     if (
       isEditing &&
-      (editedData.role === 'storeAdmin' || editedData.role === 'librarian')
+      (editedData.role === 'storeAdmin' || editedData.role === 'librarian') &&
+      currentUserRole !== 'storeAdmin' // StoreAdmin doesn't need the store list
     ) {
       fetchStores();
     }
-  }, [isEditing, editedData.role]);
+  }, [isEditing, editedData.role, currentUserRole]);
 
   // Auto-dismiss success message
   useEffect(() => {
@@ -564,7 +597,23 @@ const UserSettingsForm = ({
                   </label>
                   {isEditing ? (
                     <>
-                      {loadingStores ? (
+                      {currentUserRole === 'storeAdmin' ? (
+                        // StoreAdmin: show their store as locked/disabled
+                        <>
+                          <input
+                            type='text'
+                            value={currentStoreName || 'Votre magasin'}
+                            className='input input-bordered w-full'
+                            disabled
+                          />
+                          <label className='label'>
+                            <span className='label-text-alt text-info'>
+                              💡 Les utilisateurs que vous créez seront
+                              automatiquement assignés à votre magasin
+                            </span>
+                          </label>
+                        </>
+                      ) : loadingStores ? (
                         <span className='loading loading-spinner'></span>
                       ) : (
                         <select
