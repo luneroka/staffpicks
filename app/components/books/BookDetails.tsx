@@ -31,6 +31,11 @@ interface BookDetailsProps {
       name: string;
       email: string;
     };
+    createdBy?: {
+      _id: string;
+      name: string;
+      email: string;
+    };
     storeId?: string;
     storeName?: string;
     assignedTo?: string[];
@@ -148,7 +153,7 @@ const BookDetails = ({ book, userRole }: BookDetailsProps) => {
               </div>
 
               {/* Action Buttons */}
-              <div className='card-actions justify-start flex-wrap gap-6'>
+              <div className='card-actions justify-start items-center flex-wrap gap-6'>
                 {book.purchaseLink && (
                   <a
                     href={book.purchaseLink}
@@ -179,6 +184,12 @@ const BookDetails = ({ book, userRole }: BookDetailsProps) => {
                       Supprimer
                     </button>
                   </>
+                )}
+
+                {book.createdBy && (
+                  <div className='text-sm text-base-content/70 italic'>
+                    Ajouté par : {book.createdBy.name}
+                  </div>
                 )}
               </div>
             </div>

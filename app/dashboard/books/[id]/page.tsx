@@ -49,8 +49,8 @@ const BookPage = async ({ params }: BookPageProps) => {
 
   // Fetch the book with role-based filtering
   const book = await BookModel.findOne(query)
-    .populate('ownerUserId', 'name email')
-    .populate('createdBy', 'name email')
+    .populate('ownerUserId', 'firstName lastName email')
+    .populate('createdBy', 'firstName lastName email')
     .populate('storeId', 'name code')
     .lean();
 
@@ -78,14 +78,14 @@ const BookPage = async ({ params }: BookPageProps) => {
     owner: book.ownerUserId
       ? {
           _id: book.ownerUserId._id.toString(),
-          name: book.ownerUserId.name,
+          name: `${book.ownerUserId.firstName} ${book.ownerUserId.lastName}`,
           email: book.ownerUserId.email,
         }
       : undefined,
     createdBy: book.createdBy
       ? {
           _id: book.createdBy._id.toString(),
-          name: book.createdBy.name,
+          name: `${book.createdBy.firstName} ${book.createdBy.lastName}`,
           email: book.createdBy.email,
         }
       : undefined,

@@ -167,21 +167,32 @@ export default async function UsersPage() {
                     <tr key={user._id} className='hover'>
                       <td>
                         <div className='flex items-center gap-3'>
-                          <div className='avatar placeholder'>
-                            <div className='w-10 h-10 rounded-full bg-primary text-primary-content'>
-                              {user.avatarUrl ? (
+                          {user.avatarUrl ? (
+                            <div className='avatar'>
+                              <div className='w-10 h-10 rounded-full'>
                                 <img
                                   src={user.avatarUrl}
                                   alt={`${user.firstName} ${user.lastName}`}
                                 />
-                              ) : (
-                                <span className='text-sm'>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className='avatar placeholder'>
+                              <div
+                                className='bg-primary text-primary-content w-10 h-10 rounded-full'
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <span className='text-xs font-bold uppercase'>
                                   {user.firstName[0]}
                                   {user.lastName[0]}
                                 </span>
-                              )}
+                              </div>
                             </div>
-                          </div>
+                          )}
                           <div>
                             <div className='font-semibold'>
                               {user.firstName} {user.lastName}
