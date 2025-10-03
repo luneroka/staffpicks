@@ -192,26 +192,29 @@ const NavBar = ({
       </Link>
 
       {/* MIDDLE */}
-      <div role='tablist' className='tabs tabs-border'>
-        <Link
-          href='/dashboard/lists'
-          role='tab'
-          className={`tab  ${
-            pathname === '/dashboard/lists' ? 'tab-active' : ''
-          }`}
-        >
-          Mes listes
-        </Link>
-        <Link
-          href='/dashboard/books'
-          role='tab'
-          className={`tab  ${
-            pathname === '/dashboard/books' ? 'tab-active' : ''
-          }`}
-        >
-          Mes livres
-        </Link>
-      </div>
+      {/* Only show tabs for StoreAdmin and Librarian, not CompanyAdmin */}
+      {userRole !== UserRole.CompanyAdmin && (
+        <div role='tablist' className='tabs tabs-border'>
+          <Link
+            href='/dashboard/lists'
+            role='tab'
+            className={`tab  ${
+              pathname === '/dashboard/lists' ? 'tab-active' : ''
+            }`}
+          >
+            Mes listes
+          </Link>
+          <Link
+            href='/dashboard/books'
+            role='tab'
+            className={`tab  ${
+              pathname === '/dashboard/books' ? 'tab-active' : ''
+            }`}
+          >
+            Mes livres
+          </Link>
+        </div>
+      )}
 
       {/* RIGHT */}
       <div className='flex gap-2 items-center '>
