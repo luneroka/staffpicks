@@ -118,10 +118,6 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
               <p className='text-base-content/60 mb-4'>
                 Aucun utilisateur assigné à ce magasin
               </p>
-              <AssignUserToStore
-                storeId={params.id}
-                assignedUserIds={usersData.map((u: any) => u._id)}
-              />
             </div>
           ) : (
             <div className='overflow-x-auto'>
