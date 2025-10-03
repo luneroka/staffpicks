@@ -3,20 +3,39 @@ import ListCard from '@/app/components/lists/ListCard';
 import { requireAuth } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
-import { UserModel } from '@/app/lib/models/User';
+import { UserModel, UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 const Lists = async () => {
   // Ensure user is authenticated
   const session = await requireAuth();
 
-  // Connect to database and fetch lists
+  // Connect to database and fetch lists with role-based filtering
   await connectDB();
-  const lists = await ListModel.find({
+
+  // Build query based on user role
+  let query: any = {
     companyId: new Types.ObjectId(session.companyId!),
     deletedAt: { $exists: false },
-  })
+  };
+
+  if (session.role === UserRole.CompanyAdmin) {
+    // CompanyAdmin sees all lists in the company
+    // No additional filters needed
+  } else if (session.role === UserRole.StoreAdmin) {
+    // StoreAdmin sees only lists from their store
+    query.storeId = new Types.ObjectId(session.storeId!);
+  } else if (session.role === UserRole.Librarian) {
+    // Librarian sees only lists they created or are assigned to
+    query.$or = [
+      { createdBy: new Types.ObjectId(session.userId!) },
+      { assignedTo: new Types.ObjectId(session.userId!) },
+    ];
+  }
+
+  const lists = await ListModel.find(query)
     .populate('createdBy', 'firstName lastName email')
+    .populate('storeId', 'name code')
     .sort({ updatedAt: -1 })
     .lean();
 
@@ -45,9 +64,14 @@ const Lists = async () => {
 
   return (
     <div className='flex flex-col gap-12'>
-      <Link href={'/dashboard/lists/new'}>
-        <div className='btn btn-primary btn-soft w-fit'>Ajouter une liste</div>
-      </Link>
+      {/* Hide "Add List" button for CompanyAdmin */}
+      {session.role !== UserRole.CompanyAdmin && (
+        <Link href={'/dashboard/lists/new'}>
+          <div className='btn btn-primary btn-soft w-fit'>
+            Ajouter une liste
+          </div>
+        </Link>
+      )}
 
       <div id='list-display' className='flex flex-wrap gap-8 mt-[-16px]'>
         {listsData.length === 0 ? (

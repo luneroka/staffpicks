@@ -44,12 +44,17 @@ interface ListDetailsProps {
       name: string;
       email: string;
     };
+    storeId?: string;
+    storeName?: string;
+    assignedTo?: string[];
+    sections?: string[];
     createdAt?: Date;
     updatedAt?: Date;
   };
+  userRole?: string;
 }
 
-const ListDetails = ({ list }: ListDetailsProps) => {
+const ListDetails = ({ list, userRole }: ListDetailsProps) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -150,21 +155,26 @@ const ListDetails = ({ list }: ListDetailsProps) => {
 
               {/* Action Buttons */}
               <div className='flex card-actions justify-start gap-6'>
-                <Link
-                  href={`/dashboard/lists/${list.id}/edit`}
-                  className='btn btn-soft btn-primary'
-                >
-                  <HiPencilAlt className='h-4 w-4' />
-                  Modifier
-                </Link>
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  className='btn btn-soft btn-error'
-                  disabled={isDeleting}
-                >
-                  <HiTrash className='h-4 w-4' />
-                  Supprimer
-                </button>
+                {/* Hide Edit and Delete buttons for CompanyAdmin */}
+                {userRole !== 'companyAdmin' && (
+                  <>
+                    <Link
+                      href={`/dashboard/lists/${list.id}/edit`}
+                      className='btn btn-soft btn-primary'
+                    >
+                      <HiPencilAlt className='h-4 w-4' />
+                      Modifier
+                    </Link>
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className='btn btn-soft btn-error'
+                      disabled={isDeleting}
+                    >
+                      <HiTrash className='h-4 w-4' />
+                      Supprimer
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

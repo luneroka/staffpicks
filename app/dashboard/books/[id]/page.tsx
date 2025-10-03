@@ -3,6 +3,7 @@ import BackButton from '@/app/components/BackButton';
 import { requireAuth } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
+import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
 
@@ -26,13 +27,31 @@ const BookPage = async ({ params }: BookPageProps) => {
   // Connect to database
   await connectDB();
 
-  // Fetch the book by ID and company
-  const book = await BookModel.findOne({
+  // Build query based on user role
+  let query: any = {
     _id: new Types.ObjectId(id),
     companyId: new Types.ObjectId(session.companyId!),
-  })
+  };
+
+  if (session.role === UserRole.CompanyAdmin) {
+    // CompanyAdmin can see all books in the company
+    // No additional filters needed
+  } else if (session.role === UserRole.StoreAdmin) {
+    // StoreAdmin can only see books from their store
+    query.storeId = new Types.ObjectId(session.storeId!);
+  } else if (session.role === UserRole.Librarian) {
+    // Librarian can only see books they created or are assigned to
+    query.$or = [
+      { createdBy: new Types.ObjectId(session.userId!) },
+      { assignedTo: new Types.ObjectId(session.userId!) },
+    ];
+  }
+
+  // Fetch the book with role-based filtering
+  const book = await BookModel.findOne(query)
     .populate('ownerUserId', 'name email')
     .populate('createdBy', 'name email')
+    .populate('storeId', 'name code')
     .lean();
 
   // If book not found, show 404
@@ -70,6 +89,10 @@ const BookPage = async ({ params }: BookPageProps) => {
           email: book.createdBy.email,
         }
       : undefined,
+    storeId: book.storeId?._id?.toString(),
+    storeName: book.storeId?.name,
+    assignedTo: book.assignedTo || [],
+    sections: book.sections || [],
     createdAt: book.createdAt,
     updatedAt: book.updatedAt,
   };
@@ -77,7 +100,7 @@ const BookPage = async ({ params }: BookPageProps) => {
   return (
     <div>
       <BackButton className='mt-[-16px]' />
-      <BookDetails book={bookData} />
+      <BookDetails book={bookData} userRole={session.role} />
     </div>
   );
 };

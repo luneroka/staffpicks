@@ -31,12 +31,17 @@ interface BookDetailsProps {
       name: string;
       email: string;
     };
+    storeId?: string;
+    storeName?: string;
+    assignedTo?: string[];
+    sections?: string[];
     createdAt?: Date;
     updatedAt?: Date;
   };
+  userRole?: string;
 }
 
-const BookDetails = ({ book }: BookDetailsProps) => {
+const BookDetails = ({ book, userRole }: BookDetailsProps) => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -155,21 +160,26 @@ const BookDetails = ({ book }: BookDetailsProps) => {
                     Lien boutique
                   </a>
                 )}
-                <Link
-                  href={`/dashboard/books/${book.id}/edit`}
-                  className='btn btn-soft btn-primary'
-                >
-                  <HiPencilAlt className='h-5 w-5' />
-                  Modifier
-                </Link>
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  className='btn btn-soft btn-error'
-                  disabled={isDeleting}
-                >
-                  <HiTrash className='h-5 w-5' />
-                  Supprimer
-                </button>
+                {/* Hide Edit and Delete buttons for CompanyAdmin */}
+                {userRole !== 'companyAdmin' && (
+                  <>
+                    <Link
+                      href={`/dashboard/books/${book.id}/edit`}
+                      className='btn btn-soft btn-primary'
+                    >
+                      <HiPencilAlt className='h-5 w-5' />
+                      Modifier
+                    </Link>
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className='btn btn-soft btn-error'
+                      disabled={isDeleting}
+                    >
+                      <HiTrash className='h-5 w-5' />
+                      Supprimer
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

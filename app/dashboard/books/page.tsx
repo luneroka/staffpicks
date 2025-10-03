@@ -3,6 +3,7 @@ import Book from '@/app/components/books/Book';
 import { requireAuth } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
+import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 interface BookData {
@@ -20,12 +21,30 @@ const Books = async () => {
   // Connect to database
   await connectDB();
 
-  // Fetch books for the user's company
-  const books = await BookModel.find({
+  // Build query based on user role
+  let query: any = {
     companyId: new Types.ObjectId(session.companyId!),
-  })
+  };
+
+  if (session.role === UserRole.CompanyAdmin) {
+    // CompanyAdmin sees all books in the company
+    // No additional filters needed
+  } else if (session.role === UserRole.StoreAdmin) {
+    // StoreAdmin sees only books from their store
+    query.storeId = new Types.ObjectId(session.storeId!);
+  } else if (session.role === UserRole.Librarian) {
+    // Librarian sees only books they created or are assigned to
+    query.$or = [
+      { createdBy: new Types.ObjectId(session.userId!) },
+      { assignedTo: new Types.ObjectId(session.userId!) },
+    ];
+  }
+
+  // Fetch books with role-based filtering
+  const books = await BookModel.find(query)
     .sort({ createdAt: -1 })
     .populate('ownerUserId', 'name email')
+    .populate('storeId', 'name code')
     .lean();
 
   // Convert MongoDB documents to plain objects
@@ -39,9 +58,12 @@ const Books = async () => {
 
   return (
     <div className='flex flex-col gap-12'>
-      <Link href={'/dashboard/books/new'}>
-        <div className='btn btn-soft btn-primary w-fit'>Ajouter un livre</div>
-      </Link>
+      {/* Hide "Add Book" button for CompanyAdmin */}
+      {session.role !== UserRole.CompanyAdmin && (
+        <Link href={'/dashboard/books/new'}>
+          <div className='btn btn-soft btn-primary w-fit'>Ajouter un livre</div>
+        </Link>
+      )}
 
       <div className='flex flex-col gap-8'>
         {booksData.length === 0 ? (
