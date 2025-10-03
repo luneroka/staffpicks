@@ -12,6 +12,14 @@ interface BookData {
   title: string;
   cover: string;
   authors: string[];
+  genre?: string;
+  storeId?: string;
+  storeName?: string;
+  createdBy?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
 }
 
 const Books = async () => {
@@ -43,7 +51,7 @@ const Books = async () => {
   // Fetch books with role-based filtering
   const books = await BookModel.find(query)
     .sort({ createdAt: -1 })
-    .populate('ownerUserId', 'name email')
+    .populate('createdBy', 'firstName lastName')
     .populate('storeId', 'name code')
     .lean();
 
@@ -54,6 +62,16 @@ const Books = async () => {
     title: book.bookData.title,
     cover: book.bookData.cover,
     authors: book.bookData.authors,
+    genre: book.genre,
+    storeId: book.storeId?._id?.toString(),
+    storeName: book.storeId?.name,
+    createdBy: book.createdBy
+      ? {
+          _id: book.createdBy._id.toString(),
+          firstName: book.createdBy.firstName,
+          lastName: book.createdBy.lastName,
+        }
+      : undefined,
   }));
 
   return (

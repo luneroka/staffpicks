@@ -10,6 +10,11 @@ import {
   HiDocumentText,
   HiStar,
 } from 'react-icons/hi';
+import {
+  getGenreLabel,
+  getToneLabel,
+  getAgeGroupLabel,
+} from '@/app/lib/utils/bookUtils';
 
 interface BookDetailsProps {
   book: {
@@ -110,17 +115,17 @@ const BookDetails = ({ book, userRole }: BookDetailsProps) => {
                 <div className='flex flex-wrap gap-2 mb-4'>
                   {book.genre && (
                     <div className='badge badge-primary badge-lg'>
-                      {book.genre}
+                      {getGenreLabel(book.genre)}
                     </div>
                   )}
                   {book.tone && (
                     <div className='badge badge-secondary badge-lg'>
-                      {book.tone}
+                      {getToneLabel(book.tone)}
                     </div>
                   )}
                   {book.ageGroup && (
                     <div className='badge badge-accent badge-lg'>
-                      {book.ageGroup}
+                      {getAgeGroupLabel(book.ageGroup)}
                     </div>
                   )}
                 </div>

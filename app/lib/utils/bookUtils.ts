@@ -2,6 +2,12 @@
  * Book utility functions
  */
 
+import {
+  getGenreByValue,
+  getToneByValue,
+  getAgeGroupByValue,
+} from '@/app/lib/facets';
+
 interface BookData {
   _id: string;
   isbn: string;
@@ -49,4 +55,34 @@ export function findBookAndExtractProps(
 ): BookComponentProps | null {
   const book = books.find((book) => book._id === bookId);
   return book ? extractBookProps(book) : null;
+}
+
+/**
+ * Get formatted genre label from stored value
+ * Returns the properly formatted label with capitalization and accents
+ */
+export function getGenreLabel(value: string | undefined): string {
+  if (!value) return '';
+  const genre = getGenreByValue(value);
+  return genre ? genre.label : value;
+}
+
+/**
+ * Get formatted tone label from stored value
+ * Returns the properly formatted label with capitalization and accents
+ */
+export function getToneLabel(value: string | undefined): string {
+  if (!value) return '';
+  const tone = getToneByValue(value);
+  return tone ? tone.label : value;
+}
+
+/**
+ * Get formatted age group label from stored value
+ * Returns the properly formatted label with capitalization and accents
+ */
+export function getAgeGroupLabel(value: string | undefined): string {
+  if (!value) return '';
+  const ageGroup = getAgeGroupByValue(value);
+  return ageGroup ? ageGroup.label : value;
 }

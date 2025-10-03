@@ -6,6 +6,7 @@ import BackButton from '@/app/components/BackButton';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { getGenreLabel } from '@/app/lib/utils/bookUtils';
 
 interface BookData {
   id: string;
@@ -13,6 +14,14 @@ interface BookData {
   title: string;
   cover: string;
   authors: string[];
+  genre?: string;
+  storeId?: string;
+  storeName?: string;
+  createdBy?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  };
 }
 
 interface BooksProps {
@@ -38,6 +47,77 @@ const BooksClient = ({ initialBooks, userRole }: BooksProps) => {
     }
   }, [searchParams, hasShownToast]);
 
+  // Group books based on user role
+  const groupedBooks = () => {
+    if (userRole === 'companyAdmin') {
+      // Group by store
+      const groups = new Map<
+        string,
+        { storeName: string; books: BookData[] }
+      >();
+
+      initialBooks.forEach((book) => {
+        const storeKey = book.storeId || 'no-store';
+        const storeName = book.storeName || 'Sans magasin';
+
+        if (!groups.has(storeKey)) {
+          groups.set(storeKey, { storeName, books: [] });
+        }
+        groups.get(storeKey)!.books.push(book);
+      });
+
+      return Array.from(groups.values()).map((group) => ({
+        title: group.storeName,
+        books: group.books,
+      }));
+    } else if (userRole === 'storeAdmin') {
+      // Group by librarian (createdBy)
+      const groups = new Map<
+        string,
+        { librarianName: string; books: BookData[] }
+      >();
+
+      initialBooks.forEach((book) => {
+        const librarianKey = book.createdBy?._id || 'no-creator';
+        const librarianName = book.createdBy
+          ? `${book.createdBy.firstName} ${book.createdBy.lastName}`
+          : 'Créateur inconnu';
+
+        if (!groups.has(librarianKey)) {
+          groups.set(librarianKey, { librarianName, books: [] });
+        }
+        groups.get(librarianKey)!.books.push(book);
+      });
+
+      return Array.from(groups.values()).map((group) => ({
+        title: group.librarianName,
+        books: group.books,
+      }));
+    } else if (userRole === 'librarian') {
+      // Group by genre
+      const groups = new Map<string, BookData[]>();
+
+      initialBooks.forEach((book) => {
+        const genre = book.genre || 'sans-genre';
+
+        if (!groups.has(genre)) {
+          groups.set(genre, []);
+        }
+        groups.get(genre)!.push(book);
+      });
+
+      return Array.from(groups.entries()).map(([genre, books]) => ({
+        title: getGenreLabel(genre) || 'Sans genre',
+        books: books,
+      }));
+    }
+
+    // Default: no grouping
+    return [{ title: '', books: initialBooks }];
+  };
+
+  const bookGroups = groupedBooks();
+
   return (
     <>
       {userRole === 'companyAdmin' && <BackButton className='mb-8' />}
@@ -62,14 +142,25 @@ const BooksClient = ({ initialBooks, userRole }: BooksProps) => {
               </p>
             </div>
           ) : (
-            <div id='book-display' className='flex flex-wrap gap-8'>
-              {initialBooks.map((book: BookData) => (
-                <Book
-                  key={book.id}
-                  coverUrl={book.cover}
-                  id={book.id}
-                  title={book.title}
-                />
+            <div className='flex flex-col gap-12'>
+              {bookGroups.map((group, index) => (
+                <div key={index} className='flex flex-col gap-6'>
+                  {group.title && (
+                    <h2 className='text-2xl font-bold text-base-content'>
+                      {group.title}
+                    </h2>
+                  )}
+                  <div id='book-display' className='flex flex-wrap gap-8'>
+                    {group.books.map((book: BookData) => (
+                      <Book
+                        key={book.id}
+                        coverUrl={book.cover}
+                        id={book.id}
+                        title={book.title}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}

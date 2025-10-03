@@ -247,7 +247,7 @@ const Dashboard = async () => {
           <Link href='/dashboard/lists' className='group'>
             <div className='flex gap-2 items-center'>
               <h2 className='h2-light group-hover:underline'>
-                Mes listes publiques
+                Listes publiques
               </h2>
               <IoIosArrowForward />
             </div>
@@ -278,9 +278,7 @@ const Dashboard = async () => {
         <div className='flex gap-2 items-center'>
           <Link href='/dashboard/books' className='group'>
             <div className='flex gap-2 items-center'>
-              <h2 className='h2-light group-hover:underline'>
-                Mes livres par genre
-              </h2>
+              <h2 className='h2-light group-hover:underline'>Livres</h2>
               <IoIosArrowForward />
             </div>
           </Link>
