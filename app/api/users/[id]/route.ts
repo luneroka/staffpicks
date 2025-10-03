@@ -3,7 +3,7 @@ import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { SessionData, sessionOptions } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
-import { UserModel, UserRole } from '@/app/lib/models/User';
+import { UserModel, UserRole, UserStatus } from '@/app/lib/models/User';
 import { StoreModel } from '@/app/lib/models/Store';
 import { Types } from 'mongoose';
 
@@ -38,7 +38,7 @@ export async function GET(
       .populate('storeId', 'name code')
       .lean();
 
-    if (!user) {
+    if (!user || user.deletedAt) {
       return NextResponse.json(
         { error: 'Utilisateur non trouvé' },
         { status: 404 }
@@ -65,6 +65,7 @@ export async function GET(
       lastName: user.lastName,
       email: user.email,
       role: user.role,
+      status: user.status,
       companyId: user.companyId?.toString(),
       storeId: user.storeId?._id?.toString(),
       storeName: (user.storeId as any)?.name,
@@ -257,7 +258,7 @@ export async function DELETE(
       if (user.companyId?.toString() !== session.companyId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
-      // Company admins cannot delete admins
+      // Company admins cannot delete admins or other company admins
       if (user.role === UserRole.Admin || user.role === UserRole.CompanyAdmin) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
@@ -272,15 +273,16 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
-    await user.deleteOne();
+    // Soft delete: Deactivate the user instead of removing from database
+    await user.deactivate();
 
     return NextResponse.json({
-      message: 'Utilisateur supprimé avec succès',
+      message: 'Utilisateur désactivé avec succès',
     });
   } catch (error) {
-    console.error('Error deleting user:', error);
+    console.error('Error deactivating user:', error);
     return NextResponse.json(
-      { error: "Erreur lors de la suppression de l'utilisateur" },
+      { error: "Erreur lors de la désactivation de l'utilisateur" },
       { status: 500 }
     );
   }

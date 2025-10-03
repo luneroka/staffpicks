@@ -52,6 +52,9 @@ export async function GET(request: NextRequest) {
       query.role = UserRole.Librarian;
     }
 
+    // Exclude deleted users (deletedAt is null or undefined)
+    query.deletedAt = { $exists: false };
+
     // Fetch users with store information
     const users = await UserModel.find(query)
       .populate('storeId', 'name code')
@@ -65,6 +68,7 @@ export async function GET(request: NextRequest) {
       lastName: user.lastName,
       email: user.email,
       role: user.role,
+      status: user.status,
       storeId: user.storeId?._id?.toString(),
       storeName: user.storeId?.name,
       storeCode: user.storeId?.code,
