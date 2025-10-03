@@ -57,7 +57,7 @@ const Dashboard = async () => {
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
           {/* Total Stores */}
           <Link href='/dashboard/settings/stores'>
-            <div className='card bg-primary/10 border border-primary/20'>
+            <div className='card bg-primary/10 border border-primary/20 hover:bg-primary/15 hover:shadow-lg hover:scale-105 transition-all duration-300'>
               <div className='card-body'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -76,7 +76,7 @@ const Dashboard = async () => {
 
           {/* Total Users */}
           <Link href='/dashboard/settings/users'>
-            <div className='card bg-secondary/10 border border-secondary/20'>
+            <div className='card bg-secondary/10 border border-secondary/20 hover:bg-secondary/15 hover:shadow-lg hover:scale-105 transition-all duration-300'>
               <div className='card-body'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -95,7 +95,7 @@ const Dashboard = async () => {
 
           {/* Total Books */}
           <Link href='/dashboard/books'>
-            <div className='card bg-accent/10 border border-accent/20'>
+            <div className='card bg-accent/10 border border-accent/20 hover:bg-accent/15 hover:shadow-lg hover:scale-105 transition-all duration-300'>
               <div className='card-body'>
                 <div className='flex items-center justify-between'>
                   <div>
@@ -112,7 +112,7 @@ const Dashboard = async () => {
 
           {/* Total Lists */}
           <Link href='/dashboard/lists'>
-            <div className='card bg-info/10 border border-info/20'>
+            <div className='card bg-info/10 border border-info/20 hover:bg-info/15 hover:shadow-lg hover:scale-105 transition-all duration-300'>
               <div className='card-body'>
                 <div className='flex items-center justify-between'>
                   <div>
