@@ -3,6 +3,7 @@ import { getSession } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel, ListVisibility } from '@/app/lib/models/List';
 import { BookModel } from '@/app/lib/models/Book';
+import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 /**
@@ -63,7 +64,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Parse request body
+    // 2. Check authorization - CompanyAdmin cannot create lists
+    if (session.role === UserRole.CompanyAdmin) {
+      return NextResponse.json(
+        { error: 'CompanyAdmin cannot create lists' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Check storeId is present for StoreAdmin and Librarian
+    if (!session.storeId) {
+      return NextResponse.json(
+        { error: 'Store ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // 4. Parse request body
     const body = await request.json();
     const {
       title,
@@ -73,6 +90,8 @@ export async function POST(request: NextRequest) {
       publishAt,
       unpublishAt,
       items = [],
+      assignedTo = [],
+      sections = [],
     } = body;
 
     // 3. Validate required fields
@@ -141,6 +160,7 @@ export async function POST(request: NextRequest) {
     // 9. Create the list
     const newList = await ListModel.create({
       companyId: new Types.ObjectId(session.companyId),
+      storeId: new Types.ObjectId(session.storeId!),
       ownerUserId: new Types.ObjectId(session.userId),
       createdBy: new Types.ObjectId(session.userId),
       title: title.trim(),
@@ -151,6 +171,8 @@ export async function POST(request: NextRequest) {
       publishAt: publishAt ? new Date(publishAt) : undefined,
       unpublishAt: unpublishAt ? new Date(unpublishAt) : undefined,
       items: processedItems,
+      assignedTo: assignedTo.map((id: string) => new Types.ObjectId(id)),
+      sections: sections || [],
     });
 
     // 10. Populate the created list with book details
@@ -161,6 +183,7 @@ export async function POST(request: NextRequest) {
       })
       .populate('ownerUserId', 'name email')
       .populate('createdBy', 'name email')
+      .populate('storeId', 'name code')
       .lean();
 
     // 11. Return success response
@@ -190,6 +213,9 @@ export async function POST(request: NextRequest) {
           })),
           owner: populatedList!.ownerUserId,
           createdBy: populatedList!.createdBy,
+          storeId: populatedList!.storeId,
+          assignedTo: populatedList!.assignedTo,
+          sections: populatedList!.sections,
           createdAt: populatedList!.createdAt,
           updatedAt: populatedList!.updatedAt,
         },
@@ -228,7 +254,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/lists
- * Get all lists for the authenticated user's company
+ * Get all lists for the authenticated user's company with role-based filtering
  */
 export async function GET(request: NextRequest) {
   try {
@@ -252,11 +278,26 @@ export async function GET(request: NextRequest) {
     // 3. Connect to database
     await connectDB();
 
-    // 4. Build query
-    const query: any = {
+    // 4. Build query based on user role
+    let query: any = {
       companyId: new Types.ObjectId(session.companyId),
       deletedAt: { $exists: false },
     };
+
+    // Role-based filtering
+    if (session.role === UserRole.CompanyAdmin) {
+      // CompanyAdmin sees all lists in the company
+      // No additional filters needed
+    } else if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin sees only lists from their store
+      query.storeId = new Types.ObjectId(session.storeId!);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian sees only lists they created or are assigned to
+      query.$or = [
+        { createdBy: new Types.ObjectId(session.userId!) },
+        { assignedTo: new Types.ObjectId(session.userId!) },
+      ];
+    }
 
     if (visibility) {
       query.visibility = visibility;
@@ -277,6 +318,7 @@ export async function GET(request: NextRequest) {
           select: 'isbn bookData genre tone ageGroup',
         })
         .populate('ownerUserId', 'name email')
+        .populate('storeId', 'name code')
         .lean(),
       ListModel.countDocuments(query),
     ]);
@@ -305,6 +347,9 @@ export async function GET(request: NextRequest) {
         addedAt: item.addedAt,
       })),
       owner: list.ownerUserId,
+      storeId: list.storeId,
+      assignedTo: list.assignedTo || [],
+      sections: list.sections || [],
       createdAt: list.createdAt,
       updatedAt: list.updatedAt,
     }));

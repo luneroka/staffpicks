@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
+import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 /**
@@ -22,7 +23,15 @@ export async function DELETE(
       );
     }
 
-    // 2. Get ID from params
+    // 2. Check authorization - CompanyAdmin cannot delete lists
+    if (session.role === UserRole.CompanyAdmin) {
+      return NextResponse.json(
+        { error: 'CompanyAdmin cannot delete lists' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Get ID from params
     const { id } = await params;
 
     if (!id) {
@@ -40,16 +49,27 @@ export async function DELETE(
       );
     }
 
-    // 3. Connect to database
+    // 4. Connect to database
     await connectDB();
 
-    // 4. Soft delete the list (set deletedAt timestamp)
+    // 5. Build role-based query
+    let query: any = {
+      _id: new Types.ObjectId(id),
+      companyId: new Types.ObjectId(session.companyId),
+      deletedAt: { $exists: false }, // Only delete if not already deleted
+    };
+
+    if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin can only delete lists from their store
+      query.storeId = new Types.ObjectId(session.storeId!);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian can only delete lists they created
+      query.createdBy = new Types.ObjectId(session.userId);
+    }
+
+    // 6. Soft delete the list (set deletedAt timestamp)
     const deletedList = await ListModel.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(id),
-        companyId: new Types.ObjectId(session.companyId),
-        deletedAt: { $exists: false }, // Only delete if not already deleted
-      },
+      query,
       {
         $set: {
           deletedAt: new Date(),
@@ -90,7 +110,7 @@ export async function DELETE(
 
 /**
  * GET /api/lists/[id]
- * Get a single list by ID
+ * Get a single list by ID with role-based visibility
  */
 export async function GET(
   request: NextRequest,
@@ -127,18 +147,33 @@ export async function GET(
     // 3. Connect to database
     await connectDB();
 
-    // 4. Find the list
-    const list = await ListModel.findOne({
+    // 4. Build role-based query
+    let query: any = {
       _id: new Types.ObjectId(id),
       companyId: new Types.ObjectId(session.companyId),
       deletedAt: { $exists: false },
-    })
+    };
+
+    if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin can only see lists from their store
+      query.storeId = new Types.ObjectId(session.storeId!);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian can only see lists they created or are assigned to
+      query.$or = [
+        { createdBy: new Types.ObjectId(session.userId!) },
+        { assignedTo: new Types.ObjectId(session.userId!) },
+      ];
+    }
+
+    // 5. Find the list
+    const list = await ListModel.findOne(query)
       .populate({
         path: 'items.bookId',
         select: 'isbn bookData genre tone ageGroup',
       })
       .populate('ownerUserId', 'name email')
       .populate('createdBy', 'name email')
+      .populate('storeId', 'name code')
       .lean();
 
     // 5. Check if list exists
@@ -171,6 +206,9 @@ export async function GET(
         })),
         owner: list.ownerUserId,
         createdBy: list.createdBy,
+        storeId: list.storeId,
+        assignedTo: list.assignedTo || [],
+        sections: list.sections || [],
         createdAt: list.createdAt,
         updatedAt: list.updatedAt,
       },
@@ -186,7 +224,7 @@ export async function GET(
 
 /**
  * PUT /api/lists/[id]
- * Update a list by ID
+ * Update a list by ID with role-based authorization
  */
 export async function PUT(
   request: NextRequest,
@@ -202,7 +240,15 @@ export async function PUT(
       );
     }
 
-    // 2. Get ID from params
+    // 2. Check authorization - CompanyAdmin cannot update lists
+    if (session.role === UserRole.CompanyAdmin) {
+      return NextResponse.json(
+        { error: 'CompanyAdmin cannot update lists' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Get ID from params
     const { id } = await params;
 
     if (!id) {
@@ -220,7 +266,7 @@ export async function PUT(
       );
     }
 
-    // 3. Parse request body
+    // 4. Parse request body
     const body = await request.json();
     const {
       title,
@@ -230,6 +276,8 @@ export async function PUT(
       publishAt,
       unpublishAt,
       items,
+      assignedTo,
+      sections,
     } = body;
 
     // 4. Validate required fields
@@ -243,25 +291,49 @@ export async function PUT(
     // 5. Connect to database
     await connectDB();
 
-    // 6. Find and update the list
+    // 6. Build role-based query and update fields
+    let query: any = {
+      _id: new Types.ObjectId(id),
+      companyId: new Types.ObjectId(session.companyId),
+      deletedAt: { $exists: false },
+    };
+
+    if (session.role === UserRole.StoreAdmin) {
+      // StoreAdmin can only update lists from their store
+      query.storeId = new Types.ObjectId(session.storeId!);
+    } else if (session.role === UserRole.Librarian) {
+      // Librarian can only update lists they created
+      query.createdBy = new Types.ObjectId(session.userId);
+    }
+
+    // Build update object
+    const updateFields: any = {
+      title: title.trim(),
+      description: description?.trim(),
+      coverImage,
+      visibility,
+      publishAt: publishAt ? new Date(publishAt) : undefined,
+      unpublishAt: unpublishAt ? new Date(unpublishAt) : undefined,
+      items: items || [],
+      updatedBy: new Types.ObjectId(session.userId),
+    };
+
+    // Only StoreAdmin can update assignedTo and sections
+    if (session.role === UserRole.StoreAdmin) {
+      if (assignedTo !== undefined) {
+        updateFields.assignedTo = assignedTo.map(
+          (id: string) => new Types.ObjectId(id)
+        );
+      }
+      if (sections !== undefined) {
+        updateFields.sections = sections;
+      }
+    }
+
+    // 7. Find and update the list
     const updatedList = await ListModel.findOneAndUpdate(
-      {
-        _id: new Types.ObjectId(id),
-        companyId: new Types.ObjectId(session.companyId),
-        deletedAt: { $exists: false },
-      },
-      {
-        $set: {
-          title: title.trim(),
-          description: description?.trim(),
-          coverImage,
-          visibility,
-          publishAt: publishAt ? new Date(publishAt) : undefined,
-          unpublishAt: unpublishAt ? new Date(unpublishAt) : undefined,
-          items: items || [],
-          updatedBy: new Types.ObjectId(session.userId),
-        },
-      },
+      query,
+      { $set: updateFields },
       { new: true, runValidators: true }
     )
       .populate({
@@ -269,6 +341,7 @@ export async function PUT(
         select: 'isbn bookData genre tone ageGroup',
       })
       .populate('ownerUserId', 'name email')
+      .populate('storeId', 'name code')
       .lean();
 
     // 7. Check if list was found and updated
@@ -305,6 +378,9 @@ export async function PUT(
             addedAt: item.addedAt,
           })),
           owner: updatedList.ownerUserId,
+          storeId: updatedList.storeId,
+          assignedTo: updatedList.assignedTo || [],
+          sections: updatedList.sections || [],
           updatedAt: updatedList.updatedAt,
         },
       },
