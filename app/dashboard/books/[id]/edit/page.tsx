@@ -56,13 +56,21 @@ const EditBookPage = async ({ params }: EditBookPageProps) => {
     ageGroup: book.ageGroup || '',
     purchaseLink: book.purchaseLink || '',
     recommendation: book.recommendation || '',
+    // Include assignment fields
+    assignedTo: book.assignedTo?.map((id: any) => id.toString()) || [],
+    sections: book.sections || [],
   };
 
   return (
     <div>
       <BackButton className='mt-[-16px]' />
       <div className='flex items-start justify-center'>
-        <BookForm bookId={id} initialData={bookData} />
+        <BookForm
+          bookId={id}
+          initialData={bookData}
+          userRole={session.role}
+          storeId={session.storeId}
+        />
       </div>
     </div>
   );

@@ -24,14 +24,23 @@ interface BookData {
   ageGroup: string;
   purchaseLink: string;
   recommendation: string;
+  assignedTo?: string[]; // Array of user IDs
+  sections?: string[]; // Array of section names
 }
 
 interface BookEditFormProps {
   bookId?: string; // Optional book ID for editing existing books
   initialData?: BookData; // Pre-populated data for editing
+  userRole?: string; // User role to determine if assignment fields should be shown
+  storeId?: string; // Store ID for fetching librarians
 }
 
-const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
+const BookForm = ({
+  bookId,
+  initialData,
+  userRole,
+  storeId,
+}: BookEditFormProps) => {
   const [bookData, setBookData] = useState<BookData>({
     isbn: '',
     title: '',
@@ -46,6 +55,8 @@ const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
     ageGroup: '',
     purchaseLink: '',
     recommendation: '',
+    assignedTo: [],
+    sections: [],
   });
 
   const [isSearching, setIsSearching] = useState(false);
@@ -55,6 +66,9 @@ const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [librarians, setLibrarians] = useState<any[]>([]);
+  const [loadingLibrarians, setLoadingLibrarians] = useState(false);
+  const [newSection, setNewSection] = useState('');
 
   // Load existing book data if bookId is provided (for editing)
   useEffect(() => {
@@ -67,6 +81,31 @@ const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
       setIsLoading(false);
     }
   }, [bookId, initialData]);
+
+  // Fetch librarians for assignment (only for StoreAdmin)
+  useEffect(() => {
+    if (userRole === 'storeAdmin' && storeId) {
+      const fetchLibrarians = async () => {
+        try {
+          setLoadingLibrarians(true);
+          // Fetch users from the same store with librarian role
+          const response = await fetch(
+            `/api/users?storeId=${storeId}&role=librarian`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setLibrarians(data.users || []);
+          }
+        } catch (error) {
+          console.error('Error fetching librarians:', error);
+        } finally {
+          setLoadingLibrarians(false);
+        }
+      };
+
+      fetchLibrarians();
+    }
+  }, [userRole, storeId]);
 
   // Auto-dismiss success message after 3 seconds
   useEffect(() => {
@@ -287,10 +326,17 @@ const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
       'genre',
       'tone',
     ];
-    const missingFields = requiredFields.filter(
-      (field) => !bookData[field as keyof BookData]?.trim()
-    );
-
+    // Check for required fields
+    const missingFields = requiredFields.filter((field) => {
+      const value = bookData[field as keyof BookData];
+      // Handle string fields (trim) vs array fields (check length)
+      if (typeof value === 'string') {
+        return !value.trim();
+      } else if (Array.isArray(value)) {
+        return false; // Arrays are optional and empty is valid
+      }
+      return !value;
+    });
     if (missingFields.length > 0) {
       const fieldLabels: { [key: string]: string } = {
         isbn: 'ISBN',
@@ -333,6 +379,11 @@ const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
         ageGroup: bookData.ageGroup || undefined,
         purchaseLink: bookData.purchaseLink || undefined,
         recommendation: bookData.recommendation || undefined,
+        // Include assignment fields if user is StoreAdmin
+        ...(userRole === 'storeAdmin' && {
+          assignedTo: bookData.assignedTo || [],
+          sections: bookData.sections || [],
+        }),
       };
 
       if (isEditing) {
@@ -639,6 +690,130 @@ const BookForm = ({ bookId, initialData }: BookEditFormProps) => {
           placeholder='Votre recommandation personnelle pour ce livre...'
           rows={8}
         />
+
+        {/* Assignment fields - Only visible for StoreAdmin */}
+        {userRole === 'storeAdmin' && (
+          <>
+            <label className='label w-full max-w-md text-center mt-6'>
+              Assigner à des bibliothécaires
+            </label>
+            {loadingLibrarians ? (
+              <div className='flex justify-center w-full max-w-md'>
+                <span className='loading loading-spinner loading-md'></span>
+              </div>
+            ) : (
+              <select
+                multiple
+                value={bookData.assignedTo || []}
+                onChange={(e) => {
+                  const selectedOptions = Array.from(
+                    e.target.selectedOptions,
+                    (option) => option.value
+                  );
+                  setBookData({ ...bookData, assignedTo: selectedOptions });
+                }}
+                className='select select-multiple w-full max-w-md h-32'
+              >
+                {librarians.length === 0 ? (
+                  <option disabled>Aucun libraire disponible</option>
+                ) : (
+                  librarians.map((librarian: any) => (
+                    <option key={librarian._id} value={librarian._id}>
+                      {librarian.firstName} {librarian.lastName}
+                    </option>
+                  ))
+                )}
+              </select>
+            )}
+            <p className='text-xs text-base-content/60 max-w-md text-center mt-1'>
+              Maintenez Cmd (Mac) ou Ctrl (Windows) pour sélectionner plusieurs
+              bibliothécaires
+            </p>
+
+            <label className='label w-full max-w-md text-center mt-6'>
+              Sections / Rayons
+            </label>
+            <div className='w-full max-w-md'>
+              <div className='flex gap-2 mb-2'>
+                <input
+                  type='text'
+                  value={newSection}
+                  onChange={(e) => setNewSection(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (
+                        newSection.trim() &&
+                        !bookData.sections?.includes(newSection.trim())
+                      ) {
+                        setBookData({
+                          ...bookData,
+                          sections: [
+                            ...(bookData.sections || []),
+                            newSection.trim(),
+                          ],
+                        });
+                        setNewSection('');
+                      }
+                    }
+                  }}
+                  className='input flex-1'
+                  placeholder='Ajouter une section (ex: Fiction, Jeunesse...)'
+                />
+                <button
+                  type='button'
+                  onClick={() => {
+                    if (
+                      newSection.trim() &&
+                      !bookData.sections?.includes(newSection.trim())
+                    ) {
+                      setBookData({
+                        ...bookData,
+                        sections: [
+                          ...(bookData.sections || []),
+                          newSection.trim(),
+                        ],
+                      });
+                      setNewSection('');
+                    }
+                  }}
+                  className='btn btn-primary'
+                  disabled={!newSection.trim()}
+                >
+                  Ajouter
+                </button>
+              </div>
+
+              {/* Display sections as badges */}
+              {bookData.sections && bookData.sections.length > 0 && (
+                <div className='flex flex-wrap gap-2 mt-3'>
+                  {bookData.sections.map((section, index) => (
+                    <span
+                      key={index}
+                      className='badge badge-primary badge-lg gap-2'
+                    >
+                      {section}
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setBookData({
+                            ...bookData,
+                            sections: bookData.sections?.filter(
+                              (_, i) => i !== index
+                            ),
+                          });
+                        }}
+                        className='btn btn-ghost btn-xs btn-circle'
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
         {validationErrors.length > 0 && (
           <div className='alert alert-warning alert-soft mt-4 shadow-sm'>
