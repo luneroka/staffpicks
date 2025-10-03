@@ -108,6 +108,9 @@ const NavBar = ({
   const handleLogout = async () => {
     if (isLoggingOut) return;
 
+    // Close dropdown immediately
+    closeDropdown();
+
     setIsLoggingOut(true);
     try {
       const response = await fetch('/api/auth/logout', {
@@ -115,8 +118,8 @@ const NavBar = ({
       });
 
       if (response.ok) {
-        // Redirect to login page after successful logout
-        router.push('/login');
+        // Force a hard navigation to ensure session is cleared
+        window.location.href = '/login';
       } else {
         console.error('Logout failed');
         setIsLoggingOut(false);
@@ -254,7 +257,10 @@ const NavBar = ({
             )}
             <li>
               <button
-                onClick={handleLogout}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLogout();
+                }}
                 disabled={isLoggingOut}
                 className='w-full text-left'
               >
