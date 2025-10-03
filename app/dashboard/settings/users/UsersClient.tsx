@@ -138,6 +138,19 @@ const UsersClient = ({ users, userRole }: UsersClientProps) => {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <span className='badge badge-success badge-sm'>Actif</span>;
+      case 'inactive':
+        return <span className='badge badge-warning badge-sm'>Inactif</span>;
+      case 'suspended':
+        return <span className='badge badge-error badge-sm'>Suspendu</span>;
+      default:
+        return <span className='badge badge-ghost badge-sm'>{status}</span>;
+    }
+  };
+
   return (
     <div className='space-y-6'>
       <BackButton />
@@ -210,7 +223,15 @@ const UsersClient = ({ users, userRole }: UsersClientProps) => {
                 </thead>
                 <tbody>
                   {sortedUsers.map((user: any) => (
-                    <tr key={user._id} className='hover'>
+                    <tr
+                      key={user._id}
+                      className={`hover ${
+                        user.status === 'inactive' ||
+                        user.status === 'suspended'
+                          ? 'opacity-60'
+                          : ''
+                      }`}
+                    >
                       <td>
                         <div className='flex items-center gap-3'>
                           {user.avatarUrl ? (
@@ -284,11 +305,7 @@ const UsersClient = ({ users, userRole }: UsersClientProps) => {
                           <span className='text-base-content/40'>-</span>
                         )}
                       </td>
-                      <td>
-                        <span className='badge badge-success badge-sm'>
-                          Actif
-                        </span>
-                      </td>
+                      <td>{getStatusBadge(user.status || 'active')}</td>
                       <td>
                         <Link
                           href={`/dashboard/settings/users/${user._id}`}
@@ -309,6 +326,12 @@ const UsersClient = ({ users, userRole }: UsersClientProps) => {
               <div className='stat'>
                 <div className='stat-title'>Total utilisateurs</div>
                 <div className='stat-value text-primary'>{users.length}</div>
+              </div>
+              <div className='stat'>
+                <div className='stat-title'>Actifs</div>
+                <div className='stat-value text-success'>
+                  {users.filter((u: any) => u.status === 'active').length}
+                </div>
               </div>
               <div className='stat'>
                 <div className='stat-title'>Libraires</div>

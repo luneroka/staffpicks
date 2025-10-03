@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createPortal } from 'react-dom';
 import { FaUserSlash, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 import { HiExclamationCircle } from 'react-icons/hi';
+import { toast } from 'sonner';
 
 interface DeleteUserButtonProps {
   userId: string;
@@ -80,6 +82,17 @@ const DeleteUserButton = ({
         throw new Error(data.error || "Erreur lors de l'opération");
       }
 
+      // Show success message
+      const successMessage =
+        actionType === 'deactivate'
+          ? `Utilisateur "${userName}" désactivé avec succès`
+          : `Utilisateur "${userName}" supprimé avec succès`;
+
+      toast.success(successMessage);
+
+      // Wait a moment for user to see the success state
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Redirect to users list after successful action
       router.push('/dashboard/settings/users');
       router.refresh();
@@ -124,6 +137,7 @@ const DeleteUserButton = ({
       <div className='flex gap-2'>
         {canDeactivate() && (
           <button
+            type='button'
             onClick={() => openModal('deactivate')}
             className='btn btn-warning btn-outline btn-sm'
             disabled={isProcessing}
@@ -133,6 +147,7 @@ const DeleteUserButton = ({
         )}
         {canDelete() && (
           <button
+            type='button'
             onClick={() => openModal('delete')}
             className='btn btn-error btn-outline btn-sm'
             disabled={isProcessing}
@@ -142,123 +157,131 @@ const DeleteUserButton = ({
         )}
       </div>
 
-      {/* Confirmation Modal */}
-      {showModal && (
-        <div className='modal modal-open'>
-          <div className='modal-box'>
-            <div className='flex items-start gap-4 mb-4'>
-              <div
-                className={`p-3 rounded-full ${
-                  actionType === 'delete' ? 'bg-error/20' : 'bg-warning/20'
-                }`}
-              >
-                <FaExclamationTriangle
-                  className={`text-3xl ${
-                    actionType === 'delete' ? 'text-error' : 'text-warning'
+      {/* Confirmation Modal - Rendered via Portal outside the form */}
+      {showModal &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className='modal modal-open'>
+            <div className='modal-box'>
+              <div className='flex items-start gap-4 mb-4'>
+                <div
+                  className={`p-3 rounded-full ${
+                    actionType === 'delete' ? 'bg-error/20' : 'bg-warning/20'
                   }`}
-                />
-              </div>
-              <div className='flex-1'>
-                <h3 className='font-bold text-lg mb-2'>
-                  {actionType === 'delete'
-                    ? "Supprimer l'utilisateur"
-                    : "Désactiver l'utilisateur"}
-                </h3>
-                <p className='text-base-content/80'>
-                  {actionType === 'delete' ? (
-                    <>
-                      Êtes-vous sûr de vouloir{' '}
-                      <span className='font-semibold text-error'>
-                        supprimer définitivement
-                      </span>{' '}
-                      <span className='font-semibold'>{userName}</span> (
-                      {getRoleLabel(userRole)}) ?
-                    </>
-                  ) : (
-                    <>
-                      Êtes-vous sûr de vouloir désactiver{' '}
-                      <span className='font-semibold'>{userName}</span> (
-                      {getRoleLabel(userRole)}) ?
-                    </>
-                  )}
-                </p>
-                <p className='text-sm text-base-content/60 mt-2'>
-                  {actionType === 'delete' ? (
-                    <>
-                      Cette action est{' '}
-                      <span className='font-semibold'>définitive</span>.
-                      L&apos;utilisateur sera marqué comme supprimé et ne pourra
-                      plus se connecter. Les données seront conservées mais
-                      l&apos;utilisateur sera invisible dans le système.
-                    </>
-                  ) : (
-                    <>
-                      Le compte sera désactivé et l&apos;utilisateur ne pourra
-                      plus se connecter. Vous pourrez réactiver ce compte
-                      ultérieurement si nécessaire.
-                    </>
-                  )}
-                </p>
-              </div>
-            </div>
-
-            {/* Error Message */}
-            {error && (
-              <div className='alert alert-error mb-4'>
-                <HiExclamationCircle className='text-xl' />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className='modal-action'>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setError('');
-                }}
-                className='btn btn-ghost'
-                disabled={isProcessing}
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleAction}
-                className={`btn ${
-                  actionType === 'delete' ? 'btn-error' : 'btn-warning'
-                }`}
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <span className='loading loading-spinner loading-sm'></span>
+                >
+                  <FaExclamationTriangle
+                    className={`text-3xl ${
+                      actionType === 'delete' ? 'text-error' : 'text-warning'
+                    }`}
+                  />
+                </div>
+                <div className='flex-1'>
+                  <h3 className='font-bold text-lg mb-2'>
                     {actionType === 'delete'
-                      ? 'Suppression...'
-                      : 'Désactivation...'}
-                  </>
-                ) : (
-                  <>
+                      ? "Supprimer l'utilisateur"
+                      : "Désactiver l'utilisateur"}
+                  </h3>
+                  <p className='text-base-content/80'>
                     {actionType === 'delete' ? (
                       <>
-                        <FaTrash /> Confirmer la suppression
+                        Êtes-vous sûr de vouloir{' '}
+                        <span className='font-semibold text-error'>
+                          supprimer définitivement
+                        </span>{' '}
+                        <span className='font-semibold'>{userName}</span> (
+                        {getRoleLabel(userRole)}) ?
                       </>
                     ) : (
                       <>
-                        <FaUserSlash /> Confirmer la désactivation
+                        Êtes-vous sûr de vouloir désactiver{' '}
+                        <span className='font-semibold'>{userName}</span> (
+                        {getRoleLabel(userRole)}) ?
                       </>
                     )}
-                  </>
-                )}
-              </button>
+                  </p>
+                  <p className='text-sm text-base-content/60 mt-2'>
+                    {actionType === 'delete' ? (
+                      <>
+                        Cette action est{' '}
+                        <span className='font-semibold'>définitive</span>.
+                        L&apos;utilisateur sera marqué comme supprimé et ne
+                        pourra plus se connecter. Les données seront conservées
+                        mais l&apos;utilisateur sera invisible dans le système.
+                      </>
+                    ) : (
+                      <>
+                        Le compte sera désactivé et l&apos;utilisateur ne pourra
+                        plus se connecter. Vous pourrez réactiver ce compte
+                        ultérieurement si nécessaire.
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className='alert alert-error mb-4'>
+                  <HiExclamationCircle className='text-xl' />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className='modal-action'>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setShowModal(false);
+                    setError('');
+                  }}
+                  className='btn btn-ghost'
+                  disabled={isProcessing}
+                >
+                  Annuler
+                </button>
+                <button
+                  type='button'
+                  onClick={handleAction}
+                  className={`btn ${
+                    actionType === 'delete' ? 'btn-error' : 'btn-warning'
+                  }`}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <span className='loading loading-spinner loading-sm'></span>
+                      {actionType === 'delete'
+                        ? 'Suppression...'
+                        : 'Désactivation...'}
+                    </>
+                  ) : (
+                    <>
+                      {actionType === 'delete' ? (
+                        <>
+                          <FaTrash /> Confirmer la suppression
+                        </>
+                      ) : (
+                        <>
+                          <FaUserSlash /> Confirmer la désactivation
+                        </>
+                      )}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-          <div
-            className='modal-backdrop'
-            onClick={() => !isProcessing && setShowModal(false)}
-          >
-            <button>close</button>
-          </div>
-        </div>
-      )}
+            <div
+              className='modal-backdrop'
+              onClick={() => {
+                if (!isProcessing) {
+                  setShowModal(false);
+                  setError('');
+                }
+              }}
+            />
+          </div>,
+          document.body
+        )}
     </>
   );
 };

@@ -19,7 +19,10 @@ async function getUsers(session: SessionData) {
     await connectDB();
 
     // Build query based on role
-    let query: any = {};
+    let query: any = {
+      // Exclude deleted users
+      deletedAt: { $exists: false },
+    };
 
     if (session.role === UserRole.Admin) {
       // Platform Admin can see all users
@@ -45,6 +48,7 @@ async function getUsers(session: SessionData) {
       lastName: user.lastName,
       email: user.email,
       role: user.role,
+      status: user.status,
       storeId: user.storeId?._id?.toString(),
       storeName: user.storeId?.name,
       storeCode: user.storeId?.code,
