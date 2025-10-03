@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaStore } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { toast } from 'sonner';
 
 interface StoreData {
   _id?: string;
@@ -196,21 +197,24 @@ const StoreSettingsForm = ({
       setStoreData(data.store);
       setEditedData(data.store);
       setIsEditing(false);
-      setSuccess(
-        mode === 'create'
-          ? 'Magasin créé avec succès!'
-          : 'Magasin mis à jour avec succès!'
-      );
 
-      if (onSuccess) {
-        onSuccess();
-      }
-
-      // Redirect to the stores index
       if (mode === 'create' && data.store._id) {
-        setTimeout(() => {
-          router.push('/dashboard/settings/stores/');
-        }, 1500);
+        // Show success toast for new store
+        toast.success(`Magasin "${data.store.name}" créé avec succès`);
+
+        // Wait a moment for user to see the success state
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Redirect to stores list
+        router.push('/dashboard/settings/stores/');
+        router.refresh();
+      } else {
+        // Show success message for edit mode
+        setSuccess('Magasin mis à jour avec succès!');
+
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (err) {
       console.error('Error saving store:', err);

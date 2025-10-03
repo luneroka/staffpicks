@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaUser, FaUpload } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { toast } from 'sonner';
 import Image from 'next/image';
 
 interface UserData {
@@ -302,12 +303,17 @@ const UserSettingsForm = ({
         throw new Error(data.error || 'Erreur lors de la sauvegarde');
       }
 
-      // Redirect immediately with user name in URL for toast
       if (mode === 'create' && data.user._id) {
+        // Show success toast for new user
         const userName = `${data.user.firstName} ${data.user.lastName}`;
-        window.location.href = `/dashboard/settings/users?added=${encodeURIComponent(
-          userName
-        )}`;
+        toast.success(`Utilisateur "${userName}" ajouté avec succès`);
+
+        // Wait a moment for user to see the success state
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Redirect to users list
+        router.push('/dashboard/settings/users');
+        router.refresh();
       } else {
         // Only set success message and update state for edit mode
         setUserData(data.user);
