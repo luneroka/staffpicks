@@ -2,9 +2,16 @@
 
 import Link from 'next/link';
 import BackButton from '@/app/components/BackButton';
-import { FaPlus, FaUser, FaStore } from 'react-icons/fa';
+import {
+  FaPlus,
+  FaUser,
+  FaStore,
+  FaSort,
+  FaSortUp,
+  FaSortDown,
+} from 'react-icons/fa';
 import { HiExclamationCircle } from 'react-icons/hi';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -13,9 +20,14 @@ interface UsersClientProps {
   userRole: string;
 }
 
+type SortField = 'name' | 'email' | 'role' | 'store';
+type SortDirection = 'asc' | 'desc' | null;
+
 const UsersClient = ({ users, userRole }: UsersClientProps) => {
   const searchParams = useSearchParams();
   const [hasShownToast, setHasShownToast] = useState(false);
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
   useEffect(() => {
     const addedUserName = searchParams.get('added');
@@ -30,6 +42,71 @@ const UsersClient = ({ users, userRole }: UsersClientProps) => {
       window.history.replaceState({}, '', '/dashboard/settings/users');
     }
   }, [searchParams, hasShownToast]);
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Cycle through: asc -> desc -> null
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortDirection(null);
+        setSortField(null);
+      }
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedUsers = useMemo(() => {
+    if (!sortField || !sortDirection) {
+      return users;
+    }
+
+    return [...users].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      switch (sortField) {
+        case 'name':
+          aValue = `${a.firstName} ${a.lastName}`.toLowerCase();
+          bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
+          break;
+        case 'email':
+          aValue = a.email.toLowerCase();
+          bValue = b.email.toLowerCase();
+          break;
+        case 'role':
+          aValue = a.role.toLowerCase();
+          bValue = b.role.toLowerCase();
+          break;
+        case 'store':
+          aValue = (a.storeName || '').toLowerCase();
+          bValue = (b.storeName || '').toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [users, sortField, sortDirection]);
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <FaSort className='inline ml-1 text-base-content/30' />;
+    }
+    if (sortDirection === 'asc') {
+      return <FaSortUp className='inline ml-1 text-primary' />;
+    }
+    return <FaSortDown className='inline ml-1 text-primary' />;
+  };
 
   const getRoleBadgeClass = (role: string) => {
     switch (role) {
@@ -102,17 +179,37 @@ const UsersClient = ({ users, userRole }: UsersClientProps) => {
               <table className='table table-zebra'>
                 <thead>
                   <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                    <th>Magasin</th>
+                    <th
+                      className='cursor-pointer hover:bg-base-300 select-none'
+                      onClick={() => handleSort('name')}
+                    >
+                      Nom {getSortIcon('name')}
+                    </th>
+                    <th
+                      className='cursor-pointer hover:bg-base-300 select-none'
+                      onClick={() => handleSort('email')}
+                    >
+                      Email {getSortIcon('email')}
+                    </th>
+                    <th
+                      className='cursor-pointer hover:bg-base-300 select-none'
+                      onClick={() => handleSort('role')}
+                    >
+                      Rôle {getSortIcon('role')}
+                    </th>
+                    <th
+                      className='cursor-pointer hover:bg-base-300 select-none'
+                      onClick={() => handleSort('store')}
+                    >
+                      Magasin {getSortIcon('store')}
+                    </th>
                     <th>Rayons</th>
                     <th>Statut</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user: any) => (
+                  {sortedUsers.map((user: any) => (
                     <tr key={user._id} className='hover'>
                       <td>
                         <div className='flex items-center gap-3'>
