@@ -29,6 +29,8 @@ interface ListData {
     ageGroup?: string;
     position: number;
   }>;
+  assignedTo?: string[];
+  sections?: string[];
 }
 
 interface BookSearchResult {
@@ -45,9 +47,11 @@ interface BookSearchResult {
 interface ListFormProps {
   id?: string; // Optional prop for editing existing lists
   initialData?: ListData; // Pre-populated data for editing
+  userRole?: string;
+  storeId?: string;
 }
 
-const ListForm = ({ id, initialData }: ListFormProps) => {
+const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
   const router = useRouter();
   const [listData, setListData] = useState<ListData>({
     title: '',
@@ -57,6 +61,8 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
     visibility: 'draft',
     publishAt: '',
     items: [],
+    assignedTo: [],
+    sections: [],
   });
 
   const [error, setError] = useState<string>('');
@@ -65,6 +71,11 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Assignment state (for StoreAdmin)
+  const [librarians, setLibrarians] = useState<any[]>([]);
+  const [loadingLibrarians, setLoadingLibrarians] = useState(false);
+  const [newSection, setNewSection] = useState<string>('');
 
   // Book search state
   const [bookSearchQuery, setBookSearchQuery] = useState<string>('');
@@ -90,6 +101,8 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
           bookId: item.bookId,
           position: item.position,
         })),
+        assignedTo: initialData.assignedTo || [],
+        sections: initialData.sections || [],
       });
 
       // Load books into selectedBooks for display
@@ -108,6 +121,30 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
       setSelectedBooks(books);
     }
   }, [initialData]);
+
+  // Fetch librarians for assignment (only for StoreAdmin)
+  useEffect(() => {
+    if (userRole === 'storeAdmin' && storeId) {
+      const fetchLibrarians = async () => {
+        try {
+          setLoadingLibrarians(true);
+          const response = await fetch(
+            `/api/users?storeId=${storeId}&role=librarian`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setLibrarians(data.users || []);
+          }
+        } catch (error) {
+          console.error('Error fetching librarians:', error);
+        } finally {
+          setLoadingLibrarians(false);
+        }
+      };
+
+      fetchLibrarians();
+    }
+  }, [userRole, storeId]);
 
   // Auto-dismiss success message after 3 seconds
   useEffect(() => {
@@ -350,6 +387,11 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
         visibility: listData.visibility,
         publishAt: listData.publishAt || undefined,
         items: listData.items,
+        // Include assignment fields if user is StoreAdmin
+        ...(userRole === 'storeAdmin' && {
+          assignedTo: listData.assignedTo || [],
+          sections: listData.sections || [],
+        }),
       };
 
       if (isEditing) {
@@ -512,6 +554,130 @@ const ListForm = ({ id, initialData }: ListFormProps) => {
           <option value='unlisted'>Non listée</option>
           <option value='public'>Publique</option>
         </select>
+
+        {/* Assignment fields - Only visible for StoreAdmin */}
+        {userRole === 'storeAdmin' && (
+          <>
+            <label className='label w-full max-w-md text-center mt-6'>
+              Assigner à des bibliothécaires
+            </label>
+            {loadingLibrarians ? (
+              <div className='flex justify-center w-full max-w-md'>
+                <span className='loading loading-spinner loading-md'></span>
+              </div>
+            ) : (
+              <select
+                multiple
+                value={listData.assignedTo || []}
+                onChange={(e) => {
+                  const selectedOptions = Array.from(
+                    e.target.selectedOptions,
+                    (option) => option.value
+                  );
+                  setListData({ ...listData, assignedTo: selectedOptions });
+                }}
+                className='select select-multiple w-full max-w-md h-32'
+              >
+                {librarians.length === 0 ? (
+                  <option disabled>Aucun bibliothécaire disponible</option>
+                ) : (
+                  librarians.map((librarian: any) => (
+                    <option key={librarian._id} value={librarian._id}>
+                      {librarian.firstName} {librarian.lastName}
+                    </option>
+                  ))
+                )}
+              </select>
+            )}
+            <p className='text-xs text-base-content/60 max-w-md text-center mt-1'>
+              Maintenez Cmd (Mac) ou Ctrl (Windows) pour sélectionner plusieurs
+              bibliothécaires
+            </p>
+
+            <label className='label w-full max-w-md text-center mt-6'>
+              Sections / Rayons
+            </label>
+            <div className='w-full max-w-md'>
+              <div className='flex gap-2 mb-2'>
+                <input
+                  type='text'
+                  value={newSection}
+                  onChange={(e) => setNewSection(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (
+                        newSection.trim() &&
+                        !listData.sections?.includes(newSection.trim())
+                      ) {
+                        setListData({
+                          ...listData,
+                          sections: [
+                            ...(listData.sections || []),
+                            newSection.trim(),
+                          ],
+                        });
+                        setNewSection('');
+                      }
+                    }
+                  }}
+                  className='input flex-1'
+                  placeholder='Ajouter une section (ex: Fiction, Jeunesse...)'
+                />
+                <button
+                  type='button'
+                  onClick={() => {
+                    if (
+                      newSection.trim() &&
+                      !listData.sections?.includes(newSection.trim())
+                    ) {
+                      setListData({
+                        ...listData,
+                        sections: [
+                          ...(listData.sections || []),
+                          newSection.trim(),
+                        ],
+                      });
+                      setNewSection('');
+                    }
+                  }}
+                  className='btn btn-primary'
+                  disabled={!newSection.trim()}
+                >
+                  Ajouter
+                </button>
+              </div>
+
+              {/* Display sections as badges */}
+              {listData.sections && listData.sections.length > 0 && (
+                <div className='flex flex-wrap gap-2 mt-3'>
+                  {listData.sections.map((section, index) => (
+                    <span
+                      key={index}
+                      className='badge badge-primary badge-lg gap-2'
+                    >
+                      {section}
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setListData({
+                            ...listData,
+                            sections: listData.sections?.filter(
+                              (_, i) => i !== index
+                            ),
+                          });
+                        }}
+                        className='btn btn-ghost btn-xs btn-circle'
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
         {/* Book Search */}
         <div className='w-full max-w-md mx-auto mb-4'>

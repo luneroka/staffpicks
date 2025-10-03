@@ -67,13 +67,21 @@ const EditListPage = async ({ params }: EditListPageProps) => {
       ageGroup: item.bookId.ageGroup,
       position: item.position,
     })),
+    // Include assignment fields
+    assignedTo: list.assignedTo?.map((id: any) => id.toString()) || [],
+    sections: list.sections || [],
   };
 
   return (
     <div>
       <BackButton className='mt-[-16px]' />
       <div className='flex items-start justify-center'>
-        <ListForm id={id} initialData={listData} />
+        <ListForm
+          id={id}
+          initialData={listData}
+          userRole={session.role}
+          storeId={session.storeId}
+        />
       </div>{' '}
     </div>
   );
