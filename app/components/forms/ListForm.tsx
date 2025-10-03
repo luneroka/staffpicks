@@ -8,6 +8,7 @@ import {
   HiCheckCircle,
   HiExclamation,
 } from 'react-icons/hi';
+import { toast } from 'sonner';
 import Book from '../books/Book';
 
 interface ListData {
@@ -429,10 +430,15 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
           throw new Error(data.error || 'Failed to create list');
         }
 
-        // Redirect immediately with list title in URL for toast
-        window.location.href = `/dashboard/lists?added=${encodeURIComponent(
-          data.list.title
-        )}`;
+        // Show success toast
+        toast.success(`Liste "${data.list.title}" ajoutée avec succès`);
+
+        // Wait a moment for user to see the success state
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Redirect to lists page
+        router.push('/dashboard/lists');
+        router.refresh();
       }
     } catch (error) {
       console.error('Error saving list:', error);

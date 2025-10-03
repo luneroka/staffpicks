@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { FaSearch } from 'react-icons/fa';
 import {
   HiExclamationCircle,
   HiCheckCircle,
   HiExclamation,
 } from 'react-icons/hi';
+import { toast } from 'sonner';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 
 interface BookData {
@@ -41,6 +43,7 @@ const BookForm = ({
   userRole,
   storeId,
 }: BookEditFormProps) => {
+  const router = useRouter();
   const [bookData, setBookData] = useState<BookData>({
     isbn: '',
     title: '',
@@ -415,10 +418,15 @@ const BookForm = ({
           throw new Error(data.error || 'Failed to create book');
         }
 
-        // Redirect immediately with book title in URL for toast
-        window.location.href = `/dashboard/books?added=${encodeURIComponent(
-          data.book.title
-        )}`;
+        // Show success toast
+        toast.success(`Livre "${data.book.title}" ajouté avec succès`);
+
+        // Wait a moment for user to see the success state
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Redirect to books list
+        router.push('/dashboard/books');
+        router.refresh();
       }
     } catch (error) {
       console.error('Error saving book:', error);
