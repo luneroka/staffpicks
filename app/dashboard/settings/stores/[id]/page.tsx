@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 import BackButton from '@/app/components/BackButton';
 import AssignUserToStore from '@/app/components/stores/AssignUserToStore';
 import RemoveUserFromStoreButton from '@/app/components/stores/RemoveUserFromStoreButton';
+import DeleteStoreButton from '@/app/components/stores/DeleteStoreButton';
 
 interface StoreDetailsPageProps {
   params: {
@@ -177,6 +178,24 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
               </table>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Delete Store Section - Danger Zone */}
+      <div className='card bg-base-200 shadow-xl'>
+        <div className='card-body'>
+          <h3 className='card-title text-error'>Zone de danger</h3>
+          <p className='text-sm opacity-70'>
+            La suppression d&apos;un point de vente est irréversible. Tous les
+            utilisateurs assignés perdront leur affectation.
+          </p>
+          <div className='card-actions justify-end mt-4'>
+            <DeleteStoreButton
+              storeId={params.id}
+              storeName={store.name}
+              currentUserRole={session.role}
+            />
+          </div>
         </div>
       </div>
     </div>

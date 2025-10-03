@@ -11,6 +11,7 @@ interface User {
   lastName: string;
   email: string;
   role: string;
+  status: string;
 }
 
 interface AssignUserToStoreProps {
@@ -100,9 +101,13 @@ const AssignUserToStore = ({
         );
       }
 
-      // Filter out already assigned users
-      const availableUsers = data.filter(
-        (user: User) => !assignedUserIds.includes(user._id)
+      // The API returns { users: [...] }, so we need to access data.users
+      const usersList = data.users || [];
+
+      // Filter out already assigned users and only show active users
+      const availableUsers = usersList.filter(
+        (user: User) =>
+          !assignedUserIds.includes(user._id) && user.status === 'active'
       );
 
       setUsers(availableUsers);

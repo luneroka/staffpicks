@@ -37,6 +37,8 @@ interface StoreSettingsFormProps {
   initialData?: StoreData;
   onSuccess?: () => void;
   mode?: 'create' | 'edit';
+  currentUserRole?: string; // Pass from server component for permission checks
+  deleteButton?: React.ReactNode; // Delete button to show at bottom in edit mode
 }
 
 const StoreSettingsForm = ({
@@ -44,6 +46,8 @@ const StoreSettingsForm = ({
   initialData,
   onSuccess,
   mode = 'edit',
+  currentUserRole = 'storeAdmin',
+  deleteButton,
 }: StoreSettingsFormProps) => {
   const router = useRouter();
   const [storeData, setStoreData] = useState<StoreData>(
@@ -566,6 +570,20 @@ const StoreSettingsForm = ({
           </div>
         </div>
       </form>
+
+      {/* Delete Store Section - Only in edit mode */}
+      {deleteButton && (
+        <div className='card bg-base-200 shadow-xl'>
+          <div className='card-body'>
+            <h3 className='card-title text-error'>Zone de danger</h3>
+            <p className='text-sm opacity-70'>
+              La suppression d&apos;un point de vente est irréversible. Tous les
+              utilisateurs assignés perdront leur affectation.
+            </p>
+            <div className='card-actions justify-end mt-4'>{deleteButton}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
