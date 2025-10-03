@@ -104,10 +104,10 @@ const ListPage = async ({ params }: ListPageProps) => {
       : undefined,
     storeId: list.storeId?._id?.toString(),
     storeName: list.storeId?.name,
-    assignedTo: list.assignedTo || [],
+    assignedTo: (list.assignedTo || []).map((id: any) => id.toString()),
     sections: list.sections || [],
-    createdAt: list.createdAt,
-    updatedAt: list.updatedAt,
+    createdAt: list.createdAt?.toISOString(),
+    updatedAt: list.updatedAt?.toISOString(),
   };
 
   return (

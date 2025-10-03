@@ -688,14 +688,14 @@ const BookForm = ({
           onChange={handleInputChange}
           className='textarea w-full max-w-md'
           placeholder='Votre recommandation personnelle pour ce livre...'
-          rows={8}
+          rows={4}
         />
 
         {/* Assignment fields - Only visible for StoreAdmin */}
         {userRole === 'storeAdmin' && (
           <>
-            <label className='label w-full max-w-md text-center mt-6'>
-              Assigner à des bibliothécaires
+            <label className='label w-full max-w-md text-center mt-2'>
+              Assigner à des libraires
             </label>
             {loadingLibrarians ? (
               <div className='flex justify-center w-full max-w-md'>

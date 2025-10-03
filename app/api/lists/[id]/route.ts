@@ -63,8 +63,11 @@ export async function DELETE(
       // StoreAdmin can only delete lists from their store
       query.storeId = new Types.ObjectId(session.storeId!);
     } else if (session.role === UserRole.Librarian) {
-      // Librarian can only delete lists they created
-      query.createdBy = new Types.ObjectId(session.userId);
+      // Librarian can only delete lists they created or are assigned to
+      query.$or = [
+        { createdBy: new Types.ObjectId(session.userId) },
+        { assignedTo: new Types.ObjectId(session.userId) },
+      ];
     }
 
     // 6. Soft delete the list (set deletedAt timestamp)
@@ -302,8 +305,11 @@ export async function PUT(
       // StoreAdmin can only update lists from their store
       query.storeId = new Types.ObjectId(session.storeId!);
     } else if (session.role === UserRole.Librarian) {
-      // Librarian can only update lists they created
-      query.createdBy = new Types.ObjectId(session.userId);
+      // Librarian can only update lists they created or are assigned to
+      query.$or = [
+        { createdBy: new Types.ObjectId(session.userId) },
+        { assignedTo: new Types.ObjectId(session.userId) },
+      ];
     }
 
     // Build update object

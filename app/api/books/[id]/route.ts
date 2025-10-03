@@ -69,10 +69,11 @@ export async function DELETE(
       }
       deleteQuery.storeId = new Types.ObjectId(session.storeId);
     } else if (session.role === UserRole.Librarian) {
-      // Librarian can only delete their own books
+      // Librarian can only delete books they created or are assigned to
       deleteQuery.$or = [
         { ownerUserId: new Types.ObjectId(session.userId) },
         { createdBy: new Types.ObjectId(session.userId) },
+        { assignedTo: new Types.ObjectId(session.userId) },
       ];
     }
 
@@ -316,10 +317,11 @@ export async function PUT(
       }
       updateQuery.storeId = new Types.ObjectId(session.storeId);
     } else if (session.role === UserRole.Librarian) {
-      // Librarian can only edit their own books
+      // Librarian can only edit books they created or are assigned to
       updateQuery.$or = [
         { ownerUserId: new Types.ObjectId(session.userId) },
         { createdBy: new Types.ObjectId(session.userId) },
+        { assignedTo: new Types.ObjectId(session.userId) },
       ];
     }
 

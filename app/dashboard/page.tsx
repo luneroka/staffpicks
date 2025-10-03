@@ -164,10 +164,24 @@ const Dashboard = async () => {
   }
 
   // For StoreAdmin and Librarian: show books and lists
-  // Fetch books
-  const books = await BookModel.find({
+  // Build query based on user role for books
+  let booksQuery: any = {
     companyId: new Types.ObjectId(session.companyId!),
-  })
+  };
+
+  if (session.role === UserRole.StoreAdmin) {
+    // StoreAdmin sees only books from their store
+    booksQuery.storeId = new Types.ObjectId(session.storeId!);
+  } else if (session.role === UserRole.Librarian) {
+    // Librarian sees only books they created or are assigned to
+    booksQuery.$or = [
+      { createdBy: new Types.ObjectId(session.userId!) },
+      { assignedTo: new Types.ObjectId(session.userId!) },
+    ];
+  }
+
+  // Fetch books with role-based filtering
+  const books = await BookModel.find(booksQuery)
     .sort({ createdAt: -1 })
     .limit(10) // Show only first 10 books on dashboard
     .lean();
@@ -179,12 +193,26 @@ const Dashboard = async () => {
     coverUrl: book.bookData.cover,
   }));
 
-  // Fetch public lists
-  const lists = await ListModel.find({
+  // Build query based on user role for lists
+  let listsQuery: any = {
     companyId: new Types.ObjectId(session.companyId!),
     visibility: 'public',
     deletedAt: { $exists: false },
-  })
+  };
+
+  if (session.role === UserRole.StoreAdmin) {
+    // StoreAdmin sees only lists from their store
+    listsQuery.storeId = new Types.ObjectId(session.storeId!);
+  } else if (session.role === UserRole.Librarian) {
+    // Librarian sees only lists they created or are assigned to
+    listsQuery.$or = [
+      { createdBy: new Types.ObjectId(session.userId!) },
+      { assignedTo: new Types.ObjectId(session.userId!) },
+    ];
+  }
+
+  // Fetch public lists with role-based filtering
+  const lists = await ListModel.find(listsQuery)
     .sort({ updatedAt: -1 })
     .limit(10) // Show only first 10 lists on dashboard
     .lean();

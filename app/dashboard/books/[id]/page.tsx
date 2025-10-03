@@ -91,10 +91,10 @@ const BookPage = async ({ params }: BookPageProps) => {
       : undefined,
     storeId: book.storeId?._id?.toString(),
     storeName: book.storeId?.name,
-    assignedTo: book.assignedTo || [],
+    assignedTo: (book.assignedTo || []).map((id: any) => id.toString()),
     sections: book.sections || [],
-    createdAt: book.createdAt,
-    updatedAt: book.updatedAt,
+    createdAt: book.createdAt?.toISOString(),
+    updatedAt: book.updatedAt?.toISOString(),
   };
 
   return (
