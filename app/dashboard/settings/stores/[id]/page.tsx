@@ -105,7 +105,7 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
               Utilisateurs assignés ({usersData.length})
             </h2>
             <Link href={`/dashboard/settings/stores/${params.id}/users/add`}>
-              <button className='btn btn-primary btn-sm'>
+              <button className='btn btn-soft btn-primary btn-sm'>
                 Assigner un utilisateur
               </button>
             </Link>
@@ -118,7 +118,7 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
                 Aucun utilisateur assigné à ce magasin
               </p>
               <Link href={`/dashboard/settings/stores/${params.id}/users/add`}>
-                <button className='btn btn-primary btn-sm'>
+                <button className='btn btn-soft btn-primary btn-sm'>
                   Assigner un utilisateur
                 </button>
               </Link>
