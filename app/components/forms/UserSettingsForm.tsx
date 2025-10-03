@@ -755,7 +755,7 @@ const UserSettingsForm = ({
         )}
 
         {/* Delete Buttons - Only show in edit mode at the bottom */}
-        {isEditing && mode === 'edit' && deleteButtons && (
+        {deleteButtons && (
           <div className='card bg-base-200 shadow-sm mb-6'>
             <div className='card-body'>
               <h3 className='card-title text-lg mb-4 text-error'>
