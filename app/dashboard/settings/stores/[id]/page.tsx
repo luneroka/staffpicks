@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import BackButton from '@/app/components/BackButton';
 import AssignUserToStore from '@/app/components/stores/AssignUserToStore';
+import RemoveUserFromStoreButton from '@/app/components/stores/RemoveUserFromStoreButton';
 
 interface StoreDetailsPageProps {
   params: {
@@ -165,17 +166,13 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
                               Voir profil
                             </button>
                           </Link>
-                          <form
-                            action={`/api/stores/${params.id}/users/${user._id}`}
-                            method='POST'
-                          >
-                            <button
-                              type='submit'
-                              className='btn btn-ghost btn-sm text-error'
-                            >
-                              <FaTrash /> Retirer
-                            </button>
-                          </form>
+                          <RemoveUserFromStoreButton
+                            storeId={params.id}
+                            storeName={store.name}
+                            userId={user._id}
+                            userName={`${user.firstName} ${user.lastName}`}
+                            userRole={user.role}
+                          />
                         </div>
                       </td>
                     </tr>

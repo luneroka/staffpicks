@@ -50,7 +50,7 @@ export default async function RootLayout({
             userName={session.firstName}
             userRole={session.role}
           />
-          <div className='px-16 py-8'>{children}</div>
+          <div className='px-16 pt-8 pb-16'>{children}</div>
         </div>
       </body>
     </html>
