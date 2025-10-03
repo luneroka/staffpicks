@@ -315,11 +315,12 @@ const UserSettingsForm = ({
         onSuccess();
       }
 
-      // Redirect to the user detail page after creation
+      // Redirect immediately with user name in URL for toast
       if (mode === 'create' && data.user._id) {
-        setTimeout(() => {
-          router.push(`/dashboard/settings/users/${data.user._id}`);
-        }, 1500);
+        const userName = `${data.user.firstName} ${data.user.lastName}`;
+        window.location.href = `/dashboard/settings/users?added=${encodeURIComponent(
+          userName
+        )}`;
       }
     } catch (err) {
       console.error('Error saving user:', err);
@@ -343,8 +344,11 @@ const UserSettingsForm = ({
         { value: 'librarian', label: 'Libraire' }
       );
     } else if (currentUserRole === 'storeAdmin') {
-      // StoreAdmin can only assign: Librarian
-      roles.push({ value: 'librarian', label: 'Libraire' });
+      // StoreAdmin can assign: StoreAdmin and Librarian (for their store)
+      roles.push(
+        { value: 'storeAdmin', label: 'Admin Magasin' },
+        { value: 'librarian', label: 'Libraire' }
+      );
     }
 
     return roles;
