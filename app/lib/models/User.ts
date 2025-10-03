@@ -18,9 +18,16 @@ export enum UserRole {
   Librarian = 'librarian', // Librarian (manages books and lists for their store)
 }
 
+export enum UserStatus {
+  Active = 'active', // User is active and can log in
+  Inactive = 'inactive', // User is temporarily deactivated
+  Suspended = 'suspended', // User is suspended (e.g., policy violation)
+}
+
 @index({ email: 1 }, { unique: true })
 @index({ companyId: 1, role: 1, createdAt: -1 }) // Fast company user lookup
 @index({ companyId: 1, storeId: 1 }) // Users by company and store
+@index({ status: 1 }) // Filter by status
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -60,6 +67,10 @@ export class User {
   @prop({ required: true, enum: UserRole, default: UserRole.Librarian })
   public role!: UserRole;
 
+  /** User account status */
+  @prop({ required: true, enum: UserStatus, default: UserStatus.Active })
+  public status!: UserStatus;
+
   /** Store assignment - required for StoreAdmin and Librarian roles **/
   @prop({ ref: () => Store })
   public storeId?: Ref<Store>;
@@ -75,6 +86,10 @@ export class User {
   /** Timestamps (auto via schemaOptions.timestamps) */
   public createdAt?: Date;
   public updatedAt?: Date;
+
+  /** Soft delete timestamp - when set, user is considered deleted */
+  @prop()
+  public deletedAt?: Date;
 
   /** Failed login tracking for rate limiting */
   @prop({ default: 0 })
@@ -151,6 +166,48 @@ export class User {
   public isLocked(this: DocumentType<User>): boolean {
     if (!this.lockedUntil) return false;
     return this.lockedUntil > new Date();
+  }
+
+  /** Check if user account is active */
+  public isActive(this: DocumentType<User>): boolean {
+    return this.status === UserStatus.Active;
+  }
+
+  /** Deactivate user account (soft delete) */
+  public async deactivate(this: DocumentType<User>): Promise<void> {
+    this.status = UserStatus.Inactive;
+    await this.save();
+  }
+
+  /** Reactivate user account */
+  public async activate(this: DocumentType<User>): Promise<void> {
+    this.status = UserStatus.Active;
+    await this.save();
+  }
+
+  /** Suspend user account */
+  public async suspend(this: DocumentType<User>): Promise<void> {
+    this.status = UserStatus.Suspended;
+    await this.save();
+  }
+
+  /** Soft delete user (permanent) - sets deletedAt timestamp */
+  public async softDelete(this: DocumentType<User>): Promise<void> {
+    this.deletedAt = new Date();
+    this.status = UserStatus.Inactive; // Also deactivate
+    await this.save();
+  }
+
+  /** Check if user is soft deleted */
+  public isDeleted(this: DocumentType<User>): boolean {
+    return !!this.deletedAt;
+  }
+
+  /** Restore soft deleted user */
+  public async restore(this: DocumentType<User>): Promise<void> {
+    this.deletedAt = undefined;
+    this.status = UserStatus.Active;
+    await this.save();
   }
 
   /** Record failed login attempt */
