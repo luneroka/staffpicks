@@ -140,14 +140,16 @@ const ListDetails = ({ list, userRole }: ListDetailsProps) => {
                   </div>
                 </div>
 
-                <div className='stat'>
-                  <div className='stat-title'>Créée par</div>
-                  <div className='stat-value text-sm'>
-                    {list.createdBy?.name || 'Inconnu'}
+                <div className='flex flex-col stat justify-between'>
+                  <div>
+                    <div className='stat-title'>Créée par</div>
+                    <div className='stat-value text-sm'>
+                      {list.createdBy?.name || 'Inconnu'}
+                    </div>
                   </div>
-                  {list.visibility === 'public' && list.publishAt && (
+                  {list.visibility === 'public' && (
                     <div className='stat-desc'>
-                      Publiée le {formatDate(list.publishAt)}
+                      Publiée le {formatDate(list.publishAt || list.createdAt)}
                     </div>
                   )}
                 </div>
