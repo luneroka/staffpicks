@@ -429,18 +429,10 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
           throw new Error(data.error || 'Failed to create list');
         }
 
-        setSuccess('Liste ajoutée avec succès!');
-
-        // Reset form after successful submission
-        setTimeout(() => {
-          resetForm();
-        }, 1500);
-
-        // Redirect to lists page after a short delay to show success message
-        setTimeout(() => {
-          router.push('/dashboard/lists');
-          router.refresh();
-        }, 2000);
+        // Redirect immediately with list title in URL for toast
+        window.location.href = `/dashboard/lists?added=${encodeURIComponent(
+          data.list.title
+        )}`;
       }
     } catch (error) {
       console.error('Error saving list:', error);

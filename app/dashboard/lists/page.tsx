@@ -1,11 +1,10 @@
-import Link from 'next/link';
-import ListCard from '@/app/components/lists/ListCard';
 import { requireAuth } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
-import { UserModel, UserRole } from '@/app/lib/models/User';
+import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
-import BackButton from '@/app/components/BackButton';
+import ListsClient from './ListsClient';
+import { Suspense } from 'react';
 
 const Lists = async () => {
   // Ensure user is authenticated
@@ -64,31 +63,9 @@ const Lists = async () => {
   }));
 
   return (
-    <>
-      {session.role === UserRole.CompanyAdmin && (
-        <BackButton className='mb-8' />
-      )}
-      <div className='flex flex-col gap-12'>
-        {/* Hide "Add List" button for CompanyAdmin */}
-        {session.role !== UserRole.CompanyAdmin && (
-          <Link href={'/dashboard/lists/new'}>
-            <div className='btn btn-primary btn-soft w-fit'>
-              Ajouter une liste
-            </div>
-          </Link>
-        )}
-
-        <div id='list-display' className='flex flex-wrap gap-8'>
-          {listsData.length === 0 ? (
-            <p className='text-base-content/60'>Aucune liste créée</p>
-          ) : (
-            listsData.map((list: any) => (
-              <ListCard key={list._id} listData={list} />
-            ))
-          )}
-        </div>
-      </div>
-    </>
+    <Suspense fallback={<div>Loading...</div>}>
+      <ListsClient initialLists={listsData} userRole={session.role} />
+    </Suspense>
   );
 };
 
