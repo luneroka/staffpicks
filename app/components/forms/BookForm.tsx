@@ -415,18 +415,11 @@ const BookForm = ({
           throw new Error(data.error || 'Failed to create book');
         }
 
-        setSuccess('Livre ajouté avec succès!');
-
-        // Reset form after successful submission
-        setTimeout(() => {
-          resetForm();
-        }, 1500);
+        // Redirect immediately with book title in URL for toast
+        window.location.href = `/dashboard/books?added=${encodeURIComponent(
+          data.book.title
+        )}`;
       }
-
-      // Redirect to books page after a short delay to show success message
-      setTimeout(() => {
-        window.location.href = '/dashboard/books';
-      }, 2000);
     } catch (error) {
       console.error('Error saving book:', error);
       const isEditing = !!bookId;

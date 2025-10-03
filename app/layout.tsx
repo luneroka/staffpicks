@@ -9,6 +9,7 @@ import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { StoreModel } from '@/app/lib/models/Store';
 import { Types } from 'mongoose';
+import { Toaster } from 'sonner';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -77,6 +78,7 @@ export default async function RootLayout({
             storeName={storeInfo?.name}
             storeCity={storeInfo?.city}
           />
+          <Toaster richColors position='top-center' />
           <div className='px-16 pt-8 pb-16'>{children}</div>
         </div>
       </body>
