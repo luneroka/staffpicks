@@ -12,6 +12,8 @@ interface NavBarProps {
   companyName?: string;
   userName?: string;
   userRole?: UserRole;
+  storeName?: string;
+  storeCity?: string;
 }
 
 interface CompanyData {
@@ -24,7 +26,13 @@ interface UserData {
   avatarUrl?: string;
 }
 
-const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
+const NavBar = ({
+  companyName,
+  userName,
+  userRole,
+  storeName,
+  storeCity,
+}: NavBarProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -164,7 +172,19 @@ const NavBar = ({ companyName, userName, userRole }: NavBarProps) => {
           ) : (
             <FaHome />
           )}
-          <h3 className='hover:text-primary'>{company?.name || companyName}</h3>
+          {/* Show store info for storeAdmin and librarians, company name for others */}
+          {userRole === UserRole.StoreAdmin ||
+          userRole === UserRole.Librarian ? (
+            <h3 className='hover:text-primary'>
+              {company?.name || companyName}
+              {storeCity && ` ${storeCity}`}
+              {storeName && ` - ${storeName}`}
+            </h3>
+          ) : (
+            <h3 className='hover:text-primary'>
+              {company?.name || companyName}
+            </h3>
+          )}
         </div>
       </Link>
 

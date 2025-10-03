@@ -6,6 +6,9 @@ import { MdDarkMode } from 'react-icons/md';
 import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 import { sessionOptions, SessionData } from '@/app/lib/auth/session';
+import connectDB from '@/app/lib/mongodb';
+import { StoreModel } from '@/app/lib/models/Store';
+import { Types } from 'mongoose';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -31,6 +34,28 @@ export default async function RootLayout({
     sessionOptions
   );
 
+  // Fetch store information for storeAdmin and librarians
+  let storeInfo = null;
+  if (session.isLoggedIn && session.storeId) {
+    try {
+      await connectDB();
+      const store = await StoreModel.findById(
+        new Types.ObjectId(session.storeId)
+      )
+        .select('name address')
+        .lean();
+
+      if (store) {
+        storeInfo = {
+          name: store.name,
+          city: store.address?.city,
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching store info:', error);
+    }
+  }
+
   return (
     <html lang='en' data-theme='light'>
       <body className={roboto.className}>
@@ -49,6 +74,8 @@ export default async function RootLayout({
             companyName={session.companyName}
             userName={session.firstName}
             userRole={session.role}
+            storeName={storeInfo?.name}
+            storeCity={storeInfo?.city}
           />
           <div className='px-16 pt-8 pb-16'>{children}</div>
         </div>
