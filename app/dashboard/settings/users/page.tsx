@@ -27,9 +27,9 @@ async function getUsers(session: SessionData) {
       // Company Admin sees users in their company
       query.companyId = new Types.ObjectId(session.companyId!);
     } else if (session.role === UserRole.StoreAdmin) {
-      // Store Admin sees only librarians in their store
+      // Store Admin sees StoreAdmins and Librarians in their store
       query.storeId = new Types.ObjectId(session.storeId!);
-      query.role = UserRole.Librarian;
+      query.role = { $in: [UserRole.StoreAdmin, UserRole.Librarian] };
     }
 
     // Fetch users with store information

@@ -51,13 +51,13 @@ export async function GET(request: NextRequest) {
       // Company Admin sees users in their company
       query.companyId = new Types.ObjectId(session.companyId!);
     } else if (session.role === UserRole.StoreAdmin) {
-      // Store Admin sees users in their store
+      // Store Admin sees StoreAdmins and Librarians in their store
       query.storeId = new Types.ObjectId(session.storeId!);
-      // Allow filtering by role (default to showing only librarians)
+      // Allow filtering by role (default to showing both StoreAdmins and Librarians)
       if (roleParam) {
         query.role = roleParam;
       } else {
-        query.role = UserRole.Librarian;
+        query.role = { $in: [UserRole.StoreAdmin, UserRole.Librarian] };
       }
     }
 
@@ -145,9 +145,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate role permissions
-    if (session.role === UserRole.StoreAdmin && role !== UserRole.Librarian) {
+    if (
+      session.role === UserRole.StoreAdmin &&
+      role !== UserRole.Librarian &&
+      role !== UserRole.StoreAdmin
+    ) {
       return NextResponse.json(
-        { error: 'Les admins de magasin ne peuvent créer que des libraires' },
+        {
+          error:
+            'Les admins de magasin ne peuvent créer que des admins de magasin et des libraires',
+        },
         { status: 403 }
       );
     }

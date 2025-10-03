@@ -302,25 +302,22 @@ const UserSettingsForm = ({
         throw new Error(data.error || 'Erreur lors de la sauvegarde');
       }
 
-      setUserData(data.user);
-      setEditedData(data.user);
-      setIsEditing(false);
-      setSuccess(
-        mode === 'create'
-          ? 'Utilisateur créé avec succès!'
-          : 'Utilisateur mis à jour avec succès!'
-      );
-
-      if (onSuccess) {
-        onSuccess();
-      }
-
       // Redirect immediately with user name in URL for toast
       if (mode === 'create' && data.user._id) {
         const userName = `${data.user.firstName} ${data.user.lastName}`;
         window.location.href = `/dashboard/settings/users?added=${encodeURIComponent(
           userName
         )}`;
+      } else {
+        // Only set success message and update state for edit mode
+        setUserData(data.user);
+        setEditedData(data.user);
+        setIsEditing(false);
+        setSuccess('Utilisateur mis à jour avec succès!');
+
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (err) {
       console.error('Error saving user:', err);
@@ -562,14 +559,6 @@ const UserSettingsForm = ({
                         </option>
                       ))}
                     </select>
-                    {currentUserRole === 'storeAdmin' && (
-                      <label className='label'>
-                        <span className='label-text-alt text-info'>
-                          💡 En tant qu&apos;Admin Magasin, vous ne pouvez créer
-                          que des Libraires pour votre magasin
-                        </span>
-                      </label>
-                    )}
                   </>
                 ) : (
                   <div>
