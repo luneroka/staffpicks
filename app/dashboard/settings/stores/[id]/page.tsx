@@ -8,6 +8,7 @@ import { FaStore, FaUser, FaTrash, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import BackButton from '@/app/components/BackButton';
+import AssignUserToStore from '@/app/components/stores/AssignUserToStore';
 
 interface StoreDetailsPageProps {
   params: {
@@ -104,11 +105,10 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
               <FaUser />
               Utilisateurs assignés ({usersData.length})
             </h2>
-            <Link href={`/dashboard/settings/stores/${params.id}/users/add`}>
-              <button className='btn btn-soft btn-primary btn-sm'>
-                Assigner un utilisateur
-              </button>
-            </Link>
+            <AssignUserToStore
+              storeId={params.id}
+              assignedUserIds={usersData.map((u: any) => u._id)}
+            />
           </div>
 
           {usersData.length === 0 ? (
@@ -117,11 +117,10 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
               <p className='text-base-content/60 mb-4'>
                 Aucun utilisateur assigné à ce magasin
               </p>
-              <Link href={`/dashboard/settings/stores/${params.id}/users/add`}>
-                <button className='btn btn-soft btn-primary btn-sm'>
-                  Assigner un utilisateur
-                </button>
-              </Link>
+              <AssignUserToStore
+                storeId={params.id}
+                assignedUserIds={usersData.map((u: any) => u._id)}
+              />
             </div>
           ) : (
             <div className='overflow-x-auto'>

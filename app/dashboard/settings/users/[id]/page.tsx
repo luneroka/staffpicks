@@ -8,6 +8,7 @@ import { Types } from 'mongoose';
 import connectDB from '@/app/lib/mongodb';
 import BackButton from '@/app/components/BackButton';
 import UserSettingsForm from '@/app/components/forms/UserSettingsForm';
+import DeleteUserButton from '@/app/components/users/DeleteUserButton';
 
 export const metadata: Metadata = {
   title: 'Détails utilisateur - StaffPicks',
@@ -105,6 +106,15 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         mode='edit'
         currentUserRole={session.role}
         currentUserStoreId={session.storeId}
+        deleteButtons={
+          <DeleteUserButton
+            userId={id}
+            userName={`${userData.firstName} ${userData.lastName}`}
+            userRole={userData.role}
+            currentUserRole={session.role}
+            currentUserId={session.userId}
+          />
+        }
       />
     </div>
   );

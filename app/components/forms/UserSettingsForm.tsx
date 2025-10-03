@@ -25,6 +25,7 @@ interface UserSettingsFormProps {
   mode?: 'create' | 'edit';
   currentUserRole?: string; // Pass from server component
   currentUserStoreId?: string; // For StoreAdmin to limit store selection
+  deleteButtons?: React.ReactNode; // Delete buttons to show at bottom in edit mode
 }
 
 const UserSettingsForm = ({
@@ -34,6 +35,7 @@ const UserSettingsForm = ({
   mode = 'edit',
   currentUserRole = 'librarian',
   currentUserStoreId,
+  deleteButtons,
 }: UserSettingsFormProps) => {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData>(
@@ -700,6 +702,21 @@ const UserSettingsForm = ({
                   )}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Delete Buttons - Only show in edit mode at the bottom */}
+        {isEditing && mode === 'edit' && deleteButtons && (
+          <div className='card bg-base-200 shadow-sm mb-6'>
+            <div className='card-body'>
+              <h3 className='card-title text-lg mb-4 text-error'>
+                Zone de danger
+              </h3>
+              <p className='text-base-content/60 mb-4'>
+                Actions irréversibles ou critiques pour ce compte utilisateur.
+              </p>
+              {deleteButtons}
             </div>
           </div>
         )}
