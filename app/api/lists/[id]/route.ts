@@ -341,6 +341,24 @@ export async function PUT(
       if (sections !== undefined) {
         updateFields.sections = sections;
       }
+    } else if (isLibrarian(session)) {
+      // Librarian: ensure they remain in assignedTo when editing
+      if (assignedTo !== undefined) {
+        const assignedToIds = assignedTo || [];
+        const userIdString = session.userId!;
+
+        // Add the librarian if not already in the array
+        if (!assignedToIds.includes(userIdString)) {
+          assignedToIds.push(userIdString);
+        }
+
+        updateFields.assignedTo = assignedToIds.map(
+          (id: string) => new Types.ObjectId(id)
+        );
+      }
+      if (sections !== undefined) {
+        updateFields.sections = sections;
+      }
     }
 
     // 7. Find and update the list

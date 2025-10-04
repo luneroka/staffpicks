@@ -136,18 +136,20 @@ export async function POST(request: NextRequest) {
     // For Librarian: automatically assign to themselves (if not already included)
     // For StoreAdmin: use the provided assignedTo array
     let finalAssignedTo: Types.ObjectId[] = [];
-    
+
     if (isLibrarian(session)) {
       // Librarian: always include themselves
       const assignedToIds = assignedTo || [];
       const userIdString = session.userId!;
-      
+
       // Add the librarian if not already in the array
       if (!assignedToIds.includes(userIdString)) {
         assignedToIds.push(userIdString);
       }
-      
-      finalAssignedTo = assignedToIds.map((id: string) => new Types.ObjectId(id));
+
+      finalAssignedTo = assignedToIds.map(
+        (id: string) => new Types.ObjectId(id)
+      );
     } else {
       // StoreAdmin: use provided array (already validated)
       finalAssignedTo = assignedTo.map((id: string) => new Types.ObjectId(id));

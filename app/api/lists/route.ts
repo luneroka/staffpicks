@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, isCompanyAdmin } from '@/app/lib/auth/helpers';
+import {
+  getSession,
+  isCompanyAdmin,
+  isLibrarian,
+} from '@/app/lib/auth/helpers';
 import { buildRoleBasedQuery } from '@/app/lib/auth/queryBuilders';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel, ListVisibility } from '@/app/lib/models/List';
@@ -117,7 +121,30 @@ export async function POST(request: NextRequest) {
     // 10. Use the cover image URL directly (already uploaded to Cloudinary by the form)
     const cloudinaryCoverUrl = coverImage?.trim() || undefined;
 
-    // 11. Create the list
+    // 11. Prepare assignedTo array
+    // For Librarian: automatically assign to themselves (if not already included)
+    // For StoreAdmin: use the provided assignedTo array
+    let finalAssignedTo: Types.ObjectId[] = [];
+
+    if (isLibrarian(session)) {
+      // Librarian: always include themselves
+      const assignedToIds = assignedTo || [];
+      const userIdString = session.userId!;
+
+      // Add the librarian if not already in the array
+      if (!assignedToIds.includes(userIdString)) {
+        assignedToIds.push(userIdString);
+      }
+
+      finalAssignedTo = assignedToIds.map(
+        (id: string) => new Types.ObjectId(id)
+      );
+    } else {
+      // StoreAdmin: use provided array
+      finalAssignedTo = assignedTo.map((id: string) => new Types.ObjectId(id));
+    }
+
+    // 12. Create the list
     const newList = await ListModel.create({
       companyId: new Types.ObjectId(session.companyId),
       storeId: new Types.ObjectId(session.storeId!),
@@ -131,11 +158,11 @@ export async function POST(request: NextRequest) {
       publishAt: publishAt ? new Date(publishAt) : undefined,
       unpublishAt: unpublishAt ? new Date(unpublishAt) : undefined,
       items: processedItems,
-      assignedTo: assignedTo.map((id: string) => new Types.ObjectId(id)),
+      assignedTo: finalAssignedTo,
       sections: sections || [],
     });
 
-    // 12. Populate the created list with book details
+    // 13. Populate the created list with book details
     const populatedList = await ListModel.findById(newList._id)
       .populate({
         path: 'items.bookId',
