@@ -66,7 +66,7 @@ export async function DELETE(
     };
 
     if (isStoreAdmin(session)) {
-      // StoreAdmin can only delete books from their store AND that they created
+      // StoreAdmin can delete any book from their store
       if (!session.storeId) {
         return NextResponse.json(
           { error: 'StoreAdmin must be assigned to a store' },
@@ -74,7 +74,6 @@ export async function DELETE(
         );
       }
       deleteQuery.storeId = new Types.ObjectId(session.storeId);
-      deleteQuery.createdBy = new Types.ObjectId(session.userId); // StoreAdmin can only delete books they created
     } else if (isLibrarian(session)) {
       // Librarian can only delete books they are currently assigned to
       deleteQuery.assignedTo = new Types.ObjectId(session.userId);
@@ -91,7 +90,7 @@ export async function DELETE(
 
       if (isStoreAdmin(session)) {
         errorMessage =
-          'Book not found or you can only delete books you created yourself';
+          'Book not found in your store or you do not have permission to delete it';
       } else if (isLibrarian(session)) {
         errorMessage =
           'Book not found or you can only delete books currently assigned to you';

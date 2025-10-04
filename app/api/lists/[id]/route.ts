@@ -65,9 +65,8 @@ export async function DELETE(
     };
 
     if (isStoreAdmin(session)) {
-      // StoreAdmin can only delete lists from their store AND that they created
+      // StoreAdmin can delete any list from their store
       query.storeId = new Types.ObjectId(session.storeId!);
-      query.createdBy = new Types.ObjectId(session.userId); // StoreAdmin can only delete lists they created
     } else if (isLibrarian(session)) {
       // Librarian can only delete lists they are currently assigned to
       query.assignedTo = new Types.ObjectId(session.userId);
@@ -93,7 +92,7 @@ export async function DELETE(
 
       if (isStoreAdmin(session)) {
         errorMessage =
-          'List not found or you can only delete lists you created yourself';
+          'List not found in your store or you do not have permission to delete it';
       } else if (isLibrarian(session)) {
         errorMessage =
           'List not found or you can only delete lists currently assigned to you';
