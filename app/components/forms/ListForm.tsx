@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
 import { toast } from 'sonner';
 import Book from '../books/Book';
 import { ListFormData, ListItem } from '@/app/lib/types';
-import { useFormState } from '@/app/lib/hooks';
+import { useFormState, useImageUpload } from '@/app/lib/hooks';
 import AssignmentFields from './AssignmentFields';
 import FormAlerts from './FormAlerts';
 
@@ -40,6 +40,23 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
     clearMessages,
   } = useFormState();
 
+  const {
+    handleUpload: handleImageUpload,
+    isUploading: isUploadingImage,
+    selectedFile,
+  } = useImageUpload({
+    folder: 'list-covers',
+    successMessage: 'Image uploadée avec succès!',
+    onSuccess: (url) => {
+      setListData((prev) => ({
+        ...prev,
+        coverImage: url,
+      }));
+      setSuccess('Image uploadée avec succès!');
+    },
+    onError: (error) => setError(error),
+  });
+
   const [listData, setListData] = useState<ListFormData>({
     title: '',
     slug: '',
@@ -53,8 +70,6 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
   });
 
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Assignment state (for StoreAdmin)
   const [librarians, setLibrarians] = useState<any[]>([]);
@@ -270,67 +285,6 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
     setError('');
     setSuccess('');
     setValidationErrors([]);
-    setSelectedFile(null);
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Veuillez sélectionner une image valide');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError("L'image est trop grande (max 5MB)");
-      return;
-    }
-
-    setSelectedFile(file);
-    setIsUploadingImage(true);
-    setError('');
-
-    try {
-      // Upload to Cloudinary
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', 'list-covers'); // Specify folder for list covers
-
-      const response = await fetch('/api/upload/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to upload image');
-      }
-
-      // Update the cover image URL with Cloudinary URL
-      setListData((prev) => ({
-        ...prev,
-        coverImage: data.url,
-      }));
-
-      setSuccess('Image uploadée avec succès!');
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de l'upload de l'image"
-      );
-      setSelectedFile(null);
-    } finally {
-      setIsUploadingImage(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -512,7 +466,7 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
             type='file'
             className='file-input file-input-ghost'
             accept='image/*'
-            onChange={handleFileChange}
+            onChange={handleImageUpload}
             disabled={isUploadingImage || isLoading}
           />
         </div>

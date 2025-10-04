@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaUser, FaUpload } from 'react-icons/fa';
 import { toast } from 'sonner';
-import { useFormState } from '@/app/lib/hooks';
+import { useFormState, useImageUpload } from '@/app/lib/hooks';
 import FormAlerts from './FormAlerts';
 import Image from 'next/image';
 
@@ -42,6 +42,17 @@ const UserSettingsForm = ({
   const router = useRouter();
   const { error, success, setError, setSuccess } = useFormState();
 
+  const { handleUpload: handleAvatarUpload, isUploading: isUploadingAvatar } =
+    useImageUpload({
+      folder: 'user-avatars',
+      successMessage: 'Avatar uploadé avec succès!',
+      onSuccess: (url) => {
+        setEditedData((prev) => ({ ...prev, avatarUrl: url }));
+        setSuccess('Avatar uploadé avec succès!');
+      },
+      onError: (error) => setError(error),
+    });
+
   const [userData, setUserData] = useState<UserData>(
     initialData || {
       firstName: '',
@@ -56,7 +67,6 @@ const UserSettingsForm = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isEditing, setIsEditing] = useState(mode === 'create');
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [stores, setStores] = useState<any[]>([]);
   const [loadingStores, setLoadingStores] = useState(false);
   const [currentStoreName, setCurrentStoreName] = useState<string>('');
@@ -178,53 +188,6 @@ const UserSettingsForm = ({
       ...prev,
       sections: prev.sections?.filter((s) => s !== section) || [],
     }));
-  };
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('Veuillez sélectionner une image valide');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("L'image est trop grande (max 5MB)");
-      return;
-    }
-
-    setIsUploadingAvatar(true);
-    setError('');
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', 'user-avatars');
-
-      const response = await fetch('/api/upload/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de l'upload");
-      }
-
-      setEditedData((prev) => ({ ...prev, avatarUrl: data.url }));
-      setSuccess('Avatar uploadé avec succès!');
-    } catch (err) {
-      console.error('Error uploading avatar:', err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Erreur lors de l'upload de l'avatar"
-      );
-    } finally {
-      setIsUploadingAvatar(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaSearch } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 import { BookFormData } from '@/app/lib/types';
-import { useFormState } from '@/app/lib/hooks';
+import { useFormState, useImageUpload } from '@/app/lib/hooks';
 import AssignmentFields from './AssignmentFields';
 import FormAlerts from './FormAlerts';
 
@@ -34,6 +34,23 @@ const BookForm = ({
     clearMessages,
   } = useFormState();
 
+  const {
+    handleUpload: handleImageUpload,
+    isUploading: isUploadingImage,
+    selectedFile,
+  } = useImageUpload({
+    folder: 'book-covers',
+    successMessage: 'Image uploadée avec succès!',
+    onSuccess: (url) => {
+      setBookData((prev) => ({
+        ...prev,
+        coverImage: url,
+      }));
+      setSuccess('Image uploadée avec succès!');
+    },
+    onError: (error) => setError(error),
+  });
+
   const [bookData, setBookData] = useState<BookFormData>({
     isbn: '',
     title: '',
@@ -54,8 +71,8 @@ const BookForm = ({
 
   const [isSearching, setIsSearching] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploadingCoverFromISBN, setIsUploadingCoverFromISBN] =
+    useState(false);
   const [librarians, setLibrarians] = useState<any[]>([]);
   const [loadingLibrarians, setLoadingLibrarians] = useState(false);
 
@@ -162,7 +179,7 @@ const BookForm = ({
       // If we got a cover URL, upload it to Cloudinary
       if (coverUrl) {
         try {
-          setIsUploadingImage(true);
+          setIsUploadingCoverFromISBN(true);
           const uploadResponse = await fetch('/api/upload/image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -190,7 +207,7 @@ const BookForm = ({
             'Informations du livre récupérées (couverture non uploadée)'
           );
         } finally {
-          setIsUploadingImage(false);
+          setIsUploadingCoverFromISBN(false);
         }
       } else {
         setSuccess('Informations du livre récupérées avec succès!');
@@ -227,67 +244,6 @@ const BookForm = ({
     setError('');
     setSuccess('');
     setValidationErrors([]);
-    setSelectedFile(null);
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Veuillez sélectionner une image valide');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError("L'image est trop grande (max 5MB)");
-      return;
-    }
-
-    setSelectedFile(file);
-    setIsUploadingImage(true);
-    setError('');
-
-    try {
-      // Upload to Cloudinary
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', 'book-covers'); // Specify folder for book covers
-
-      const response = await fetch('/api/upload/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to upload image');
-      }
-
-      // Update the cover image URL with Cloudinary URL
-      setBookData((prev) => ({
-        ...prev,
-        coverImage: data.url,
-      }));
-
-      setSuccess('Image uploadée avec succès!');
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de l'upload de l'image"
-      );
-      setSelectedFile(null);
-    } finally {
-      setIsUploadingImage(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -568,7 +524,7 @@ const BookForm = ({
             type='file'
             className='file-input file-input-ghost'
             accept='image/*'
-            onChange={handleFileChange}
+            onChange={handleImageUpload}
             disabled={isUploadingImage || isLoading}
           />
         </div>

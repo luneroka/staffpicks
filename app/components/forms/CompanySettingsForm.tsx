@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FaPencilAlt, FaSave, FaTimes, FaUpload } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
-import { useFormState } from '@/app/lib/hooks';
+import { useFormState, useImageUpload } from '@/app/lib/hooks';
 import FormAlerts from './FormAlerts';
 import Image from 'next/image';
 
@@ -31,12 +31,22 @@ interface CompanyData {
 const CompanySettingsForm = () => {
   const { error, success, setError, setSuccess } = useFormState();
 
+  const { handleUpload: handleLogoUpload, isUploading: isUploadingLogo } =
+    useImageUpload({
+      folder: 'company-logos',
+      successMessage: 'Logo uploadé avec succès!',
+      onSuccess: (url) => {
+        setEditedData((prev) => (prev ? { ...prev, logoUrl: url } : null));
+        setSuccess('Logo uploadé avec succès!');
+      },
+      onError: (error) => setError(error),
+    });
+
   const [companyData, setCompanyData] = useState<CompanyData | null>(null);
   const [editedData, setEditedData] = useState<CompanyData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   // Fetch company data on mount
   useEffect(() => {
@@ -130,54 +140,6 @@ const CompanySettingsForm = () => {
           }
         : null
     );
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Veuillez sélectionner une image valide');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError("L'image est trop grande (max 5MB)");
-      return;
-    }
-
-    setIsUploadingLogo(true);
-    setError('');
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', 'company-logos'); // Specify folder for company logos
-
-      const response = await fetch('/api/upload/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de l'upload");
-      }
-
-      setEditedData((prev) => (prev ? { ...prev, logoUrl: data.url } : null));
-      setSuccess('Logo uploadé avec succès!');
-    } catch (err) {
-      console.error('Error uploading logo:', err);
-      setError(
-        err instanceof Error ? err.message : "Erreur lors de l'upload du logo"
-      );
-    } finally {
-      setIsUploadingLogo(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
