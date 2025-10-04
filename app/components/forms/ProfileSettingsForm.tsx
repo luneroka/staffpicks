@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaUpload, FaKey } from 'react-icons/fa';
 import { HiExclamationCircle } from 'react-icons/hi';
+import { toast } from 'sonner';
 import { useFormState, useImageUpload } from '@/app/lib/hooks';
 import FormAlerts from './FormAlerts';
 import Image from 'next/image';
@@ -144,7 +145,7 @@ const ProfileSettingsForm = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      setSuccess('Mot de passe modifié avec succès!');
+      toast.success('Mot de passe modifié avec succès!');
 
       // Redirect to login after 1.5 seconds
       setTimeout(() => {
@@ -254,10 +255,13 @@ const ProfileSettingsForm = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      setSuccess('Profil mis à jour avec succès!');
+
+      // Show success toast
+      const userName = `${data.user.firstName} ${data.user.lastName}`;
+      toast.success(`Profil de ${userName} mis à jour avec succès!`);
 
       // Refresh the page to update navbar
-      window.location.reload();
+      router.refresh();
     } catch (err) {
       console.error('Error saving user:', err);
       setError(

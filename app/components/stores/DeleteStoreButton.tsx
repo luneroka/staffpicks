@@ -46,9 +46,6 @@ const DeleteStoreButton = ({
       // Show success message
       toast.success(`Magasin "${storeName}" supprimé avec succès`);
 
-      // Wait a moment for user to see the success state
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       // Redirect to stores list after successful deletion
       router.push('/dashboard/settings/stores');
       router.refresh();

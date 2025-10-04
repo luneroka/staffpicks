@@ -191,23 +191,26 @@ const StoreSettingsForm = ({
         throw new Error(data.error || 'Erreur lors de la sauvegarde');
       }
 
-      setStoreData(data.store);
-      setEditedData(data.store);
-      setIsEditing(false);
-
       if (mode === 'create' && data.store._id) {
         // Show success toast for new store
         toast.success(`Magasin "${data.store.name}" créé avec succès`);
 
-        // Wait a moment for user to see the success state
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Redirect to stores list
+        // Redirect to stores list (keep loading state active during redirect)
         router.push('/dashboard/settings/stores/');
         router.refresh();
       } else {
-        // Show success message for edit mode
-        setSuccess('Magasin mis à jour avec succès!');
+        // Update state for edit mode
+        setStoreData(data.store);
+        setEditedData(data.store);
+        setIsEditing(false);
+
+        // Show success toast for edit mode
+        toast.success(`Magasin "${data.store.name}" modifié avec succès`);
+
+        // Refresh server-side data
+        router.refresh();
+
+        setIsSaving(false);
 
         if (onSuccess) {
           onSuccess();
@@ -218,7 +221,6 @@ const StoreSettingsForm = ({
       setError(
         err instanceof Error ? err.message : 'Erreur lors de la sauvegarde'
       );
-    } finally {
       setIsSaving(false);
     }
   };

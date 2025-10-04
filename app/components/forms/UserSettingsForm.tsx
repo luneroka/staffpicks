@@ -264,18 +264,23 @@ const UserSettingsForm = ({
         const userName = `${data.user.firstName} ${data.user.lastName}`;
         toast.success(`Utilisateur "${userName}" ajouté avec succès`);
 
-        // Wait a moment for user to see the success state
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Redirect to users list
+        // Redirect to users list (keep loading state active during redirect)
         router.push('/dashboard/settings/users');
         router.refresh();
       } else {
-        // Only set success message and update state for edit mode
+        // Update state for edit mode
         setUserData(data.user);
         setEditedData(data.user);
         setIsEditing(false);
-        setSuccess('Utilisateur mis à jour avec succès!');
+
+        // Show success toast for edit mode
+        const userName = `${data.user.firstName} ${data.user.lastName}`;
+        toast.success(`Utilisateur "${userName}" modifié avec succès`);
+
+        // Refresh server-side data
+        router.refresh();
+
+        setIsSaving(false);
 
         if (onSuccess) {
           onSuccess();
@@ -286,7 +291,6 @@ const UserSettingsForm = ({
       setError(
         err instanceof Error ? err.message : 'Erreur lors de la sauvegarde'
       );
-    } finally {
       setIsSaving(false);
     }
   };

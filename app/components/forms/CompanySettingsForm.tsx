@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FaPencilAlt, FaSave, FaTimes, FaUpload } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { toast } from 'sonner';
 import { useFormState, useImageUpload } from '@/app/lib/hooks';
 import FormAlerts from './FormAlerts';
 import Image from 'next/image';
@@ -183,13 +184,17 @@ const CompanySettingsForm = () => {
       setCompanyData(data.company);
       setEditedData(data.company);
       setIsEditing(false);
-      setSuccess('Informations mises à jour avec succès!');
+
+      // Show success toast
+      toast.success(
+        `Informations de ${data.company.name} mises à jour avec succès!`
+      );
     } catch (err) {
       console.error('Error saving company:', err);
       setError(
         err instanceof Error ? err.message : 'Erreur lors de la sauvegarde'
       );
-    } finally {
+
       setIsSaving(false);
     }
   };

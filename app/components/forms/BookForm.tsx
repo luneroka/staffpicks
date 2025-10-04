@@ -338,7 +338,12 @@ const BookForm = ({
           throw new Error(data.error || 'Failed to update book');
         }
 
-        setSuccess('Livre modifié avec succès!');
+        // Show success toast
+        toast.success(`Livre "${data.book.title}" modifié avec succès`);
+
+        // Redirect to books list (keep loading state active during redirect)
+        router.push(`/dashboard/books/${bookData.id}`);
+        router.refresh();
       } else {
         // Create new book
         const response = await fetch('/api/books', {
@@ -356,10 +361,7 @@ const BookForm = ({
         // Show success toast
         toast.success(`Livre "${data.book.title}" ajouté avec succès`);
 
-        // Wait a moment for user to see the success state
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Redirect to books list
+        // Redirect to books list (keep loading state active during redirect)
         router.push('/dashboard/books');
         router.refresh();
       }
@@ -373,7 +375,6 @@ const BookForm = ({
           ? 'Erreur lors de la modification du livre'
           : "Erreur lors de l'ajout du livre"
       );
-    } finally {
       setIsLoading(false);
     }
   };

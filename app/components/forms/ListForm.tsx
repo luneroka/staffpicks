@@ -349,13 +349,12 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
           throw new Error(data.error || 'Failed to update list');
         }
 
-        setSuccess('Liste modifiée avec succès!');
+        // Show success toast
+        toast.success(`Liste "${data.list.title}" ajoutée avec succès`);
 
         // Redirect to the updated list detail page
-        setTimeout(() => {
-          router.push(`/dashboard/lists/${id}`);
-          router.refresh();
-        }, 1500);
+        router.push(`/dashboard/lists/${id}`);
+        router.refresh();
       } else {
         // Create new list
         const response = await fetch('/api/lists', {
@@ -373,10 +372,7 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
         // Show success toast
         toast.success(`Liste "${data.list.title}" ajoutée avec succès`);
 
-        // Wait a moment for user to see the success state
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Redirect to lists page
+        // Redirect to lists page (keep loading state active during redirect)
         router.push('/dashboard/lists');
         router.refresh();
       }
@@ -390,7 +386,6 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
           ? 'Erreur lors de la modification de la liste'
           : "Erreur lors de l'ajout de la liste"
       );
-    } finally {
       setIsLoading(false);
     }
   };
