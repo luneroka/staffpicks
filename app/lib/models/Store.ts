@@ -15,9 +15,15 @@ export enum StoreStatus {
   Maintenance = 'maintenance',
 }
 
-@index({ companyId: 1, code: 1 }, { unique: true }) // Unique store code per company
-@index({ companyId: 1, status: 1, createdAt: -1 }) // Active stores per company
-@index({ companyId: 1, name: 1 }) // Search stores by name within company
+@index(
+  { companyId: 1, code: 1 },
+  { unique: true, name: 'idx_store_company_code_unique' }
+) // Unique store code per company
+@index(
+  { companyId: 1, status: 1, createdAt: -1 },
+  { name: 'idx_store_company_status_created' }
+) // Active stores per company
+@index({ companyId: 1, name: 1 }, { name: 'idx_store_company_name' }) // Search stores by name within company
 @modelOptions({
   schemaOptions: {
     timestamps: true,

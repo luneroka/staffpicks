@@ -34,18 +34,37 @@ class ListItem {
  */
 @index(
   { companyId: 1, ownerUserId: 1, slug: 1 },
-  { unique: true, partialFilterExpression: { deletedAt: { $exists: false } } }
+  {
+    unique: true,
+    partialFilterExpression: { deletedAt: { $exists: false } },
+    name: 'idx_list_company_owner_slug_unique',
+  }
 )
 // Dashboards (active lists by company)
-@index({ companyId: 1, ownerUserId: 1, visibility: 1, updatedAt: -1 })
+@index(
+  { companyId: 1, ownerUserId: 1, visibility: 1, updatedAt: -1 },
+  { name: 'idx_list_company_owner_visibility_updated' }
+)
 // Store-scoped queries for StoreAdmin
-@index({ companyId: 1, storeId: 1, visibility: 1, updatedAt: -1 })
+@index(
+  { companyId: 1, storeId: 1, visibility: 1, updatedAt: -1 },
+  { name: 'idx_list_company_store_visibility_updated' }
+)
 // Librarian-scoped queries (assigned to or created by)
-@index({ companyId: 1, assignedTo: 1, visibility: 1, updatedAt: -1 })
+@index(
+  { companyId: 1, assignedTo: 1, visibility: 1, updatedAt: -1 },
+  { name: 'idx_list_company_assigned_visibility_updated' }
+)
 // Company-wide lists
-@index({ companyId: 1, visibility: 1, updatedAt: -1 })
+@index(
+  { companyId: 1, visibility: 1, updatedAt: -1 },
+  { name: 'idx_list_company_visibility_updated' }
+)
 // Trash (fast lookup by company, owner & deletedAt)
-@index({ companyId: 1, ownerUserId: 1, deletedAt: 1, updatedAt: -1 })
+@index(
+  { companyId: 1, ownerUserId: 1, deletedAt: 1, updatedAt: -1 },
+  { name: 'idx_list_company_owner_deleted_updated' }
+)
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -57,11 +76,21 @@ export class List {
   public readonly _id!: Types.ObjectId;
 
   /** Company boundary for multi-tenancy */
-  @prop({ ref: () => Company, required: true, index: true })
+  @prop({
+    ref: () => Company,
+    required: true,
+    index: true,
+    indexName: 'idx_list_company',
+  })
   public companyId!: Ref<Company>;
 
   /** Store boundary - which store this list belongs to */
-  @prop({ ref: () => Store, required: true, index: true })
+  @prop({
+    ref: () => Store,
+    required: true,
+    index: true,
+    indexName: 'idx_list_store',
+  })
   public storeId!: Ref<Store>;
 
   /** Tenant boundary: the librarian who owns the list */

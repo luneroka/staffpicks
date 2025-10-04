@@ -31,15 +31,27 @@ class BookData {
 
 // INDEXES
 /** Unique ISBN per user - each librarian can have their own version with custom data */
-@index({ companyId: 1, ownerUserId: 1, isbn: 1 }, { unique: true })
+@index(
+  { companyId: 1, ownerUserId: 1, isbn: 1 },
+  { unique: true, name: 'idx_book_company_owner_isbn_unique' }
+)
 /** Fast dashboard listing by owner within company */
-@index({ companyId: 1, ownerUserId: 1, createdAt: -1 })
+@index(
+  { companyId: 1, ownerUserId: 1, createdAt: -1 },
+  { name: 'idx_book_company_owner_created' }
+)
 /** Store-scoped queries for StoreAdmin */
-@index({ companyId: 1, storeId: 1, createdAt: -1 })
+@index(
+  { companyId: 1, storeId: 1, createdAt: -1 },
+  { name: 'idx_book_company_store_created' }
+)
 /** Librarian-scoped queries (assigned to or created by) */
-@index({ companyId: 1, assignedTo: 1, createdAt: -1 })
+@index(
+  { companyId: 1, assignedTo: 1, createdAt: -1 },
+  { name: 'idx_book_company_assigned_created' }
+)
 /** Company-wide book search */
-@index({ companyId: 1, createdAt: -1 })
+@index({ companyId: 1, createdAt: -1 }, { name: 'idx_book_company_created' })
 @modelOptions({
   schemaOptions: {
     timestamps: true,

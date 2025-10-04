@@ -24,10 +24,13 @@ export enum UserStatus {
   Suspended = 'suspended', // User is suspended (e.g., policy violation)
 }
 
-@index({ email: 1 }, { unique: true })
-@index({ companyId: 1, role: 1, createdAt: -1 }) // Fast company user lookup
-@index({ companyId: 1, storeId: 1 }) // Users by company and store
-@index({ status: 1 }) // Filter by status
+@index({ email: 1 }, { unique: true, name: 'idx_user_email_unique' })
+@index(
+  { companyId: 1, role: 1, createdAt: -1 },
+  { name: 'idx_user_company_role_created' }
+)
+@index({ companyId: 1, storeId: 1 }, { name: 'idx_user_company_store' })
+@index({ status: 1 }, { name: 'idx_user_status' })
 @modelOptions({
   schemaOptions: {
     timestamps: true,

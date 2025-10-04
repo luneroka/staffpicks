@@ -20,8 +20,8 @@ export enum CompanyPlan {
   Enterprise = 'enterprise',
 }
 
-@index({ slug: 1 }, { unique: true })
-@index({ createdAt: -1 })
+@index({ slug: 1 }, { unique: true, name: 'idx_company_slug_unique' })
+@index({ createdAt: -1 }, { name: 'idx_company_created' })
 @modelOptions({
   schemaOptions: {
     timestamps: true,
