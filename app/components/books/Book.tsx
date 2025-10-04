@@ -6,7 +6,7 @@ import { FaTimes } from 'react-icons/fa';
 
 interface BookProps {
   coverUrl?: string;
-  id?: string; // Changed from isbn to id
+  id?: string;
   title?: string;
 }
 

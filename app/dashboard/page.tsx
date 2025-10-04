@@ -2,12 +2,8 @@ import { IoIosArrowForward } from 'react-icons/io';
 import List from '../components/lists/List';
 import Book from '../components/books/Book';
 import Link from 'next/link';
-import {
-  isCompanyAdmin,
-  isLibrarian,
-  isStoreAdmin,
-  requireAuth,
-} from '../lib/auth/helpers';
+import { isCompanyAdmin, requireAuth } from '../lib/auth/helpers';
+import { buildRoleBasedQuery } from '../lib/auth/queryBuilders';
 import connectDB from '../lib/mongodb';
 import { BookModel } from '../lib/models/Book';
 import { ListModel, ListVisibility } from '../lib/models/List';
@@ -186,20 +182,7 @@ const Dashboard = async () => {
   /**
    * Build query based on user role for books
    **/
-  let booksQuery: any = {
-    companyId: new Types.ObjectId(session.companyId!),
-  };
-
-  if (isStoreAdmin(session)) {
-    // StoreAdmin sees only books from their store
-    booksQuery.storeId = new Types.ObjectId(session.storeId!);
-  } else if (isLibrarian(session)) {
-    // Librarian sees only books they created or are assigned to
-    booksQuery.$or = [
-      { createdBy: new Types.ObjectId(session.userId!) },
-      { assignedTo: new Types.ObjectId(session.userId!) },
-    ];
-  }
+  const booksQuery = buildRoleBasedQuery(session);
 
   // Fetch books with role-based filtering
   const books = await BookModel.find(booksQuery)
@@ -216,22 +199,10 @@ const Dashboard = async () => {
   /**
    * Build query based on user role for lists
    **/
-  let listsQuery: any = {
-    companyId: new Types.ObjectId(session.companyId!),
+  const listsQuery = buildRoleBasedQuery(session, {
     visibility: 'public',
     deletedAt: { $exists: false },
-  };
-
-  if (isStoreAdmin(session)) {
-    // StoreAdmin sees only lists from their store
-    listsQuery.storeId = new Types.ObjectId(session.storeId!);
-  } else if (isLibrarian(session)) {
-    // Librarian sees only lists they created or are assigned to
-    listsQuery.$or = [
-      { createdBy: new Types.ObjectId(session.userId!) },
-      { assignedTo: new Types.ObjectId(session.userId!) },
-    ];
-  }
+  });
 
   // Fetch public lists with role-based filtering
   const lists = await ListModel.find(listsQuery)

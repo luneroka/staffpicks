@@ -1,10 +1,6 @@
 import ListDetails from '@/app/components/lists/ListDetails';
-import {
-  isCompanyAdmin,
-  isLibrarian,
-  isStoreAdmin,
-  requireAuth,
-} from '@/app/lib/auth/helpers';
+import { requireAuth } from '@/app/lib/auth/helpers';
+import { buildRoleBasedQuery } from '@/app/lib/auth/queryBuilders';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
 import { Types } from 'mongoose';
@@ -33,25 +29,10 @@ const ListPage = async ({ params }: ListPageProps) => {
   await connectDB();
 
   // Build query based on user role
-  let query: any = {
+  const query = buildRoleBasedQuery(session, {
     _id: new Types.ObjectId(id),
-    companyId: new Types.ObjectId(session.companyId!),
     deletedAt: { $exists: false },
-  };
-
-  if (isCompanyAdmin(session)) {
-    // CompanyAdmin can see all lists in the company
-    // No additional filters needed
-  } else if (isStoreAdmin(session)) {
-    // StoreAdmin can only see lists from their store
-    query.storeId = new Types.ObjectId(session.storeId!);
-  } else if (isLibrarian(session)) {
-    // Librarian can only see lists they created or are assigned to
-    query.$or = [
-      { createdBy: new Types.ObjectId(session.userId!) },
-      { assignedTo: new Types.ObjectId(session.userId!) },
-    ];
-  }
+  });
 
   // Fetch the list with role-based filtering
   const list = await ListModel.findOne(query)

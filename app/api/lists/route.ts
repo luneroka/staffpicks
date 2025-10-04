@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getSession,
-  isCompanyAdmin,
-  isLibrarian,
-  isStoreAdmin,
-} from '@/app/lib/auth/helpers';
+import { getSession, isCompanyAdmin } from '@/app/lib/auth/helpers';
+import { buildRoleBasedQuery } from '@/app/lib/auth/queryBuilders';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel, ListVisibility } from '@/app/lib/models/List';
 import { BookModel } from '@/app/lib/models/Book';
@@ -244,25 +240,9 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // 4. Build query based on user role
-    let query: any = {
-      companyId: new Types.ObjectId(session.companyId),
+    const query = buildRoleBasedQuery(session, {
       deletedAt: { $exists: false },
-    };
-
-    // Role-based filtering
-    if (isCompanyAdmin(session)) {
-      // CompanyAdmin sees all lists in the company
-      // No additional filters needed
-    } else if (isStoreAdmin(session)) {
-      // StoreAdmin sees only lists from their store
-      query.storeId = new Types.ObjectId(session.storeId!);
-    } else if (isLibrarian(session)) {
-      // Librarian sees only lists they created or are assigned to
-      query.$or = [
-        { createdBy: new Types.ObjectId(session.userId!) },
-        { assignedTo: new Types.ObjectId(session.userId!) },
-      ];
-    }
+    });
 
     if (visibility) {
       query.visibility = visibility;
