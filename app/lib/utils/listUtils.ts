@@ -118,11 +118,13 @@ export function transformListForCard(list: any) {
     coverImage: list.coverImage || DEFAULT_LIST_COVER,
     title: list.title,
     visibility: list.visibility,
-    items: (list.items || []).map((item: any) => ({
-      bookId: item.bookId?.toString() || item.bookId,
-      position: item.position,
-      addedAt: item.addedAt,
-    })),
+    items: (list.items || [])
+      .filter((item: any) => item.bookId !== null) // Filter out books that couldn't be populated
+      .map((item: any) => ({
+        bookId: item.bookId?.toString() || item.bookId,
+        position: item.position,
+        addedAt: item.addedAt,
+      })),
     createdBy: list.createdBy
       ? {
           _id: list.createdBy._id?.toString(),
