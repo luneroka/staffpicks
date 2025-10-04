@@ -20,6 +20,7 @@ const Books = async () => {
   const books = await BookModel.find(query)
     .sort({ createdAt: -1 })
     .populate('createdBy', 'firstName lastName')
+    .populate('assignedTo', 'firstName lastName')
     .populate('storeId', 'name code')
     .lean();
 

@@ -119,5 +119,15 @@ export function transformBookForDisplay(book: any) {
           lastName: book.createdBy.lastName,
         }
       : undefined,
+    // Assigned users info (for StoreAdmin grouping)
+    assignedTo: book.assignedTo
+      ? book.assignedTo
+          .filter((user: any) => user && user._id) // Only include populated users
+          .map((user: any) => ({
+            _id: user._id?.toString() || user?.toString?.(),
+            firstName: user.firstName,
+            lastName: user.lastName,
+          }))
+      : [],
   };
 }

@@ -295,6 +295,16 @@ const BookForm = ({
       return;
     }
 
+    // Additional validation for StoreAdmin: must assign to at least one librarian
+    if (userRole === 'storeAdmin') {
+      if (!bookData.assignedTo || bookData.assignedTo.length === 0) {
+        setValidationErrors([
+          'Vous devez assigner ce livre à au moins un libraire',
+        ]);
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {

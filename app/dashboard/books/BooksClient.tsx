@@ -56,22 +56,37 @@ const BooksClient = ({ initialBooks, userRole }: BooksProps) => {
         books: group.books,
       }));
     } else if (userRole === 'storeAdmin') {
-      // Group by librarian (createdBy)
+      // Group by assigned librarian (assignedTo)
       const groups = new Map<
         string,
         { librarianName: string; books: BookDisplay[] }
       >();
 
       initialBooks.forEach((book) => {
-        const librarianKey = book.createdBy?._id || 'no-creator';
-        const librarianName = book.createdBy
-          ? `${book.createdBy.firstName} ${book.createdBy.lastName}`
-          : 'Créateur inconnu';
+        // A book can be assigned to multiple librarians
+        if (book.assignedTo && book.assignedTo.length > 0) {
+          book.assignedTo.forEach((librarian) => {
+            const librarianKey = librarian._id;
+            const librarianName = `${librarian.firstName} ${librarian.lastName}`;
 
-        if (!groups.has(librarianKey)) {
-          groups.set(librarianKey, { librarianName, books: [] });
+            if (!groups.has(librarianKey)) {
+              groups.set(librarianKey, { librarianName, books: [] });
+            }
+            groups.get(librarianKey)!.books.push(book);
+          });
+        } else {
+          // Books not assigned to anyone
+          const unassignedKey = 'unassigned';
+          const unassignedName = 'Non assigné';
+
+          if (!groups.has(unassignedKey)) {
+            groups.set(unassignedKey, {
+              librarianName: unassignedName,
+              books: [],
+            });
+          }
+          groups.get(unassignedKey)!.books.push(book);
         }
-        groups.get(librarianKey)!.books.push(book);
       });
 
       return Array.from(groups.values()).map((group) => ({

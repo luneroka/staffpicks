@@ -305,6 +305,37 @@ export async function PUT(
       );
     }
 
+    if (!publisher || !description) {
+      return NextResponse.json(
+        {
+          error:
+            'Missing required fields: publisher and description are required',
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!genre || !tone) {
+      return NextResponse.json(
+        {
+          error: 'Missing required fields: genre and tone are required',
+        },
+        { status: 400 }
+      );
+    }
+
+    // StoreAdmin must assign the book to at least one librarian
+    if (isStoreAdmin(session)) {
+      if (!assignedTo || assignedTo.length === 0) {
+        return NextResponse.json(
+          {
+            error: 'StoreAdmin must assign the book to at least one librarian',
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // 6. Connect to database
     await connectDB();
 

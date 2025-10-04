@@ -76,6 +76,12 @@ export interface BookDisplay {
     firstName: string;
     lastName: string;
   };
+  // Assigned users info (for StoreAdmin grouping)
+  assignedTo?: Array<{
+    _id: string;
+    firstName: string;
+    lastName: string;
+  }>;
 }
 
 /**
