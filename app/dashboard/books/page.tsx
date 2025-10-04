@@ -1,5 +1,8 @@
 import { requireAuth } from '@/app/lib/auth/helpers';
-import { buildRoleBasedQuery } from '@/app/lib/auth/queryBuilders';
+import {
+  buildRoleBasedQuery,
+  excludeDeletedUsersContent,
+} from '@/app/lib/auth/queryBuilders';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
 import BooksClient from './BooksClient';
@@ -14,7 +17,10 @@ const Books = async () => {
   await connectDB();
 
   // Build query based on user role
-  const query = buildRoleBasedQuery(session);
+  let query = buildRoleBasedQuery(session);
+
+  // Exclude content from deleted users (keep content from inactive/suspended users)
+  query = await excludeDeletedUsersContent(query, session.companyId!);
 
   // Fetch books with role-based filtering
   const books = await BookModel.find(query)

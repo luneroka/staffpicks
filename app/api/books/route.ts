@@ -8,6 +8,7 @@ import {
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
 import { Types } from 'mongoose';
+import { getDeletedUserIds } from '@/app/lib/auth/queryBuilders';
 
 /**
  * POST /api/books
@@ -131,15 +132,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 8. Create new book with store and assignment data
+    // 8. Prepare assignedTo array
+    // For Librarian: automatically assign to themselves (if not already included)
+    // For StoreAdmin: use the provided assignedTo array
+    let finalAssignedTo: Types.ObjectId[] = [];
+    
+    if (isLibrarian(session)) {
+      // Librarian: always include themselves
+      const assignedToIds = assignedTo || [];
+      const userIdString = session.userId!;
+      
+      // Add the librarian if not already in the array
+      if (!assignedToIds.includes(userIdString)) {
+        assignedToIds.push(userIdString);
+      }
+      
+      finalAssignedTo = assignedToIds.map((id: string) => new Types.ObjectId(id));
+    } else {
+      // StoreAdmin: use provided array (already validated)
+      finalAssignedTo = assignedTo.map((id: string) => new Types.ObjectId(id));
+    }
+
+    // 9. Create new book with store and assignment data
     const newBook = await BookModel.create({
       companyId: new Types.ObjectId(session.companyId),
       storeId: new Types.ObjectId(session.storeId),
       ownerUserId: new Types.ObjectId(session.userId),
       createdBy: new Types.ObjectId(session.userId),
-      assignedTo: assignedTo
-        ? assignedTo.map((id: string) => new Types.ObjectId(id))
-        : [],
+      assignedTo: finalAssignedTo,
       sections: sections || [],
       isbn: isbn.trim(),
       bookData: {
@@ -158,7 +178,7 @@ export async function POST(request: NextRequest) {
       recommendation,
     });
 
-    // 9. Return created book
+    // 10. Return created book
     return NextResponse.json(
       {
         message: 'Book created successfully',
@@ -265,6 +285,12 @@ export async function GET(request: NextRequest) {
         { createdBy: new Types.ObjectId(session.userId) },
         { assignedTo: new Types.ObjectId(session.userId) },
       ];
+    }
+
+    // Exclude content from deleted users (keep content from inactive/suspended users visible)
+    const deletedUserIds = await getDeletedUserIds(session.companyId);
+    if (deletedUserIds.length > 0) {
+      query.createdBy = { $nin: deletedUserIds };
     }
 
     // Filter by facets if specified

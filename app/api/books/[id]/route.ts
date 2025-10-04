@@ -8,6 +8,7 @@ import {
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
 import { Types } from 'mongoose';
+import { getDeletedUserIds } from '@/app/lib/auth/queryBuilders';
 
 /**
  * DELETE /api/books/[id]
@@ -183,6 +184,12 @@ export async function GET(
         { createdBy: new Types.ObjectId(session.userId) },
         { assignedTo: new Types.ObjectId(session.userId) },
       ];
+    }
+
+    // Exclude content from deleted users (keep content from inactive/suspended users visible)
+    const deletedUserIds = await getDeletedUserIds(session.companyId);
+    if (deletedUserIds.length > 0) {
+      query.createdBy = { $nin: deletedUserIds };
     }
 
     // 5. Find the book
