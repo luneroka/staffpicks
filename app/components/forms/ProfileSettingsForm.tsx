@@ -87,6 +87,81 @@ const ProfileSettingsForm = () => {
     setError('');
   };
 
+  const handleCancelPasswordChange = () => {
+    setIsChangingPassword(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setError('');
+  };
+
+  const handlePasswordChangeSubmit = async () => {
+    // Validate password fields
+    if (!currentPassword) {
+      setError('Le mot de passe actuel est requis');
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      setError('Le nouveau mot de passe doit contenir au moins 8 caractères');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Les nouveaux mots de passe ne correspondent pas');
+      return;
+    }
+
+    setIsSaving(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const body = {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      };
+
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || 'Erreur lors du changement de mot de passe'
+        );
+      }
+
+      // Success - reset password form
+      setIsChangingPassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setSuccess('Mot de passe modifié avec succès!');
+
+      // Redirect to login after 1.5 seconds
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+    } catch (err) {
+      console.error('Error changing password:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Erreur lors du changement de mot de passe'
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditedData((prev) => (prev ? { ...prev, [name]: value } : null));
@@ -435,13 +510,7 @@ const ProfileSettingsForm = () => {
               <div className='flex gap-2 mt-4'>
                 <button
                   type='button'
-                  onClick={() => {
-                    setIsChangingPassword(false);
-                    setCurrentPassword('');
-                    setNewPassword('');
-                    setConfirmPassword('');
-                    setError('');
-                  }}
+                  onClick={handleCancelPasswordChange}
                   className='btn btn-ghost btn-sm'
                   disabled={isSaving}
                 >
@@ -449,75 +518,7 @@ const ProfileSettingsForm = () => {
                 </button>
                 <button
                   type='button'
-                  onClick={async () => {
-                    // Validate password fields
-                    if (!currentPassword) {
-                      setError('Le mot de passe actuel est requis');
-                      return;
-                    }
-
-                    if (!newPassword || newPassword.length < 8) {
-                      setError(
-                        'Le nouveau mot de passe doit contenir au moins 8 caractères'
-                      );
-                      return;
-                    }
-
-                    if (newPassword !== confirmPassword) {
-                      setError(
-                        'Les nouveaux mots de passe ne correspondent pas'
-                      );
-                      return;
-                    }
-
-                    setIsSaving(true);
-                    setError('');
-                    setSuccess('');
-
-                    try {
-                      const body = {
-                        currentPassword,
-                        newPassword,
-                        confirmPassword,
-                      };
-
-                      const response = await fetch('/api/user/profile', {
-                        method: 'PUT',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(body),
-                      });
-
-                      const data = await response.json();
-
-                      if (!response.ok) {
-                        throw new Error(
-                          data.error || 'Erreur lors de la sauvegarde'
-                        );
-                      }
-
-                      setIsChangingPassword(false);
-                      setCurrentPassword('');
-                      setNewPassword('');
-                      setConfirmPassword('');
-                      setSuccess('Mot de passe mis à jour avec succès!');
-
-                      // Redirect to login after 1.5 seconds
-                      setTimeout(() => {
-                        router.push('/login');
-                      }, 1500);
-                    } catch (err) {
-                      console.error('Error updating password:', err);
-                      setError(
-                        err instanceof Error
-                          ? err.message
-                          : 'Erreur lors de la mise à jour du mot de passe'
-                      );
-                    } finally {
-                      setIsSaving(false);
-                    }
-                  }}
+                  onClick={handlePasswordChangeSubmit}
                   className='btn btn-soft btn-primary btn-sm'
                   disabled={isSaving}
                 >
