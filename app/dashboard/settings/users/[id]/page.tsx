@@ -6,6 +6,7 @@ import connectDB from '@/app/lib/mongodb';
 import BackButton from '@/app/components/BackButton';
 import UserSettingsForm from '@/app/components/forms/UserSettingsForm';
 import DeleteUserButton from '@/app/components/users/DeleteUserButton';
+import UserStatusToggle from '@/app/components/users/UserStatusToggle';
 import {
   requireAdminAccess,
   isCompanyAdmin,
@@ -66,6 +67,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
     lastName: user.lastName,
     email: user.email,
     role: user.role,
+    status: user.status,
     storeId: user.storeId?._id?.toString(),
     storeName: (user.storeId as any)?.name,
     storeCode: (user.storeId as any)?.code,
@@ -83,13 +85,26 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         currentUserRole={session.role}
         currentUserStoreId={session.storeId}
         deleteButtons={
-          <DeleteUserButton
-            userId={id}
-            userName={`${userData.firstName} ${userData.lastName}`}
-            userRole={userData.role}
-            currentUserRole={session.role}
-            currentUserId={session.userId}
-          />
+          <>
+            <div className='mb-6'>
+              <h4 className='font-semibold mb-3'>Gestion du statut</h4>
+              <UserStatusToggle
+                userId={id}
+                currentStatus={userData.status}
+                userName={`${userData.firstName} ${userData.lastName}`}
+              />
+            </div>
+            <div>
+              <h4 className='font-semibold mb-3'>Suppression du compte</h4>
+              <DeleteUserButton
+                userId={id}
+                userName={`${userData.firstName} ${userData.lastName}`}
+                userRole={userData.role}
+                currentUserRole={session.role}
+                currentUserId={session.userId}
+              />
+            </div>
+          </>
         }
       />
     </div>

@@ -14,6 +14,7 @@ interface UserData {
   lastName: string;
   email: string;
   role: string;
+  status?: string;
   storeId?: string;
   storeName?: string;
   sections?: string[];
