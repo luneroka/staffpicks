@@ -3,6 +3,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { sessionOptions, SessionData, defaultSession } from './session';
 import { UserRole } from '../types/user';
+import { UserModel } from '../models/User';
+import connectDB from '../mongodb';
 
 /** Get the current session (or default if not logged in) */
 export async function getSession() {
@@ -18,6 +20,18 @@ export async function getSession() {
   return session;
 }
 
+async function validateUserStatus(userId: string) {
+  await connectDB();
+  const user = await UserModel.findById(userId);
+
+  if (!user || user.deletedAt || user.status !== 'active') {
+    // Destroy session
+    const session = await getSession();
+    session.destroy();
+    redirect('/login');
+  }
+}
+
 /** Require authentication; redirect to /login if not logged in */
 export async function requireAuth() {
   const session = await getSession();
@@ -25,6 +39,9 @@ export async function requireAuth() {
   if (!session.isLoggedIn || !session.userId) {
     redirect('/login');
   }
+
+  // Validate user status
+  await validateUserStatus(session.userId);
 
   return session;
 }

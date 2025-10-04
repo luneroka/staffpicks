@@ -33,6 +33,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user is deleted
+    if (user.deletedAt) {
+      return NextResponse.json(
+        { error: 'This account has been deleted.' },
+        { status: 403 }
+      );
+    }
+
+    // Check if user is active
+    if (user.status !== 'active') {
+      const statusMessages: Record<string, string> = {
+        inactive: 'This account has been deactivated.',
+        suspended: 'This account has been suspended. Please contact support.',
+      };
+      return NextResponse.json(
+        { error: statusMessages[user.status] || 'Account is not active.' },
+        { status: 403 }
+      );
+    }
+
     // Check if account is locked
     if (user.isLocked()) {
       const minutesRemaining = Math.ceil(
