@@ -147,10 +147,15 @@ const ProfileSettingsForm = () => {
       setConfirmPassword('');
       toast.success('Mot de passe modifié avec succès!');
 
-      // Redirect to login after 1.5 seconds
-      setTimeout(() => {
-        router.push('/login');
-      }, 1500);
+      // Log out the user before redirecting to login
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch (logoutError) {
+        console.error('Error during logout:', logoutError);
+      }
+
+      // Redirect to login
+      router.push('/login');
     } catch (err) {
       console.error('Error changing password:', err);
       setError(
