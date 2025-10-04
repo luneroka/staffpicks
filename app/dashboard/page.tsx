@@ -33,7 +33,7 @@ const Dashboard = async () => {
         BookModel.countDocuments({ companyId }),
         ListModel.countDocuments({ companyId, deletedAt: { $exists: false } }),
         StoreModel.countDocuments({ companyId }),
-        UserModel.countDocuments({ companyId }),
+        UserModel.countDocuments({ companyId, deletedAt: { $exists: false } }),
       ]
     );
 

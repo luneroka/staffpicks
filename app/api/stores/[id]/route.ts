@@ -46,9 +46,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // Get assigned users
+    // Get assigned users (exclude deleted users)
     const assignedUsers = await UserModel.find({
       storeId: new Types.ObjectId(id),
+      deletedAt: { $exists: false },
     })
       .select('firstName lastName email role')
       .lean();
@@ -208,9 +209,10 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     await connectDB();
 
-    // Check if store has assigned users
+    // Check if store has assigned users (exclude deleted users)
     const assignedUsersCount = await UserModel.countDocuments({
       storeId: new Types.ObjectId(id),
+      deletedAt: { $exists: false },
     });
 
     if (assignedUsersCount > 0) {

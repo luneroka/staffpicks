@@ -39,9 +39,10 @@ const StoreDetailsPage = async ({ params }: StoreDetailsPageProps) => {
     notFound();
   }
 
-  // Fetch assigned users
+  // Fetch assigned users (exclude deleted users)
   const assignedUsers = await UserModel.find({
     storeId: new Types.ObjectId(params.id),
+    deletedAt: { $exists: false },
   })
     .select('firstName lastName email role')
     .sort({ firstName: 1, lastName: 1 })
