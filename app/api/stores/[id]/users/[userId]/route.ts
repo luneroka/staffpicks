@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { SessionData, sessionOptions } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { UserModel, UserRole } from '@/app/lib/models/User';
 import { StoreModel } from '@/app/lib/models/Store';
 import { Types } from 'mongoose';
+import { getSession, isCompanyAdmin } from '@/app/lib/auth/helpers';
 
 /**
  * DELETE /api/stores/[id]/users/[userId]
@@ -16,20 +14,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; userId: string }> }
 ) {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // Only Admin and CompanyAdmin can unassign users from stores
-    if (
-      session.role !== UserRole.Admin &&
-      session.role !== UserRole.CompanyAdmin
-    ) {
+    // Only CompanyAdmin can unassign users from stores
+    if (!isCompanyAdmin(session)) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
@@ -74,7 +66,7 @@ export async function DELETE(
     }
 
     // CompanyAdmin can only unassign users from their company
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       if (user.companyId?.toString() !== session.companyId) {
         return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
       }

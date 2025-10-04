@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/app/lib/auth/helpers';
+import {
+  getSession,
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 /**
@@ -17,6 +21,7 @@ export async function DELETE(
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.userId || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -25,7 +30,7 @@ export async function DELETE(
     }
 
     // 2. CompanyAdmin cannot delete books
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       return NextResponse.json(
         { error: 'CompanyAdmin cannot delete books' },
         { status: 403 }
@@ -59,7 +64,7 @@ export async function DELETE(
       companyId: new Types.ObjectId(session.companyId),
     };
 
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       // StoreAdmin can only delete books from their store
       if (!session.storeId) {
         return NextResponse.json(
@@ -68,7 +73,7 @@ export async function DELETE(
         );
       }
       deleteQuery.storeId = new Types.ObjectId(session.storeId);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian can only delete books they created or are assigned to
       deleteQuery.$or = [
         { ownerUserId: new Types.ObjectId(session.userId) },
@@ -121,6 +126,7 @@ export async function GET(
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -155,7 +161,7 @@ export async function GET(
       companyId: new Types.ObjectId(session.companyId),
     };
 
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       // StoreAdmin can only see books from their store
       if (!session.storeId) {
         return NextResponse.json(
@@ -164,7 +170,7 @@ export async function GET(
         );
       }
       query.storeId = new Types.ObjectId(session.storeId);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian can only see books they created or are assigned to
       if (!session.userId) {
         return NextResponse.json(
@@ -238,6 +244,7 @@ export async function PUT(
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.userId || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -246,7 +253,7 @@ export async function PUT(
     }
 
     // 2. CompanyAdmin cannot edit books
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       return NextResponse.json(
         { error: 'CompanyAdmin cannot edit books' },
         { status: 403 }
@@ -307,7 +314,7 @@ export async function PUT(
       companyId: new Types.ObjectId(session.companyId),
     };
 
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       // StoreAdmin can only edit books from their store
       if (!session.storeId) {
         return NextResponse.json(
@@ -316,7 +323,7 @@ export async function PUT(
         );
       }
       updateQuery.storeId = new Types.ObjectId(session.storeId);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian can only edit books they created or are assigned to
       updateQuery.$or = [
         { ownerUserId: new Types.ObjectId(session.userId) },
@@ -345,7 +352,7 @@ export async function PUT(
     };
 
     // Only StoreAdmin can update assignedTo and sections
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       if (assignedTo !== undefined) {
         updateData.assignedTo = assignedTo.map(
           (id: string) => new Types.ObjectId(id)

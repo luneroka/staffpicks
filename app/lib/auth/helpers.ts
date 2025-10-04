@@ -40,6 +40,35 @@ export async function requirePlatformAdmin() {
   return session;
 }
 
+/** Require company admin or higher access */
+export async function requireCompanyAdmin() {
+  const session = await requireAuth();
+
+  if (
+    session.role !== UserRole.Admin &&
+    session.role !== UserRole.CompanyAdmin
+  ) {
+    redirect('/unauthorized');
+  }
+
+  return session;
+}
+
+/** Require company admin or store admin access (excludes librarians) */
+export async function requireAdminAccess() {
+  const session = await requireAuth();
+
+  if (
+    session.role !== UserRole.Admin &&
+    session.role !== UserRole.CompanyAdmin &&
+    session.role !== UserRole.StoreAdmin
+  ) {
+    redirect('/unauthorized');
+  }
+
+  return session;
+}
+
 /** Require user belongs to specific company */
 export async function requireCompanyAccess(companyId: string) {
   const session = await requireAuth();
@@ -108,44 +137,30 @@ export function canEditBooks(session: SessionData): boolean {
 }
 
 /** Check if user is admin of their company */
+export function isAdmin(session: SessionData): boolean {
+  return session.role === UserRole.Admin;
+}
+
+/** Check if user is admin of their company */
 export function isCompanyAdmin(session: SessionData): boolean {
+  return session.role === UserRole.CompanyAdmin;
+}
+
+/** Check if user is admin of their company */
+export function isStoreAdmin(session: SessionData): boolean {
+  return session.role === UserRole.StoreAdmin;
+}
+
+/** Check if user is an admin */
+export function isAnAdmin(session: SessionData): boolean {
   return (
-    session.role === UserRole.Admin || session.role === UserRole.CompanyAdmin
+    session.role === UserRole.Admin ||
+    session.role === UserRole.CompanyAdmin ||
+    session.role === UserRole.StoreAdmin
   );
 }
 
-/** Check if user can manage other users */
-export function canManageUsers(session: SessionData): boolean {
-  return (
-    session.role === UserRole.Admin || session.role === UserRole.CompanyAdmin
-  );
-}
-
-/** Require company admin or higher access */
-export async function requireCompanyAdmin() {
-  const session = await requireAuth();
-
-  if (
-    session.role !== UserRole.Admin &&
-    session.role !== UserRole.CompanyAdmin
-  ) {
-    redirect('/unauthorized');
-  }
-
-  return session;
-}
-
-/** Require company admin or store admin access (excludes librarians) */
-export async function requireAdminAccess() {
-  const session = await requireAuth();
-
-  if (
-    session.role !== UserRole.Admin &&
-    session.role !== UserRole.CompanyAdmin &&
-    session.role !== UserRole.StoreAdmin
-  ) {
-    redirect('/unauthorized');
-  }
-
-  return session;
+/** Check if user is admin of their company */
+export function isLibrarian(session: SessionData): boolean {
+  return session.role === UserRole.Librarian;
 }

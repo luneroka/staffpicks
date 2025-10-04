@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { SessionData, sessionOptions } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { UserModel, UserRole, UserStatus } from '@/app/lib/models/User';
 import { StoreModel } from '@/app/lib/models/Store';
 import { Types } from 'mongoose';
+import {
+  getSession,
+  isAdmin,
+  isCompanyAdmin,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 
 export const runtime = 'nodejs';
 
@@ -16,10 +19,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -46,11 +46,11 @@ export async function GET(
     }
 
     // Authorization checks
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       if (user.companyId?.toString() !== session.companyId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
-    } else if (session.role === UserRole.StoreAdmin) {
+    } else if (isStoreAdmin(session)) {
       if (
         user.storeId?.toString() !== session.storeId ||
         user.role !== UserRole.Librarian
@@ -93,10 +93,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -125,7 +122,7 @@ export async function PUT(
     }
 
     // Authorization checks
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       if (user.companyId?.toString() !== session.companyId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
@@ -133,14 +130,14 @@ export async function PUT(
       if (user.role === UserRole.Admin || user.role === UserRole.CompanyAdmin) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
-    } else if (session.role === UserRole.StoreAdmin) {
+    } else if (isStoreAdmin(session)) {
       if (
         user.storeId?.toString() !== session.storeId ||
         user.role !== UserRole.Librarian
       ) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
-    } else if (session.role !== UserRole.Admin) {
+    } else if (!isAdmin(session)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
@@ -218,10 +215,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -254,7 +248,7 @@ export async function DELETE(
     }
 
     // Authorization checks
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       if (user.companyId?.toString() !== session.companyId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
@@ -262,14 +256,14 @@ export async function DELETE(
       if (user.role === UserRole.Admin || user.role === UserRole.CompanyAdmin) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
-    } else if (session.role === UserRole.StoreAdmin) {
+    } else if (isStoreAdmin(session)) {
       if (
         user.storeId?.toString() !== session.storeId ||
         user.role !== UserRole.Librarian
       ) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }
-    } else if (session.role !== UserRole.Admin) {
+    } else if (!isAdmin(session)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 

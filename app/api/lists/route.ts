@@ -1,53 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/app/lib/auth/helpers';
+import {
+  getSession,
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel, ListVisibility } from '@/app/lib/models/List';
 import { BookModel } from '@/app/lib/models/Book';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
-
-/**
- * Helper function to generate URL-friendly slug from title
- */
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .trim()
-    .normalize('NFD') // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
-    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
-}
-
-/**
- * Helper function to ensure slug uniqueness
- */
-async function ensureUniqueSlug(
-  baseSlug: string,
-  companyId: Types.ObjectId,
-  ownerUserId: Types.ObjectId
-): Promise<string> {
-  let slug = baseSlug;
-  let counter = 1;
-
-  while (true) {
-    const existing = await ListModel.findOne({
-      companyId,
-      ownerUserId,
-      slug,
-      deletedAt: { $exists: false },
-    });
-
-    if (!existing) {
-      return slug;
-    }
-
-    slug = `${baseSlug}-${counter}`;
-    counter++;
-  }
-}
+import { ensureUniqueSlug, generateSlug } from '../utils/helpers';
 
 /**
  * POST /api/lists
@@ -57,6 +19,7 @@ export async function POST(request: NextRequest) {
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.userId || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -65,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Check authorization - CompanyAdmin cannot create lists
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       return NextResponse.json(
         { error: 'CompanyAdmin cannot create lists' },
         { status: 403 }
@@ -124,11 +87,13 @@ export async function POST(request: NextRequest) {
     // 7. Validate and process items (if any)
     const processedItems = [];
     if (items && items.length > 0) {
-      // Validate that all books exist and belong to the company
+      // Validate that all books exist and belong to the company and store
+      // TODO : Validate user ownership as well ? createdBy || assignedTo ?
       const bookIds = items.map((item: any) => item.bookId);
       const books = await BookModel.find({
         _id: { $in: bookIds.map((id: string) => new Types.ObjectId(id)) },
         companyId: new Types.ObjectId(session.companyId),
+        storeId: new Types.ObjectId(session.storeId),
       });
 
       if (books.length !== bookIds.length) {
@@ -260,6 +225,7 @@ export async function GET(request: NextRequest) {
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -285,13 +251,13 @@ export async function GET(request: NextRequest) {
     };
 
     // Role-based filtering
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       // CompanyAdmin sees all lists in the company
       // No additional filters needed
-    } else if (session.role === UserRole.StoreAdmin) {
+    } else if (isStoreAdmin(session)) {
       // StoreAdmin sees only lists from their store
       query.storeId = new Types.ObjectId(session.storeId!);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian sees only lists they created or are assigned to
       query.$or = [
         { createdBy: new Types.ObjectId(session.userId!) },

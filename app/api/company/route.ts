@@ -1,24 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { CompanyModel } from '@/app/lib/models/Company';
-import { UserRole } from '@/app/lib/models/User';
-
-/**
- * Generate a URL-friendly slug from a string
- */
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD') // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-    .trim()
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
-}
+import { generateSlug } from '../utils/helpers';
+import { getSession, isCompanyAdmin } from '@/app/lib/auth/helpers';
 
 /**
  * GET /api/company
@@ -26,10 +10,7 @@ function generateSlug(text: string): string {
  */
 export async function GET() {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -81,20 +62,14 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // Only Company Admins and Platform Admins can update company info
-    if (
-      session.role !== UserRole.CompanyAdmin &&
-      session.role !== UserRole.Admin
-    ) {
+    // Only Company Admins can update company info
+    if (!isCompanyAdmin(session)) {
       return NextResponse.json(
         { error: 'Accès non autorisé' },
         { status: 403 }

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/app/lib/auth/helpers';
+import {
+  getSession,
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 /**
@@ -14,6 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.userId || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -22,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. CompanyAdmin cannot create books
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       return NextResponse.json(
         {
           error:
@@ -61,6 +66,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // 5. Validate required fields
+    // TODO : Match required fields with frontend form
     if (!isbn || !title || !authors || authors.length === 0) {
       return NextResponse.json(
         {
@@ -74,9 +80,11 @@ export async function POST(request: NextRequest) {
     // 6. Connect to database
     await connectDB();
 
-    // 7. Check if book with same ISBN already exists for this company
+    // 7. Check if book with same ISBN already exists for this company and store
+    // TODO : Add assignedTo check
     const existingBook = await BookModel.findOne({
       companyId: new Types.ObjectId(session.companyId),
+      storeId: new Types.ObjectId(session.storeId),
       isbn: isbn.trim(),
     });
 
@@ -170,6 +178,7 @@ export async function GET(request: NextRequest) {
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -195,10 +204,10 @@ export async function GET(request: NextRequest) {
     };
 
     // Role-based filtering
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       // CompanyAdmin sees all books in company (read-only)
       // No additional filter needed
-    } else if (session.role === UserRole.StoreAdmin) {
+    } else if (isStoreAdmin(session)) {
       // StoreAdmin sees only books from their store
       if (!session.storeId) {
         return NextResponse.json(
@@ -207,7 +216,7 @@ export async function GET(request: NextRequest) {
         );
       }
       query.storeId = new Types.ObjectId(session.storeId);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian sees only books they created or are assigned to
       if (!session.userId) {
         return NextResponse.json(

@@ -6,27 +6,27 @@ import connectDB from '@/app/lib/mongodb';
 import { UserModel, UserRole } from '@/app/lib/models/User';
 import { StoreModel } from '@/app/lib/models/Store';
 import { Types } from 'mongoose';
+import {
+  getSession,
+  isAdmin,
+  isAnAdmin,
+  isCompanyAdmin,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 
 export const runtime = 'nodejs';
 
 // GET - List users for the company
 export async function GET(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     // Only Admin, CompanyAdmin, and StoreAdmin can list users
-    if (
-      session.role !== UserRole.Admin &&
-      session.role !== UserRole.CompanyAdmin &&
-      session.role !== UserRole.StoreAdmin
-    ) {
+    if (!isAnAdmin(session)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
@@ -40,17 +40,17 @@ export async function GET(request: NextRequest) {
     const storeIdParam = searchParams.get('storeId');
     const roleParam = searchParams.get('role');
 
-    if (session.role === UserRole.Admin) {
+    if (isAdmin(session)) {
       // Platform Admin can see all users
       // Optionally filter by companyId from query params
       const companyId = searchParams.get('companyId');
       if (companyId) {
         query.companyId = new Types.ObjectId(companyId);
       }
-    } else if (session.role === UserRole.CompanyAdmin) {
+    } else if (isCompanyAdmin(session)) {
       // Company Admin sees users in their company
       query.companyId = new Types.ObjectId(session.companyId!);
-    } else if (session.role === UserRole.StoreAdmin) {
+    } else if (isStoreAdmin(session)) {
       // Store Admin sees StoreAdmins and Librarians in their store
       query.storeId = new Types.ObjectId(session.storeId!);
       // Allow filtering by role (default to showing both StoreAdmins and Librarians)
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Apply additional filters from query params (for StoreAdmin fetching librarians)
-    if (storeIdParam && session.role === UserRole.StoreAdmin) {
+    if (storeIdParam && isStoreAdmin(session)) {
       // StoreAdmin should only see their own store
       query.storeId = new Types.ObjectId(session.storeId!);
     }
@@ -116,11 +116,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Only Admin, CompanyAdmin, and StoreAdmin can create users
-    if (
-      session.role !== UserRole.Admin &&
-      session.role !== UserRole.CompanyAdmin &&
-      session.role !== UserRole.StoreAdmin
-    ) {
+    if (!isAnAdmin(session)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
@@ -146,7 +142,7 @@ export async function POST(request: NextRequest) {
 
     // Validate role permissions
     if (
-      session.role === UserRole.StoreAdmin &&
+      isStoreAdmin(session) &&
       role !== UserRole.Librarian &&
       role !== UserRole.StoreAdmin
     ) {
@@ -160,7 +156,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (
-      session.role === UserRole.CompanyAdmin &&
+      isCompanyAdmin(session) &&
       (role === UserRole.Admin || role === UserRole.CompanyAdmin)
     ) {
       return NextResponse.json(

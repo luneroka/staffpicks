@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { StoreModel, StoreStatus } from '@/app/lib/models/Store';
 import { UserModel } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
+import { getSession, isCompanyAdmin } from '@/app/lib/auth/helpers';
 
 /**
  * GET /api/stores
@@ -13,10 +11,7 @@ import { Types } from 'mongoose';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn || !session.companyId) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -73,17 +68,14 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn || !session.companyId) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // Check if user is company admin
-    if (session.role !== 'admin' && session.role !== 'companyAdmin') {
+    // User must be company admin to add a store
+    if (!isCompanyAdmin(session)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 

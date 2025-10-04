@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { SessionData, sessionOptions } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { UserModel, UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
+import { getSession, isAdmin, isCompanyAdmin } from '@/app/lib/auth/helpers';
 
 export const runtime = 'nodejs';
 
@@ -15,20 +13,14 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     // Only Admin and CompanyAdmin can permanently delete users
-    if (
-      session.role !== UserRole.Admin &&
-      session.role !== UserRole.CompanyAdmin
-    ) {
+    if (!isAdmin(session) && !isCompanyAdmin(session)) {
       return NextResponse.json(
         {
           error:
@@ -65,7 +57,7 @@ export async function POST(
     }
 
     // Authorization checks for CompanyAdmin
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       if (user.companyId?.toString() !== session.companyId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
       }

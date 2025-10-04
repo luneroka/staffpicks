@@ -10,39 +10,9 @@ import {
 } from '@/app/lib/models/Company';
 import { StoreModel, StoreStatus } from '@/app/lib/models/Store';
 import connectDB from '@/app/lib/mongodb';
+import { checkRateLimit, generateSlug } from '../../utils/helpers';
 
 export const runtime = 'nodejs';
-
-// Simple in-memory rate limiting for signups (per IP)
-const signupAttempts = new Map<string, { count: number; resetAt: number }>();
-const MAX_SIGNUP_ATTEMPTS = 3;
-const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = signupAttempts.get(ip);
-
-  if (!record || now > record.resetAt) {
-    signupAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return true;
-  }
-
-  if (record.count >= MAX_SIGNUP_ATTEMPTS) {
-    return false;
-  }
-
-  record.count += 1;
-  return true;
-}
-
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '') // Remove special chars
-    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-}
 
 export async function POST(request: NextRequest) {
   try {

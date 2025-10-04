@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { UserModel } from '@/app/lib/models/User';
+import { getSession } from '@/app/lib/auth/helpers';
 
 /**
  * GET /api/user/profile
@@ -11,10 +9,7 @@ import { UserModel } from '@/app/lib/models/User';
  */
 export async function GET() {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn || !session.userId) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
@@ -58,10 +53,7 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getIronSession<SessionData>(
-      await cookies(),
-      sessionOptions
-    );
+    const session = await getSession();
 
     if (!session.isLoggedIn || !session.userId) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });

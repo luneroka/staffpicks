@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/app/lib/auth/helpers';
+import {
+  getSession,
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 
 /**
@@ -16,6 +20,7 @@ export async function DELETE(
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.userId || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -24,7 +29,7 @@ export async function DELETE(
     }
 
     // 2. Check authorization - CompanyAdmin cannot delete lists
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       return NextResponse.json(
         { error: 'CompanyAdmin cannot delete lists' },
         { status: 403 }
@@ -59,10 +64,10 @@ export async function DELETE(
       deletedAt: { $exists: false }, // Only delete if not already deleted
     };
 
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       // StoreAdmin can only delete lists from their store
       query.storeId = new Types.ObjectId(session.storeId!);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian can only delete lists they created or are assigned to
       query.$or = [
         { createdBy: new Types.ObjectId(session.userId) },
@@ -122,6 +127,7 @@ export async function GET(
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -157,10 +163,10 @@ export async function GET(
       deletedAt: { $exists: false },
     };
 
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       // StoreAdmin can only see lists from their store
       query.storeId = new Types.ObjectId(session.storeId!);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian can only see lists they created or are assigned to
       query.$or = [
         { createdBy: new Types.ObjectId(session.userId!) },
@@ -236,6 +242,7 @@ export async function PUT(
   try {
     // 1. Check authentication
     const session = await getSession();
+
     if (!session.isLoggedIn || !session.userId || !session.companyId) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
@@ -244,7 +251,7 @@ export async function PUT(
     }
 
     // 2. Check authorization - CompanyAdmin cannot update lists
-    if (session.role === UserRole.CompanyAdmin) {
+    if (isCompanyAdmin(session)) {
       return NextResponse.json(
         { error: 'CompanyAdmin cannot update lists' },
         { status: 403 }
@@ -301,10 +308,10 @@ export async function PUT(
       deletedAt: { $exists: false },
     };
 
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       // StoreAdmin can only update lists from their store
       query.storeId = new Types.ObjectId(session.storeId!);
-    } else if (session.role === UserRole.Librarian) {
+    } else if (isLibrarian(session)) {
       // Librarian can only update lists they created or are assigned to
       query.$or = [
         { createdBy: new Types.ObjectId(session.userId) },
@@ -325,7 +332,7 @@ export async function PUT(
     };
 
     // Only StoreAdmin can update assignedTo and sections
-    if (session.role === UserRole.StoreAdmin) {
+    if (isStoreAdmin(session)) {
       if (assignedTo !== undefined) {
         updateFields.assignedTo = assignedTo.map(
           (id: string) => new Types.ObjectId(id)
