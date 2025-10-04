@@ -339,7 +339,7 @@ const BookForm = ({
         }
 
         // Show success toast
-        toast.success(`Livre "${data.book.title}" modifié avec succès`);
+        toast.success(`Livre "${data.book.title}" mis à jour avec succès`);
 
         // Redirect to books list (keep loading state active during redirect)
         router.push(`/dashboard/books/${bookData.id}`);

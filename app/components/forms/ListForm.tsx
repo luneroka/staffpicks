@@ -350,7 +350,7 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
         }
 
         // Show success toast
-        toast.success(`Liste "${data.list.title}" ajoutée avec succès`);
+        toast.success(`Liste "${data.list.title}" mise à jour avec succès`);
 
         // Redirect to the updated list detail page
         router.push(`/dashboard/lists/${id}`);
