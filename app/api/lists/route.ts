@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       sections = [],
     } = body;
 
-    // 3. Validate required fields
+    // 5. Validate required fields
     if (!title || !title.trim()) {
       return NextResponse.json(
         { error: 'Missing required field: title' },
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Validate visibility enum
+    // 6. Validate visibility enum
     if (!Object.values(ListVisibility).includes(visibility)) {
       return NextResponse.json(
         { error: 'Invalid visibility value' },
@@ -73,10 +73,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Connect to database
+    // 7. Connect to database
     await connectDB();
 
-    // 6. Generate unique slug
+    // 8. Generate unique slug
     const baseSlug = generateSlug(title);
     const slug = await ensureUniqueSlug(
       baseSlug,
@@ -84,11 +84,10 @@ export async function POST(request: NextRequest) {
       new Types.ObjectId(session.userId)
     );
 
-    // 7. Validate and process items (if any)
+    // 9. Validate and process items (if any)
     const processedItems = [];
     if (items && items.length > 0) {
       // Validate that all books exist and belong to the company and store
-      // TODO : Validate user ownership as well ? createdBy || assignedTo ?
       const bookIds = items.map((item: any) => item.bookId);
       const books = await BookModel.find({
         _id: { $in: bookIds.map((id: string) => new Types.ObjectId(id)) },
@@ -119,10 +118,10 @@ export async function POST(request: NextRequest) {
       processedItems.sort((a, b) => a.position - b.position);
     }
 
-    // 8. Use the cover image URL directly (already uploaded to Cloudinary by the form)
+    // 10. Use the cover image URL directly (already uploaded to Cloudinary by the form)
     const cloudinaryCoverUrl = coverImage?.trim() || undefined;
 
-    // 9. Create the list
+    // 11. Create the list
     const newList = await ListModel.create({
       companyId: new Types.ObjectId(session.companyId),
       storeId: new Types.ObjectId(session.storeId!),
@@ -140,7 +139,7 @@ export async function POST(request: NextRequest) {
       sections: sections || [],
     });
 
-    // 10. Populate the created list with book details
+    // 12. Populate the created list with book details
     const populatedList = await ListModel.findById(newList._id)
       .populate({
         path: 'items.bookId',
@@ -151,7 +150,7 @@ export async function POST(request: NextRequest) {
       .populate('storeId', 'name code')
       .lean();
 
-    // 11. Return success response
+    // 13. Return success response
     return NextResponse.json(
       {
         message: 'List created successfully',

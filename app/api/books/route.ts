@@ -80,17 +80,23 @@ export async function POST(request: NextRequest) {
     // 6. Connect to database
     await connectDB();
 
-    // 7. Check if book with same ISBN already exists for this company and store
-    // TODO : Add assignedTo check
+    // 7. Check if THIS USER already added this ISBN
+    // Note: Each librarian can create their own version of a book (same ISBN) with
+    // their own categorization, recommendations, and edited metadata. The ISBN is
+    // just used to fetch initial data, but then each entry is personalized.
+    // We only prevent the same user from adding the exact same ISBN twice.
     const existingBook = await BookModel.findOne({
       companyId: new Types.ObjectId(session.companyId),
-      storeId: new Types.ObjectId(session.storeId),
       isbn: isbn.trim(),
+      ownerUserId: new Types.ObjectId(session.userId),
     });
 
     if (existingBook) {
       return NextResponse.json(
-        { error: 'A book with this ISBN already exists in your library' },
+        {
+          error:
+            'You have already added a book with this ISBN to your library.',
+        },
         { status: 409 }
       );
     }

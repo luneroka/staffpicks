@@ -110,23 +110,6 @@ export async function requireStoreAccess(storeId: string) {
   return session;
 }
 
-/** Require specific role or higher */
-export async function requireRole(allowedRoles: UserRole[]) {
-  const session = await requireAuth();
-
-  if (!allowedRoles.includes(session.role)) {
-    redirect('/unauthorized');
-  }
-
-  return session;
-}
-
-/** Check if user can edit books (non-throwing) */
-export function canEditBooks(session: SessionData): boolean {
-  // All roles except maybe future read-only roles can edit books
-  return session.isLoggedIn;
-}
-
 /** Check if user is admin of their company */
 export function isAdmin(session: SessionData): boolean {
   return session.role === UserRole.Admin;

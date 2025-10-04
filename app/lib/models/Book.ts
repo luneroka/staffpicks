@@ -30,8 +30,8 @@ class BookData {
 }
 
 // INDEXES
-/** Unique ISBN per company (multi-tenant isolation) */
-@index({ companyId: 1, isbn: 1 }, { unique: true })
+/** Unique ISBN per user - each librarian can have their own version with custom data */
+@index({ companyId: 1, ownerUserId: 1, isbn: 1 }, { unique: true })
 /** Fast dashboard listing by owner within company */
 @index({ companyId: 1, ownerUserId: 1, createdAt: -1 })
 /** Store-scoped queries for StoreAdmin */
