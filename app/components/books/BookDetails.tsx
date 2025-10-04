@@ -15,40 +15,10 @@ import {
   getToneLabel,
   getAgeGroupLabel,
 } from '@/app/lib/utils/bookUtils';
+import { BookDetail, WithUserRole } from '@/app/lib/types';
 
-interface BookDetailsProps {
-  book: {
-    id: string;
-    isbn: string;
-    title: string;
-    authors: string[];
-    cover?: string;
-    description?: string;
-    publisher?: string;
-    pageCount?: number;
-    publishDate?: Date;
-    genre?: string;
-    tone?: string;
-    ageGroup?: string;
-    purchaseLink?: string;
-    recommendation?: string;
-    owner?: {
-      name: string;
-      email: string;
-    };
-    createdBy?: {
-      _id: string;
-      name: string;
-      email: string;
-    };
-    storeId?: string;
-    storeName?: string;
-    assignedTo?: string[];
-    sections?: string[];
-    createdAt?: Date;
-    updatedAt?: Date;
-  };
-  userRole?: string;
+interface BookDetailsProps extends WithUserRole {
+  book: BookDetail;
 }
 
 const BookDetails = ({ book, userRole }: BookDetailsProps) => {

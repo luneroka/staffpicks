@@ -10,29 +10,11 @@ import {
 } from 'react-icons/hi';
 import { toast } from 'sonner';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
-
-interface BookData {
-  id?: string; // Optional ID for editing existing books
-  isbn: string;
-  title: string;
-  authors: string;
-  publisher: string;
-  publishedDate: string;
-  description: string;
-  coverImage: string;
-  pageCount: string;
-  genre: string;
-  tone: string;
-  ageGroup: string;
-  purchaseLink: string;
-  recommendation: string;
-  assignedTo?: string[]; // Array of user IDs
-  sections?: string[]; // Array of section names
-}
+import { BookFormData } from '@/app/lib/types';
 
 interface BookEditFormProps {
   bookId?: string; // Optional book ID for editing existing books
-  initialData?: BookData; // Pre-populated data for editing
+  initialData?: BookFormData; // Pre-populated data for editing
   userRole?: string; // User role to determine if assignment fields should be shown
   storeId?: string; // Store ID for fetching librarians
 }
@@ -44,7 +26,7 @@ const BookForm = ({
   storeId,
 }: BookEditFormProps) => {
   const router = useRouter();
-  const [bookData, setBookData] = useState<BookData>({
+  const [bookData, setBookData] = useState<BookFormData>({
     isbn: '',
     title: '',
     authors: '',
@@ -335,7 +317,7 @@ const BookForm = ({
     ];
     // Check for required fields
     const missingFields = requiredFields.filter((field) => {
-      const value = bookData[field as keyof BookData];
+      const value = bookData[field as keyof BookFormData];
       // Handle string fields (trim) vs array fields (check length)
       if (typeof value === 'string') {
         return !value.trim();

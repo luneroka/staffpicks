@@ -7,25 +7,10 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { getGenreLabel } from '@/app/lib/utils/bookUtils';
-
-interface BookData {
-  id: string;
-  isbn: string;
-  title: string;
-  cover: string;
-  authors: string[];
-  genre?: string;
-  storeId?: string;
-  storeName?: string;
-  createdBy?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-  };
-}
+import { BookDisplay } from '@/app/lib/types';
 
 interface BooksProps {
-  initialBooks: BookData[];
+  initialBooks: BookDisplay[];
   userRole: string;
 }
 
@@ -53,7 +38,7 @@ const BooksClient = ({ initialBooks, userRole }: BooksProps) => {
       // Group by store
       const groups = new Map<
         string,
-        { storeName: string; books: BookData[] }
+        { storeName: string; books: BookDisplay[] }
       >();
 
       initialBooks.forEach((book) => {
@@ -74,7 +59,7 @@ const BooksClient = ({ initialBooks, userRole }: BooksProps) => {
       // Group by librarian (createdBy)
       const groups = new Map<
         string,
-        { librarianName: string; books: BookData[] }
+        { librarianName: string; books: BookDisplay[] }
       >();
 
       initialBooks.forEach((book) => {
@@ -95,7 +80,7 @@ const BooksClient = ({ initialBooks, userRole }: BooksProps) => {
       }));
     } else if (userRole === 'librarian') {
       // Group by genre
-      const groups = new Map<string, BookData[]>();
+      const groups = new Map<string, BookDisplay[]>();
 
       initialBooks.forEach((book) => {
         const genre = book.genre || 'sans-genre';
@@ -151,7 +136,7 @@ const BooksClient = ({ initialBooks, userRole }: BooksProps) => {
                     </h2>
                   )}
                   <div id='book-display' className='flex flex-wrap gap-8'>
-                    {group.books.map((book: BookData) => (
+                    {group.books.map((book: BookDisplay) => (
                       <Book
                         key={book.id}
                         coverUrl={book.cover}

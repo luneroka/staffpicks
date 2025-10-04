@@ -6,9 +6,10 @@ import BackButton from '@/app/components/BackButton';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { ListCard as ListCardType } from '@/app/lib/types';
 
 interface ListsProps {
-  initialLists: any[];
+  initialLists: ListCardType[];
   userRole: string;
 }
 
@@ -47,7 +48,7 @@ const ListsClient = ({ initialLists, userRole }: ListsProps) => {
           {initialLists.length === 0 ? (
             <p className='text-base-content/60'>Aucune liste créée</p>
           ) : (
-            initialLists.map((list: any) => (
+            initialLists.map((list: ListCardType) => (
               <ListCard key={list._id} listData={list} />
             ))
           )}

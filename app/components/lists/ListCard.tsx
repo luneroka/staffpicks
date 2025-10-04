@@ -9,32 +9,10 @@ import {
   getListBookCount,
 } from '../../lib/utils';
 import { IoTrashBin } from 'react-icons/io5';
-
-interface Items {
-  bookId: string;
-  position: number;
-  addedAt: string;
-}
-
-interface CreatedByUser {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-interface ListData {
-  _id: string;
-  coverImage: string;
-  title?: string;
-  visibility?: string;
-  items?: Items[];
-  createdBy?: CreatedByUser | null;
-  updatedAt?: Date | string;
-}
+import { ListCard as ListCardType } from '@/app/lib/types';
 
 interface ListCardProps {
-  listData?: ListData;
+  listData?: ListCardType;
 }
 
 const ListCard = ({ listData }: ListCardProps) => {

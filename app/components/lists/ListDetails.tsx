@@ -6,47 +6,10 @@ import { useState } from 'react';
 import { formatDate, getVisibilityConfig } from '../../lib/utils';
 import Book from '../books/Book';
 import { HiPencilAlt, HiTrash, HiBookOpen } from 'react-icons/hi';
+import { ListDetail, WithUserRole } from '@/app/lib/types';
 
-interface ListItem {
-  bookId: string;
-  isbn: string;
-  title: string;
-  authors: string[];
-  cover?: string;
-  genre?: string;
-  tone?: string;
-  ageGroup?: string;
-  position: number;
-  addedAt?: Date;
-}
-
-interface ListDetailsProps {
-  list: {
-    id: string;
-    title: string;
-    slug: string;
-    description?: string;
-    coverImage?: string;
-    visibility: string;
-    publishAt?: Date;
-    unpublishAt?: Date;
-    items: ListItem[];
-    owner?: {
-      name: string;
-      email: string;
-    };
-    createdBy?: {
-      name: string;
-      email: string;
-    };
-    storeId?: string;
-    storeName?: string;
-    assignedTo?: string[];
-    sections?: string[];
-    createdAt?: Date;
-    updatedAt?: Date;
-  };
-  userRole?: string;
+interface ListDetailsProps extends WithUserRole {
+  list: ListDetail;
 }
 
 const ListDetails = ({ list, userRole }: ListDetailsProps) => {

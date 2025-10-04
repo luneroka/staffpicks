@@ -10,29 +10,7 @@ import {
 } from 'react-icons/hi';
 import { toast } from 'sonner';
 import Book from '../books/Book';
-
-interface ListData {
-  id?: string; // Optional ID for editing existing lists
-  title: string;
-  slug: string;
-  description: string;
-  coverImage: string;
-  visibility: 'draft' | 'unlisted' | 'public';
-  publishAt: string;
-  items: Array<{
-    bookId: string;
-    isbn?: string;
-    title?: string;
-    authors?: string[];
-    cover?: string;
-    genre?: string;
-    tone?: string;
-    ageGroup?: string;
-    position: number;
-  }>;
-  assignedTo?: string[];
-  sections?: string[];
-}
+import { ListFormData, ListItem } from '@/app/lib/types';
 
 interface BookSearchResult {
   id: string;
@@ -47,14 +25,14 @@ interface BookSearchResult {
 
 interface ListFormProps {
   id?: string; // Optional prop for editing existing lists
-  initialData?: ListData; // Pre-populated data for editing
+  initialData?: ListFormData; // Pre-populated data for editing
   userRole?: string;
   storeId?: string;
 }
 
 const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
   const router = useRouter();
-  const [listData, setListData] = useState<ListData>({
+  const [listData, setListData] = useState<ListFormData>({
     title: '',
     slug: '',
     description: '',
@@ -107,14 +85,25 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
       });
 
       // Load books into selectedBooks for display
+      // Check if items have full book data (populated ListItem) or just references
       const books: BookSearchResult[] = initialData.items
-        .filter((item) => item.isbn && item.title && item.authors) // Only include items with full book data
+        .filter((item): item is ListItem => {
+          // Type guard: check if item has isbn, title, and authors (populated)
+          return (
+            'isbn' in item &&
+            'title' in item &&
+            'authors' in item &&
+            item.isbn !== undefined &&
+            item.title !== undefined &&
+            item.authors !== undefined
+          );
+        })
         .map((item) => ({
           id: item.bookId,
-          isbn: item.isbn!,
-          title: item.title!,
+          isbn: item.isbn,
+          title: item.title,
           cover: item.cover,
-          authors: item.authors!,
+          authors: item.authors,
           genre: item.genre,
           tone: item.tone,
           ageGroup: item.ageGroup,
@@ -362,7 +351,7 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
     // Basic validation
     const requiredFields = ['title'];
     const missingFields = requiredFields.filter(
-      (field) => !listData[field as keyof Pick<ListData, 'title'>]?.trim()
+      (field) => !listData[field as keyof Pick<ListFormData, 'title'>]?.trim()
     );
 
     if (missingFields.length > 0) {
