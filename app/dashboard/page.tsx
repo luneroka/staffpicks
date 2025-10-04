@@ -15,6 +15,7 @@ import { StoreModel } from '../lib/models/Store';
 import { UserModel } from '../lib/models/User';
 import { Types } from 'mongoose';
 import { FaBook, FaList, FaStore, FaUsers } from 'react-icons/fa';
+import { transformListForDisplay } from '../lib/utils/listUtils';
 
 const Dashboard = async () => {
   // Ensure user is authenticated (will redirect if not)
@@ -208,9 +209,8 @@ const Dashboard = async () => {
 
   const booksData = books.map((book: any) => ({
     id: book._id.toString(),
-    isbn: book.isbn,
-    title: book.bookData.title,
     coverUrl: book.bookData.cover,
+    title: book.bookData.title,
   }));
 
   /**
@@ -239,15 +239,8 @@ const Dashboard = async () => {
     .limit(10) // Show only first 10 lists on dashboard
     .lean();
 
-  const listsData = lists.map((list: any) => ({
-    id: list._id.toString(),
-    title: list.title,
-    slug: list.slug,
-    description: list.description,
-    coverUrl:
-      list.coverImage ||
-      'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png',
-  }));
+  // Transform lists using utility function
+  const listsData = lists.map(transformListForDisplay);
 
   return (
     <div className='flex flex-col gap-16'>

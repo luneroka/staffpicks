@@ -9,6 +9,7 @@ import { BookModel } from '@/app/lib/models/Book';
 import { Types } from 'mongoose';
 import BooksClient from './BooksClient';
 import { Suspense } from 'react';
+import { transformBookForDisplay } from '@/app/lib/utils/bookUtils';
 
 const Books = async () => {
   // Ensure user is authenticated
@@ -43,24 +44,8 @@ const Books = async () => {
     .populate('storeId', 'name code')
     .lean();
 
-  // Convert MongoDB documents to plain objects
-  const booksData = books.map((book: any) => ({
-    id: book._id.toString(),
-    isbn: book.isbn,
-    title: book.bookData.title,
-    cover: book.bookData.cover,
-    authors: book.bookData.authors,
-    genre: book.genre,
-    storeId: book.storeId?._id?.toString(),
-    storeName: book.storeId?.name,
-    createdBy: book.createdBy
-      ? {
-          _id: book.createdBy._id.toString(),
-          firstName: book.createdBy.firstName,
-          lastName: book.createdBy.lastName,
-        }
-      : undefined,
-  }));
+  // Transform books using utility function
+  const booksData = books.map(transformBookForDisplay);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

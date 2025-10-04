@@ -9,6 +9,7 @@ import { ListModel } from '@/app/lib/models/List';
 import { Types } from 'mongoose';
 import ListsClient from './ListsClient';
 import { Suspense } from 'react';
+import { transformListForCard } from '@/app/lib/utils/listUtils';
 
 const Lists = async () => {
   // Ensure user is authenticated
@@ -43,28 +44,8 @@ const Lists = async () => {
     .sort({ updatedAt: -1 })
     .lean();
 
-  const listsData = lists.map((list: any) => ({
-    _id: list._id.toString(),
-    coverImage:
-      list.coverImage ||
-      'https://res.cloudinary.com/dhxckc6ld/image/upload/v1759075480/rentr%C3%A9e_litt%C3%A9raire_ac1clu.png',
-    title: list.title,
-    visibility: list.visibility,
-    items: (list.items || []).map((item: any) => ({
-      bookId: item.bookId?.toString() || item.bookId,
-      position: item.position,
-      addedAt: item.addedAt,
-    })),
-    createdBy: list.createdBy
-      ? {
-          _id: list.createdBy._id?.toString(),
-          firstName: list.createdBy.firstName,
-          lastName: list.createdBy.lastName,
-          email: list.createdBy.email,
-        }
-      : null,
-    updatedAt: list.updatedAt,
-  }));
+  // Transform lists using utility function
+  const listsData = lists.map(transformListForCard);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

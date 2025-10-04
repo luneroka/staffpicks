@@ -39,24 +39,24 @@ const EditBookPage = async ({ params }: EditBookPageProps) => {
   }
 
   // Convert to plain object for BookForm
+  // Note: BookForm expects string values for all fields (for form inputs)
   const bookData = {
     id: book._id.toString(),
     isbn: book.isbn,
     title: book.bookData.title,
-    authors: book.bookData.authors.join(', '),
+    authors: book.bookData.authors.join(', '), // Form expects comma-separated string
     publisher: book.bookData.publisher || '',
     publishedDate: book.bookData.publishDate
       ? new Date(book.bookData.publishDate).toISOString().split('T')[0]
-      : '',
+      : '', // Form expects YYYY-MM-DD format
     description: book.bookData.description || '',
     coverImage: book.bookData.cover || '',
-    pageCount: book.bookData.pageCount?.toString() || '',
+    pageCount: book.bookData.pageCount?.toString() || '', // Form expects string
     genre: book.genre || '',
     tone: book.tone || '',
     ageGroup: book.ageGroup || '',
     purchaseLink: book.purchaseLink || '',
     recommendation: book.recommendation || '',
-    // Include assignment fields
     assignedTo: book.assignedTo?.map((id: any) => id.toString()) || [],
     sections: book.sections || [],
   };

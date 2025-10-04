@@ -10,6 +10,7 @@ import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
+import { transformBookForClient } from '@/app/lib/utils/bookUtils';
 
 interface BookPageProps {
   params: Promise<{
@@ -63,43 +64,8 @@ const BookPage = async ({ params }: BookPageProps) => {
     notFound();
   }
 
-  // Convert to plain object
-  const bookData = {
-    id: book._id.toString(),
-    isbn: book.isbn,
-    title: book.bookData.title,
-    authors: book.bookData.authors,
-    cover: book.bookData.cover,
-    description: book.bookData.description,
-    publisher: book.bookData.publisher,
-    pageCount: book.bookData.pageCount,
-    publishDate: book.bookData.publishDate,
-    genre: book.genre,
-    tone: book.tone,
-    ageGroup: book.ageGroup,
-    purchaseLink: book.purchaseLink,
-    recommendation: book.recommendation,
-    owner: book.ownerUserId
-      ? {
-          _id: book.ownerUserId._id.toString(),
-          name: `${book.ownerUserId.firstName} ${book.ownerUserId.lastName}`,
-          email: book.ownerUserId.email,
-        }
-      : undefined,
-    createdBy: book.createdBy
-      ? {
-          _id: book.createdBy._id.toString(),
-          name: `${book.createdBy.firstName} ${book.createdBy.lastName}`,
-          email: book.createdBy.email,
-        }
-      : undefined,
-    storeId: book.storeId?._id?.toString(),
-    storeName: book.storeId?.name,
-    assignedTo: (book.assignedTo || []).map((id: any) => id.toString()),
-    sections: book.sections || [],
-    createdAt: book.createdAt?.toISOString(),
-    updatedAt: book.updatedAt?.toISOString(),
-  };
+  // Transform book using utility function
+  const bookData = transformBookForClient(book);
 
   return (
     <div>
