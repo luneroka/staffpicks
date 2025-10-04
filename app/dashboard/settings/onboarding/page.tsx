@@ -1,20 +1,10 @@
-import { redirect } from 'next/navigation';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import Link from 'next/link';
-import { FaCheckCircle, FaCircle } from 'react-icons/fa';
+import { FaCircle } from 'react-icons/fa';
+import { requireAuth } from '@/app/lib/auth/helpers';
 
 export default async function OnboardingPage() {
   // Check if user is authenticated
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
-
-  if (!session.isLoggedIn) {
-    redirect('/login');
-  }
+  const session = await requireAuth();
 
   return (
     <div className='container mx-auto max-w-2xl px-4'>

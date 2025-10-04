@@ -3,13 +3,11 @@ import { Roboto } from 'next/font/google';
 import './globals.css';
 import NavBar from './components/NavBar';
 import { MdDarkMode } from 'react-icons/md';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import connectDB from '@/app/lib/mongodb';
 import { StoreModel } from '@/app/lib/models/Store';
 import { Types } from 'mongoose';
 import { Toaster } from 'sonner';
+import { getSession } from './lib/auth/helpers';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -30,10 +28,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Get session data for NavBar
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
+  const session = await getSession();
 
   // Fetch store information for storeAdmin and librarians
   let storeInfo = null;

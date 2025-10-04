@@ -1,8 +1,5 @@
-import React from 'react';
 import { requireCompanyAdmin } from '@/app/lib/auth/helpers';
 import CompanySettingsForm from '@/app/components/forms/CompanySettingsForm';
-import Link from 'next/link';
-import { FaArrowLeft } from 'react-icons/fa';
 import { FaBuildingColumns } from 'react-icons/fa6';
 import connectDB from '@/app/lib/mongodb';
 import { CompanyModel } from '@/app/lib/models/Company';

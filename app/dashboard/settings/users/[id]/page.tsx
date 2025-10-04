@@ -1,64 +1,21 @@
 import { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { SessionData, sessionOptions } from '@/app/lib/auth/session';
+import { notFound } from 'next/navigation';
 import { UserModel, UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import connectDB from '@/app/lib/mongodb';
 import BackButton from '@/app/components/BackButton';
 import UserSettingsForm from '@/app/components/forms/UserSettingsForm';
 import DeleteUserButton from '@/app/components/users/DeleteUserButton';
+import {
+  requireAdminAccess,
+  isCompanyAdmin,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 
 export const metadata: Metadata = {
   title: 'Détails utilisateur - StaffPicks',
   description: "Voir et modifier les informations de l'utilisateur",
 };
-
-async function getUser(userId: string, session: SessionData) {
-  try {
-    await connectDB();
-
-    if (!Types.ObjectId.isValid(userId)) {
-      return null;
-    }
-
-    // Build query with authorization
-    const query: any = { _id: new Types.ObjectId(userId) };
-
-    // Apply role-based filtering
-    if (session.role === UserRole.CompanyAdmin) {
-      query.companyId = new Types.ObjectId(session.companyId!);
-    } else if (session.role === UserRole.StoreAdmin) {
-      query.storeId = new Types.ObjectId(session.storeId!);
-      query.role = UserRole.Librarian;
-    }
-
-    const user = await UserModel.findOne(query)
-      .populate('storeId', 'name code')
-      .lean();
-
-    if (!user) {
-      return null;
-    }
-
-    return {
-      _id: user._id.toString(),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      storeId: user.storeId?._id?.toString(),
-      storeName: (user.storeId as any)?.name,
-      storeCode: (user.storeId as any)?.code,
-      sections: user.sections || [],
-      avatarUrl: user.avatarUrl,
-    };
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return null;
-  }
-}
 
 interface UserDetailPageProps {
   params: Promise<{
@@ -67,23 +24,8 @@ interface UserDetailPageProps {
 }
 
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
-
-  if (!session.isLoggedIn) {
-    redirect('/login');
-  }
-
-  // Only Admin, CompanyAdmin, and StoreAdmin can access this page
-  if (
-    session.role !== UserRole.Admin &&
-    session.role !== UserRole.CompanyAdmin &&
-    session.role !== UserRole.StoreAdmin
-  ) {
-    redirect('/unauthorized');
-  }
+  // Require Admin, CompanyAdmin, or StoreAdmin access
+  const session = await requireAdminAccess();
 
   const { id } = await params;
 
@@ -91,11 +33,45 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
     notFound();
   }
 
-  const userData = await getUser(id, session);
+  await connectDB();
 
-  if (!userData) {
+  // Validate ObjectId
+  if (!Types.ObjectId.isValid(id)) {
     notFound();
   }
+
+  // Build query with authorization
+  const query: any = { _id: new Types.ObjectId(id) };
+
+  // Apply role-based filtering
+  if (isCompanyAdmin(session)) {
+    query.companyId = new Types.ObjectId(session.companyId!);
+  } else if (isStoreAdmin(session)) {
+    query.storeId = new Types.ObjectId(session.storeId!);
+    query.role = UserRole.Librarian;
+  }
+
+  const user = await UserModel.findOne(query)
+    .populate('storeId', 'name code')
+    .lean();
+
+  if (!user) {
+    notFound();
+  }
+
+  // Transform user data for client
+  const userData = {
+    _id: user._id.toString(),
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+    storeId: user.storeId?._id?.toString(),
+    storeName: (user.storeId as any)?.name,
+    storeCode: (user.storeId as any)?.code,
+    sections: user.sections || [],
+    avatarUrl: user.avatarUrl,
+  };
 
   return (
     <div className='space-y-6'>

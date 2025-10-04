@@ -1,7 +1,11 @@
-import { requireAuth } from '@/app/lib/auth/helpers';
+import {
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+  requireAuth,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import ListsClient from './ListsClient';
 import { Suspense } from 'react';
@@ -19,13 +23,13 @@ const Lists = async () => {
     deletedAt: { $exists: false },
   };
 
-  if (session.role === UserRole.CompanyAdmin) {
+  if (isCompanyAdmin(session)) {
     // CompanyAdmin sees all lists in the company
     // No additional filters needed
-  } else if (session.role === UserRole.StoreAdmin) {
+  } else if (isStoreAdmin(session)) {
     // StoreAdmin sees only lists from their store
     query.storeId = new Types.ObjectId(session.storeId!);
-  } else if (session.role === UserRole.Librarian) {
+  } else if (isLibrarian(session)) {
     // Librarian sees only lists they created or are assigned to
     query.$or = [
       { createdBy: new Types.ObjectId(session.userId!) },

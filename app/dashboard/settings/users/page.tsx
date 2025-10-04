@@ -1,92 +1,69 @@
 import { Metadata } from 'next';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { SessionData, sessionOptions } from '@/app/lib/auth/session';
 import { UserModel, UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import connectDB from '@/app/lib/mongodb';
 import UsersClient from './UsersClient';
 import { Suspense } from 'react';
+import {
+  requireAdminAccess,
+  isAdmin,
+  isCompanyAdmin,
+  isStoreAdmin,
+} from '@/app/lib/auth/helpers';
 
 export const metadata: Metadata = {
   title: 'Gestion des utilisateurs - StaffPicks',
   description: 'Gérer les utilisateurs de votre entreprise',
 };
 
-async function getUsers(session: SessionData) {
-  try {
-    await connectDB();
-
-    // Build query based on role
-    let query: any = {
-      // Exclude deleted users
-      deletedAt: { $exists: false },
-    };
-
-    if (session.role === UserRole.Admin) {
-      // Platform Admin can see all users
-    } else if (session.role === UserRole.CompanyAdmin) {
-      // Company Admin sees users in their company
-      query.companyId = new Types.ObjectId(session.companyId!);
-    } else if (session.role === UserRole.StoreAdmin) {
-      // Store Admin sees StoreAdmins and Librarians in their store
-      query.storeId = new Types.ObjectId(session.storeId!);
-      query.role = { $in: [UserRole.StoreAdmin, UserRole.Librarian] };
-    }
-
-    // Fetch users with store information
-    const users = await UserModel.find(query)
-      .populate('storeId', 'name code')
-      .sort({ createdAt: -1 })
-      .lean();
-
-    // Transform users for client
-    return users.map((user: any) => ({
-      _id: user._id.toString(),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      status: user.status,
-      storeId: user.storeId?._id?.toString(),
-      storeName: user.storeId?.name,
-      storeCode: user.storeId?.code,
-      sections: user.sections || [],
-      avatarUrl: user.avatarUrl,
-      createdAt: user.createdAt?.toISOString(),
-      lastLoginAt: user.lastLoginAt?.toISOString(),
-    }));
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return [];
-  }
-}
-
 export default async function UsersPage() {
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
+  // Require Admin, CompanyAdmin, or StoreAdmin access
+  const session = await requireAdminAccess();
 
-  if (!session.isLoggedIn) {
-    redirect('/login');
+  await connectDB();
+
+  // Build query based on role
+  let query: any = {
+    deletedAt: { $exists: false },
+  };
+
+  if (isAdmin(session)) {
+    // Platform Admin can see all users
+  } else if (isCompanyAdmin(session)) {
+    // Company Admin sees users in their company
+    query.companyId = new Types.ObjectId(session.companyId!);
+  } else if (isStoreAdmin(session)) {
+    // Store Admin sees StoreAdmins and Librarians in their store
+    query.storeId = new Types.ObjectId(session.storeId!);
+    query.role = { $in: [UserRole.StoreAdmin, UserRole.Librarian] };
   }
 
-  // Only Admin, CompanyAdmin, and StoreAdmin can access this page
-  if (
-    session.role !== UserRole.Admin &&
-    session.role !== UserRole.CompanyAdmin &&
-    session.role !== UserRole.StoreAdmin
-  ) {
-    redirect('/unauthorized');
-  }
+  // Fetch users with store information
+  const users = await UserModel.find(query)
+    .populate('storeId', 'name code')
+    .sort({ createdAt: -1 })
+    .lean();
 
-  const users = await getUsers(session);
+  // Transform users for client
+  const usersData = users.map((user: any) => ({
+    _id: user._id.toString(),
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    storeId: user.storeId?._id?.toString(),
+    storeName: user.storeId?.name,
+    storeCode: user.storeId?.code,
+    sections: user.sections || [],
+    avatarUrl: user.avatarUrl,
+    createdAt: user.createdAt?.toISOString(),
+    lastLoginAt: user.lastLoginAt?.toISOString(),
+  }));
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <UsersClient users={users} userRole={session.role} />
+      <UsersClient users={usersData} userRole={session.role} />
     </Suspense>
   );
 }

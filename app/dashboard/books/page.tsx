@@ -1,26 +1,14 @@
-import { requireAuth } from '@/app/lib/auth/helpers';
+import {
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+  requireAuth,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import BooksClient from './BooksClient';
 import { Suspense } from 'react';
-
-interface BookData {
-  id: string;
-  isbn: string;
-  title: string;
-  cover: string;
-  authors: string[];
-  genre?: string;
-  storeId?: string;
-  storeName?: string;
-  createdBy?: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-  };
-}
 
 const Books = async () => {
   // Ensure user is authenticated
@@ -34,13 +22,13 @@ const Books = async () => {
     companyId: new Types.ObjectId(session.companyId!),
   };
 
-  if (session.role === UserRole.CompanyAdmin) {
+  if (isCompanyAdmin(session)) {
     // CompanyAdmin sees all books in the company
     // No additional filters needed
-  } else if (session.role === UserRole.StoreAdmin) {
+  } else if (isStoreAdmin(session)) {
     // StoreAdmin sees only books from their store
     query.storeId = new Types.ObjectId(session.storeId!);
-  } else if (session.role === UserRole.Librarian) {
+  } else if (isLibrarian(session)) {
     // Librarian sees only books they created or are assigned to
     query.$or = [
       { createdBy: new Types.ObjectId(session.userId!) },

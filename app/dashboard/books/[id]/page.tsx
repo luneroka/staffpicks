@@ -1,9 +1,13 @@
 import BookDetails from '@/app/components/books/BookDetails';
 import BackButton from '@/app/components/BackButton';
-import { requireAuth } from '@/app/lib/auth/helpers';
+import {
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+  requireAuth,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { BookModel } from '@/app/lib/models/Book';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
 
@@ -33,13 +37,13 @@ const BookPage = async ({ params }: BookPageProps) => {
     companyId: new Types.ObjectId(session.companyId!),
   };
 
-  if (session.role === UserRole.CompanyAdmin) {
+  if (isCompanyAdmin(session)) {
     // CompanyAdmin can see all books in the company
     // No additional filters needed
-  } else if (session.role === UserRole.StoreAdmin) {
+  } else if (isStoreAdmin(session)) {
     // StoreAdmin can only see books from their store
     query.storeId = new Types.ObjectId(session.storeId!);
-  } else if (session.role === UserRole.Librarian) {
+  } else if (isLibrarian(session)) {
     // Librarian can only see books they created or are assigned to
     query.$or = [
       { createdBy: new Types.ObjectId(session.userId!) },

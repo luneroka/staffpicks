@@ -1,7 +1,10 @@
-import React from 'react';
-import { requireAdminAccess } from '@/app/lib/auth/helpers';
+import {
+  isAdmin,
+  isAnAdmin,
+  isCompanyAdmin,
+  requireAdminAccess,
+} from '@/app/lib/auth/helpers';
 import Link from 'next/link';
-import { UserRole } from '@/app/lib/models/User';
 
 const Settings = async () => {
   // Require admin access (CompanyAdmin, StoreAdmin, or Platform Admin)
@@ -13,8 +16,7 @@ const Settings = async () => {
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         {/* Onboarding Checklist - Only for Company Admins */}
-        {(session.role === UserRole.Admin ||
-          session.role === UserRole.CompanyAdmin) && (
+        {(isAdmin(session) || isCompanyAdmin(session)) && (
           <Link href='/dashboard/settings/onboarding'>
             <div className='card bg-base-200 shadow-xl hover:bg-base-300 transition-all cursor-pointer'>
               <div className='card-body'>
@@ -29,8 +31,7 @@ const Settings = async () => {
         )}
 
         {/* Company Settings - Only for Company Admins */}
-        {(session.role === UserRole.Admin ||
-          session.role === UserRole.CompanyAdmin) && (
+        {(isAdmin(session) || isCompanyAdmin(session)) && (
           <Link href='/dashboard/settings/company'>
             <div className='card bg-base-200 shadow-xl hover:bg-base-300 transition-all cursor-pointer'>
               <div className='card-body'>
@@ -44,8 +45,7 @@ const Settings = async () => {
         )}
 
         {/* Stores Settings - Only for Company Admins */}
-        {(session.role === UserRole.Admin ||
-          session.role === UserRole.CompanyAdmin) && (
+        {(isAdmin(session) || isCompanyAdmin(session)) && (
           <Link href='/dashboard/settings/stores'>
             <div className='card bg-base-200 shadow-xl hover:bg-base-300 transition-all cursor-pointer'>
               <div className='card-body'>
@@ -58,10 +58,8 @@ const Settings = async () => {
           </Link>
         )}
 
-        {/* Users Settings - For Company Admins and Store Admins */}
-        {(session.role === UserRole.Admin ||
-          session.role === UserRole.CompanyAdmin ||
-          session.role === UserRole.StoreAdmin) && (
+        {/* Users Settings - For all Admins */}
+        {isAnAdmin(session) && (
           <Link href='/dashboard/settings/users'>
             <div className='card bg-base-200 shadow-xl hover:bg-base-300 transition-all cursor-pointer'>
               <div className='card-body'>
@@ -73,8 +71,7 @@ const Settings = async () => {
         )}
 
         {/* Billing Settings - Only for Company Admins */}
-        {(session.role === UserRole.Admin ||
-          session.role === UserRole.CompanyAdmin) && (
+        {(isAdmin(session) || isCompanyAdmin(session)) && (
           <Link href='/dashboard/settings/billing'>
             <div className='card bg-base-200 shadow-xl hover:bg-base-300 transition-all cursor-pointer'>
               <div className='card-body'>

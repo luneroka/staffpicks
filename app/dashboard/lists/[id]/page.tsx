@@ -1,8 +1,12 @@
 import ListDetails from '@/app/components/lists/ListDetails';
-import { requireAuth } from '@/app/lib/auth/helpers';
+import {
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+  requireAuth,
+} from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
-import { UserRole } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
 import BackButton from '@/app/components/BackButton';
@@ -34,13 +38,13 @@ const ListPage = async ({ params }: ListPageProps) => {
     deletedAt: { $exists: false },
   };
 
-  if (session.role === UserRole.CompanyAdmin) {
+  if (isCompanyAdmin(session)) {
     // CompanyAdmin can see all lists in the company
     // No additional filters needed
-  } else if (session.role === UserRole.StoreAdmin) {
+  } else if (isStoreAdmin(session)) {
     // StoreAdmin can only see lists from their store
     query.storeId = new Types.ObjectId(session.storeId!);
-  } else if (session.role === UserRole.Librarian) {
+  } else if (isLibrarian(session)) {
     // Librarian can only see lists they created or are assigned to
     query.$or = [
       { createdBy: new Types.ObjectId(session.userId!) },

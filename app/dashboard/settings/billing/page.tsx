@@ -1,8 +1,4 @@
-import React from 'react';
 import { requireCompanyAdmin } from '@/app/lib/auth/helpers';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import {
   CompanyModel,
   CompanyStatus,
@@ -11,23 +7,11 @@ import {
 import connectDB from '@/app/lib/mongodb';
 import { formatDate } from '@/app/lib/utils/dateUtils';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { FaArrowLeft } from 'react-icons/fa';
 import BackButton from '@/app/components/BackButton';
 
 const BillingSettings = async () => {
   // Require company admin access only
-  await requireCompanyAdmin();
-
-  // Get session to fetch company
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
-
-  if (!session.companyId) {
-    redirect('/unauthorized');
-  }
+  const session = await requireCompanyAdmin();
 
   // Fetch company from database
   await connectDB();

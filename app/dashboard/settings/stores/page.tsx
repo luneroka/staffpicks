@@ -4,7 +4,7 @@ import connectDB from '@/app/lib/mongodb';
 import { StoreModel } from '@/app/lib/models/Store';
 import { UserModel } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
-import { FaStore, FaPlus, FaArrowLeft } from 'react-icons/fa';
+import { FaStore, FaPlus } from 'react-icons/fa';
 import BackButton from '@/app/components/BackButton';
 
 const StoresSettings = async () => {

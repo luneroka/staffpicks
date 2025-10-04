@@ -1,15 +1,10 @@
 import SignupForm from '../components/auth/SignupForm';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
 import { redirect } from 'next/navigation';
+import { getSession } from '../lib/auth/helpers';
 
 const Signup = async () => {
   // Check if user is already logged in
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
+  const session = await getSession();
 
   // Redirect to dashboard if already authenticated
   if (session.isLoggedIn) {

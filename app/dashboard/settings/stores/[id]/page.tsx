@@ -4,7 +4,7 @@ import connectDB from '@/app/lib/mongodb';
 import { StoreModel } from '@/app/lib/models/Store';
 import { UserModel } from '@/app/lib/models/User';
 import { Types } from 'mongoose';
-import { FaStore, FaUser, FaTrash, FaArrowLeft } from 'react-icons/fa';
+import { FaStore, FaUser } from 'react-icons/fa';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import BackButton from '@/app/components/BackButton';

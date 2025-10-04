@@ -1,12 +1,10 @@
 import ListForm from '@/app/components/forms/ListForm';
-import React from 'react';
 import { requireAuth } from '@/app/lib/auth/helpers';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
 import { Types } from 'mongoose';
 import { notFound } from 'next/navigation';
 import BackButton from '@/app/components/BackButton';
-import { DiVim } from 'react-icons/di';
 
 interface EditListPageProps {
   params: Promise<{

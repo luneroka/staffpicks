@@ -1,10 +1,7 @@
 import { Metadata } from 'next';
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { SessionData, sessionOptions } from '@/app/lib/auth/session';
 import BackButton from '@/app/components/BackButton';
 import UserSettingsForm from '@/app/components/forms/UserSettingsForm';
+import { requireAuth } from '@/app/lib/auth/helpers';
 
 export const metadata: Metadata = {
   title: 'Nouvel utilisateur - StaffPicks',
@@ -12,14 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewUserPage() {
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
-
-  if (!session.isLoggedIn) {
-    redirect('/login');
-  }
+  const session = await requireAuth();
 
   return (
     <div className='space-y-6'>

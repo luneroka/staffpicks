@@ -2,12 +2,17 @@ import { IoIosArrowForward } from 'react-icons/io';
 import List from '../components/lists/List';
 import Book from '../components/books/Book';
 import Link from 'next/link';
-import { requireAuth } from '../lib/auth/helpers';
+import {
+  isCompanyAdmin,
+  isLibrarian,
+  isStoreAdmin,
+  requireAuth,
+} from '../lib/auth/helpers';
 import connectDB from '../lib/mongodb';
 import { BookModel } from '../lib/models/Book';
 import { ListModel, ListVisibility } from '../lib/models/List';
 import { StoreModel } from '../lib/models/Store';
-import { UserModel, UserRole } from '../lib/models/User';
+import { UserModel } from '../lib/models/User';
 import { Types } from 'mongoose';
 import { FaBook, FaList, FaStore, FaUsers } from 'react-icons/fa';
 
@@ -19,7 +24,7 @@ const Dashboard = async () => {
   await connectDB();
 
   // CompanyAdmin sees statistics only
-  if (session.role === UserRole.CompanyAdmin) {
+  if (isCompanyAdmin(session)) {
     // Fetch statistics for the company
     const companyId = new Types.ObjectId(session.companyId!);
 
@@ -176,15 +181,18 @@ const Dashboard = async () => {
   }
 
   // For StoreAdmin and Librarian: show books and lists
-  // Build query based on user role for books
+
+  /**
+   * Build query based on user role for books
+   **/
   let booksQuery: any = {
     companyId: new Types.ObjectId(session.companyId!),
   };
 
-  if (session.role === UserRole.StoreAdmin) {
+  if (isStoreAdmin(session)) {
     // StoreAdmin sees only books from their store
     booksQuery.storeId = new Types.ObjectId(session.storeId!);
-  } else if (session.role === UserRole.Librarian) {
+  } else if (isLibrarian(session)) {
     // Librarian sees only books they created or are assigned to
     booksQuery.$or = [
       { createdBy: new Types.ObjectId(session.userId!) },
@@ -205,17 +213,19 @@ const Dashboard = async () => {
     coverUrl: book.bookData.cover,
   }));
 
-  // Build query based on user role for lists
+  /**
+   * Build query based on user role for lists
+   **/
   let listsQuery: any = {
     companyId: new Types.ObjectId(session.companyId!),
     visibility: 'public',
     deletedAt: { $exists: false },
   };
 
-  if (session.role === UserRole.StoreAdmin) {
+  if (isStoreAdmin(session)) {
     // StoreAdmin sees only lists from their store
     listsQuery.storeId = new Types.ObjectId(session.storeId!);
-  } else if (session.role === UserRole.Librarian) {
+  } else if (isLibrarian(session)) {
     // Librarian sees only lists they created or are assigned to
     listsQuery.$or = [
       { createdBy: new Types.ObjectId(session.userId!) },

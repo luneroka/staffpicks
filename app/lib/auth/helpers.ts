@@ -22,7 +22,7 @@ export async function getSession() {
 export async function requireAuth() {
   const session = await getSession();
 
-  if (!session.isLoggedIn) {
+  if (!session.isLoggedIn || !session.userId) {
     redirect('/login');
   }
 
@@ -119,15 +119,6 @@ export async function requireRole(allowedRoles: UserRole[]) {
   }
 
   return session;
-}
-
-/** Check if user can manage stores in their company (non-throwing) */
-export function canManageStores(session: SessionData): boolean {
-  return (
-    session.role === UserRole.Admin ||
-    session.role === UserRole.CompanyAdmin ||
-    session.role === UserRole.StoreAdmin
-  );
 }
 
 /** Check if user can edit books (non-throwing) */

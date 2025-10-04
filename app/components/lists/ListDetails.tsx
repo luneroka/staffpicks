@@ -5,12 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { formatDate, getVisibilityConfig } from '../../lib/utils';
 import Book from '../books/Book';
-import {
-  HiExclamationCircle,
-  HiPencilAlt,
-  HiTrash,
-  HiBookOpen,
-} from 'react-icons/hi';
+import { HiPencilAlt, HiTrash, HiBookOpen } from 'react-icons/hi';
 
 interface ListItem {
   bookId: string;

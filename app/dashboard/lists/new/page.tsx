@@ -1,20 +1,10 @@
 import BackButton from '@/app/components/BackButton';
 import ListForm from '@/app/components/forms/ListForm';
-import { getIronSession } from 'iron-session';
-import { sessionOptions, SessionData } from '@/app/lib/auth/session';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { requireAuth } from '@/app/lib/auth/helpers';
 
 const AddList = async () => {
   // Get user session
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
-
-  if (!session.isLoggedIn) {
-    redirect('/login');
-  }
+  const session = await requireAuth();
 
   return (
     <div>
