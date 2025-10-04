@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaUpload, FaKey } from 'react-icons/fa';
-import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { HiExclamationCircle } from 'react-icons/hi';
 import { useFormState } from '@/app/lib/hooks';
+import FormAlerts from './FormAlerts';
 import Image from 'next/image';
 
 interface UserData {
@@ -251,21 +252,8 @@ const ProfileSettingsForm = () => {
 
   return (
     <div className='space-y-6'>
-      {/* Success Message */}
-      {success && (
-        <div className='alert alert-soft alert-success'>
-          <HiCheckCircle className='text-xl' />
-          <span>{success}</span>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className='alert alert-soft alert-error'>
-          <HiExclamationCircle className='text-xl' />
-          <span>{error}</span>
-        </div>
-      )}
+      {/* Success and Error Messages */}
+      <FormAlerts error={error} success={success} />
 
       <form onSubmit={handleSubmit}>
         {/* Header with Edit/Save buttons */}
@@ -455,11 +443,6 @@ const ProfileSettingsForm = () => {
               </div>
 
               <div className='form-control w-full'>
-                {/* <label className='label'>
-                  <span className='label-text font-semibold'>
-                    Mot de passe actuel *
-                  </span>
-                </label> */}
                 <input
                   type='password'
                   value={currentPassword}
@@ -470,11 +453,6 @@ const ProfileSettingsForm = () => {
               </div>
 
               <div className='form-control'>
-                {/* <label className='label'>
-                  <span className='label-text font-semibold'>
-                    Nouveau mot de passe *
-                  </span>
-                </label> */}
                 <input
                   type='password'
                   value={newPassword}
@@ -485,11 +463,6 @@ const ProfileSettingsForm = () => {
               </div>
 
               <div className='form-control'>
-                {/* <label className='label'>
-                  <span className='label-text font-semibold'>
-                    Confirmer le nouveau mot de passe *
-                  </span>
-                </label> */}
                 <input
                   type='password'
                   value={confirmPassword}

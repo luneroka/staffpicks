@@ -3,16 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaSearch } from 'react-icons/fa';
-import {
-  HiExclamationCircle,
-  HiCheckCircle,
-  HiExclamation,
-} from 'react-icons/hi';
 import { toast } from 'sonner';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 import { BookFormData } from '@/app/lib/types';
 import { useFormState } from '@/app/lib/hooks';
 import AssignmentFields from './AssignmentFields';
+import FormAlerts from './FormAlerts';
 
 interface BookEditFormProps {
   bookId?: string; // Optional book ID for editing existing books
@@ -445,23 +441,14 @@ const BookForm = ({
     >
       <fieldset className='fieldset bg-base-200 border-base-300 rounded-box border px-6 py-2 flex-1 flex flex-col items-center'>
         {/* Error and Success Messages */}
-        {(error || success || validationErrors.length > 0) && (
-          <div className='w-full'>
-            {error && (
-              <div className='alert alert-error alert-soft mb-1 shadow-sm'>
-                <HiExclamationCircle className='size-5 shrink-0 stroke-current' />
-                <span className='text-sm font-medium'>{error}</span>
-              </div>
-            )}
+        <FormAlerts
+          error={error}
+          success={success}
+          validationErrors={validationErrors}
+          variant='compact'
+          className='w-full'
+        />
 
-            {success && (
-              <div className='alert alert-success alert-soft mb-1 shadow-sm'>
-                <HiCheckCircle className='size-5 shrink-0 stroke-current' />
-                <span className='text-sm font-medium'>{success}</span>
-              </div>
-            )}
-          </div>
-        )}
         <legend className='fieldset-legend'>
           {isEditing ? 'Modifier le livre' : 'Détails du livre'}
         </legend>
@@ -689,17 +676,6 @@ const BookForm = ({
               setBookData({ ...bookData, sections })
             }
           />
-        )}
-
-        {validationErrors.length > 0 && (
-          <div className='alert alert-warning alert-soft mt-4 shadow-sm'>
-            <HiExclamation className='size-5 shrink-0 stroke-current' />
-            <div className='text-sm font-medium'>
-              {validationErrors.map((validationError, index) => (
-                <div key={index}>{validationError}</div>
-              ))}
-            </div>
-          </div>
         )}
 
         {/* Spacer to push buttons to bottom */}

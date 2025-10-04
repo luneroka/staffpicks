@@ -3,16 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
-import {
-  HiExclamationCircle,
-  HiCheckCircle,
-  HiExclamation,
-} from 'react-icons/hi';
 import { toast } from 'sonner';
 import Book from '../books/Book';
 import { ListFormData, ListItem } from '@/app/lib/types';
 import { useFormState } from '@/app/lib/hooks';
 import AssignmentFields from './AssignmentFields';
+import FormAlerts from './FormAlerts';
 
 interface BookSearchResult {
   id: string;
@@ -461,23 +457,13 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
     <form onSubmit={handleSubmit} className='w-full max-w-4xl items-stretch'>
       <fieldset className='fieldset bg-base-200 border-base-300 rounded-box border p-6 flex flex-col gap-2 items-center'>
         {/* Error and Success Messages */}
-        {(error || success || validationErrors.length > 0) && (
-          <div className='w-full mb-4'>
-            {error && (
-              <div className='alert alert-error alert-soft mb-1 shadow-sm'>
-                <HiExclamationCircle className='size-5 shrink-0 stroke-current' />
-                <span className='text-sm font-medium'>{error}</span>
-              </div>
-            )}
-
-            {success && (
-              <div className='alert alert-success alert-soft mb-1 shadow-sm'>
-                <HiCheckCircle className='size-5 shrink-0 stroke-current' />
-                <span className='text-sm font-medium'>{success}</span>
-              </div>
-            )}
-          </div>
-        )}
+        <FormAlerts
+          error={error}
+          success={success}
+          validationErrors={validationErrors}
+          variant='compact'
+          className='w-full mb-4'
+        />
 
         <legend className='fieldset-legend'>
           {isEditing ? 'Modifier la liste' : 'Détails de la liste'}
@@ -625,17 +611,6 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
                     <FaTimes className='w-3 h-3' />
                   </button>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {validationErrors.length > 0 && (
-          <div className='alert alert-warning alert-soft mt-4 shadow-sm'>
-            <HiExclamation className='size-5 shrink-0 stroke-current' />
-            <div className='text-sm font-medium'>
-              {validationErrors.map((validationError, index) => (
-                <div key={index}>{validationError}</div>
               ))}
             </div>
           </div>

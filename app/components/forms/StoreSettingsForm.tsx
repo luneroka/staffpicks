@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaPencilAlt, FaSave, FaTimes, FaStore } from 'react-icons/fa';
-import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { FaPencilAlt, FaSave, FaTimes } from 'react-icons/fa';
 import { toast } from 'sonner';
 import { useFormState } from '@/app/lib/hooks';
+import FormAlerts from './FormAlerts';
 
 interface StoreData {
   _id?: string;
@@ -225,21 +225,8 @@ const StoreSettingsForm = ({
 
   return (
     <div className='space-y-6'>
-      {/* Success Message */}
-      {success && (
-        <div className='alert alert-success'>
-          <HiCheckCircle className='text-xl' />
-          <span>{success}</span>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className='alert alert-error'>
-          <HiExclamationCircle className='text-xl' />
-          <span>{error}</span>
-        </div>
-      )}
+      {/* Success and Error Messages */}
+      <FormAlerts error={error} success={success} />
 
       <form onSubmit={handleSubmit}>
         {/* Basic Information */}

@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { FaPlus, FaCheck, FaSearch, FaTimes } from 'react-icons/fa';
-import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { useState, useEffect, useRef } from 'react';
+import { FaPlus, FaSearch, FaTimes } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useFormState } from '@/app/lib/hooks';
+import FormAlerts from '../forms/FormAlerts';
 
 interface User {
   _id: string;
@@ -188,21 +188,8 @@ const AssignUserToStore = ({
 
   return (
     <div className='relative' ref={dropdownRef}>
-      {/* Success Message */}
-      {success && (
-        <div className='alert alert-success mb-4'>
-          <HiCheckCircle className='text-xl' />
-          <span>{success}</span>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className='alert alert-error mb-4'>
-          <HiExclamationCircle className='text-xl' />
-          <span>{error}</span>
-        </div>
-      )}
+      {/* Success and Error Messages */}
+      <FormAlerts error={error} success={success} alertClassName='mb-4' />
 
       {/* Toggle Button */}
       <button
