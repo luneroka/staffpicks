@@ -75,6 +75,22 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
     avatarUrl: user.avatarUrl,
   };
 
+  // Determine if current user can delete this user
+  const canDeleteUser = () => {
+    if (user._id.toString() === session.userId) return false;
+    // Only Admin and CompanyAdmin can permanently delete
+    if (session.role !== 'admin' && session.role !== 'companyAdmin') {
+      return false;
+    }
+    // Admin can delete anyone
+    if (session.role === 'admin') return true;
+    // CompanyAdmin cannot delete Admin or CompanyAdmin
+    if (session.role === 'companyAdmin') {
+      return user.role === 'storeAdmin' || user.role === 'librarian';
+    }
+    return false;
+  };
+
   return (
     <div className='space-y-6'>
       <BackButton />
@@ -94,16 +110,18 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                 userName={`${userData.firstName} ${userData.lastName}`}
               />
             </div>
-            <div>
-              <h4 className='font-semibold mb-3'>Suppression du compte</h4>
-              <DeleteUserButton
-                userId={id}
-                userName={`${userData.firstName} ${userData.lastName}`}
-                userRole={userData.role}
-                currentUserRole={session.role}
-                currentUserId={session.userId}
-              />
-            </div>
+            {canDeleteUser() && (
+              <div>
+                <h4 className='font-semibold mb-3'>Suppression du compte</h4>
+                <DeleteUserButton
+                  userId={id}
+                  userName={`${userData.firstName} ${userData.lastName}`}
+                  userRole={userData.role}
+                  currentUserRole={session.role}
+                  currentUserId={session.userId}
+                />
+              </div>
+            )}
           </>
         }
       />
