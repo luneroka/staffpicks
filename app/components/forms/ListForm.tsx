@@ -346,7 +346,25 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to update list');
+          // Handle specific error cases with user-friendly messages
+          let errorMessage = data.error || 'Failed to update list';
+
+          // Permission denied errors
+          if (response.status === 403) {
+            // Use the specific error message from the API
+            // (e.g., "You can only reassign lists that you created yourself")
+            errorMessage =
+              data.error ||
+              "Vous n'avez pas la permission de modifier cette liste.";
+          } else if (response.status === 404) {
+            errorMessage =
+              "Cette liste n'existe pas ou vous n'avez pas la permission de la modifier.";
+          } else if (response.status === 400) {
+            // Keep the specific validation error from the API
+            errorMessage = data.error || 'Erreur de validation';
+          }
+
+          throw new Error(errorMessage);
         }
 
         // Show success toast
@@ -366,7 +384,17 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to create list');
+          // Handle specific error cases with user-friendly messages
+          let errorMessage = data.error || 'Failed to create list';
+
+          if (response.status === 403) {
+            errorMessage = "Vous n'avez pas la permission de créer une liste.";
+          } else if (response.status === 400) {
+            // Keep the specific validation error from the API
+            errorMessage = data.error || 'Erreur de validation';
+          }
+
+          throw new Error(errorMessage);
         }
 
         // Show success toast
@@ -378,14 +406,14 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
       }
     } catch (error) {
       console.error('Error saving list:', error);
-      const isEditing = !!id;
-      setError(
+
+      // Show toast notification for better visibility
+      toast.error(
         error instanceof Error
           ? error.message
-          : isEditing
-          ? 'Erreur lors de la modification de la liste'
-          : "Erreur lors de l'ajout de la liste"
+          : 'Une erreur inattendue est survenue'
       );
+
       setIsLoading(false);
     }
   };

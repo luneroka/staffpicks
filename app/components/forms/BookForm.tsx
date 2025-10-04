@@ -345,7 +345,25 @@ const BookForm = ({
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to update book');
+          // Handle specific error cases with user-friendly messages
+          let errorMessage = data.error || 'Failed to update book';
+
+          // Permission denied errors
+          if (response.status === 403) {
+            // Use the specific error message from the API
+            // (e.g., "You can only reassign books that you created yourself")
+            errorMessage =
+              data.error ||
+              "Vous n'avez pas la permission de modifier ce livre.";
+          } else if (response.status === 404) {
+            errorMessage =
+              "Ce livre n'existe pas ou vous n'avez pas la permission de le modifier.";
+          } else if (response.status === 400) {
+            // Keep the specific validation error from the API
+            errorMessage = data.error || 'Erreur de validation';
+          }
+
+          throw new Error(errorMessage);
         }
 
         // Show success toast
@@ -365,7 +383,20 @@ const BookForm = ({
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to create book');
+          // Handle specific error cases with user-friendly messages
+          let errorMessage = data.error || 'Failed to create book';
+
+          if (response.status === 403) {
+            errorMessage = "Vous n'avez pas la permission de créer un livre.";
+          } else if (response.status === 409) {
+            errorMessage =
+              'Vous avez déjà ajouté un livre avec ce numéro ISBN dans votre bibliothèque.';
+          } else if (response.status === 400) {
+            // Keep the specific validation error from the API
+            errorMessage = data.error || 'Erreur de validation';
+          }
+
+          throw new Error(errorMessage);
         }
 
         // Show success toast
@@ -377,14 +408,14 @@ const BookForm = ({
       }
     } catch (error) {
       console.error('Error saving book:', error);
-      const isEditing = !!bookId;
-      setError(
+
+      // Show toast notification for better visibility
+      toast.error(
         error instanceof Error
           ? error.message
-          : isEditing
-          ? 'Erreur lors de la modification du livre'
-          : "Erreur lors de l'ajout du livre"
+          : 'Une erreur inattendue est survenue'
       );
+
       setIsLoading(false);
     }
   };

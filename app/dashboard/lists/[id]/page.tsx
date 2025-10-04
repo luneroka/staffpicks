@@ -1,6 +1,9 @@
 import ListDetails from '@/app/components/lists/ListDetails';
 import { requireAuth } from '@/app/lib/auth/helpers';
-import { buildRoleBasedQuery } from '@/app/lib/auth/queryBuilders';
+import {
+  buildRoleBasedQuery,
+  getDeletedUserIds,
+} from '@/app/lib/auth/queryBuilders';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
 import { Types } from 'mongoose';
@@ -28,17 +31,21 @@ const ListPage = async ({ params }: ListPageProps) => {
   // Connect to database
   await connectDB();
 
-  // Build query based on user role
-  const query = buildRoleBasedQuery(session, {
+  // Build query based on user role (automatically excludes deleted users' content)
+  const query = await buildRoleBasedQuery(session, {
     _id: new Types.ObjectId(id),
     deletedAt: { $exists: false },
   });
+
+  // Get deleted user IDs to filter books in populate
+  const deletedUserIds = await getDeletedUserIds(session.companyId!);
 
   // Fetch the list with role-based filtering
   const list = await ListModel.findOne(query)
     .populate({
       path: 'items.bookId',
-      select: 'isbn bookData genre tone ageGroup',
+      select: 'isbn bookData genre tone ageGroup createdBy',
+      match: { createdBy: { $nin: deletedUserIds } }, // Exclude books from deleted users
     })
     .populate('ownerUserId', 'firstName lastName email')
     .populate('createdBy', 'firstName lastName email')

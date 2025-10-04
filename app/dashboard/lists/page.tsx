@@ -13,8 +13,10 @@ const Lists = async () => {
   // Connect to database and fetch lists with role-based filtering
   await connectDB();
 
-  // Build query based on user role
-  const query = buildRoleBasedQuery(session, { deletedAt: { $exists: false } });
+  // Build query based on user role (automatically excludes deleted users' content)
+  const query = await buildRoleBasedQuery(session, {
+    deletedAt: { $exists: false },
+  });
 
   const lists = await ListModel.find(query)
     .populate('createdBy', 'firstName lastName email')

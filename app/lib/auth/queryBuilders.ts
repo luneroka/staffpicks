@@ -14,7 +14,7 @@ import { UserModel } from '../models/User';
  * Role-based filtering rules:
  * - CompanyAdmin: Sees all items in the company (no additional filters)
  * - StoreAdmin: Sees only items from their store
- * - Librarian: Sees only items they created or are assigned to
+ * - Librarian: Sees only items they are currently assigned to
  *
  * Content visibility rules:
  * - Books/lists from deleted users (deletedAt exists) are hidden
@@ -22,6 +22,7 @@ import { UserModel } from '../models/User';
  *
  * @param session - User session with role information
  * @param baseQuery - Optional base query to extend (e.g., { genre: 'fiction' })
+ * @param excludeDeletedContent - Whether to exclude content from deleted users (default: true)
  * @returns MongoDB query object with role-based filters
  *
  * @example
@@ -32,10 +33,11 @@ import { UserModel } from '../models/User';
  * // With base query filters
  * const query = buildRoleBasedQuery(session, { genre: 'fiction' });
  */
-export function buildRoleBasedQuery(
+export async function buildRoleBasedQuery(
   session: SessionData,
-  baseQuery: Record<string, any> = {}
-): Record<string, any> {
+  baseQuery: Record<string, any> = {},
+  excludeDeletedContent: boolean = true
+): Promise<Record<string, any>> {
   const query: any = {
     ...baseQuery,
     companyId: new Types.ObjectId(session.companyId!),
@@ -48,11 +50,16 @@ export function buildRoleBasedQuery(
     // StoreAdmin sees only items from their store
     query.storeId = new Types.ObjectId(session.storeId!);
   } else if (isLibrarian(session)) {
-    // Librarian sees only items they created or are assigned to
-    query.$or = [
-      { createdBy: new Types.ObjectId(session.userId!) },
-      { assignedTo: new Types.ObjectId(session.userId!) },
-    ];
+    // Librarian sees only items they are currently assigned to
+    query.assignedTo = new Types.ObjectId(session.userId!);
+  }
+
+  // Exclude content from deleted users by default
+  if (excludeDeletedContent) {
+    const deletedUserIds = await getDeletedUserIds(session.companyId!);
+    if (deletedUserIds.length > 0) {
+      query.createdBy = { $nin: deletedUserIds };
+    }
   }
 
   return query;

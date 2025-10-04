@@ -4,7 +4,10 @@ import {
   isCompanyAdmin,
   isLibrarian,
 } from '@/app/lib/auth/helpers';
-import { buildRoleBasedQuery } from '@/app/lib/auth/queryBuilders';
+import {
+  buildRoleBasedQuery,
+  getDeletedUserIds,
+} from '@/app/lib/auth/queryBuilders';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel, ListVisibility } from '@/app/lib/models/List';
 import { BookModel } from '@/app/lib/models/Book';
@@ -266,8 +269,8 @@ export async function GET(request: NextRequest) {
     // 3. Connect to database
     await connectDB();
 
-    // 4. Build query based on user role
-    const query = buildRoleBasedQuery(session, {
+    // 4. Build query based on user role (automatically excludes deleted users' content)
+    const query = await buildRoleBasedQuery(session, {
       deletedAt: { $exists: false },
     });
 
@@ -279,6 +282,9 @@ export async function GET(request: NextRequest) {
       query.ownerUserId = new Types.ObjectId(ownerUserId);
     }
 
+    // Get deleted user IDs to filter books in populate
+    const deletedUserIds = await getDeletedUserIds(session.companyId!);
+
     // 5. Fetch lists with pagination
     const [lists, total] = await Promise.all([
       ListModel.find(query)
@@ -287,7 +293,8 @@ export async function GET(request: NextRequest) {
         .limit(limit)
         .populate({
           path: 'items.bookId',
-          select: 'isbn bookData genre tone ageGroup',
+          select: 'isbn bookData genre tone ageGroup createdBy',
+          match: { createdBy: { $nin: deletedUserIds } }, // Exclude books from deleted users
         })
         .populate('ownerUserId', 'name email')
         .populate('storeId', 'name code')
@@ -305,19 +312,21 @@ export async function GET(request: NextRequest) {
       visibility: list.visibility,
       publishAt: list.publishAt,
       unpublishAt: list.unpublishAt,
-      itemCount: list.items.length,
-      items: list.items.map((item: any) => ({
-        bookId: item.bookId._id.toString(),
-        isbn: item.bookId.isbn,
-        title: item.bookId.bookData.title,
-        authors: item.bookId.bookData.authors,
-        cover: item.bookId.bookData.cover,
-        genre: item.bookId.genre,
-        tone: item.bookId.tone,
-        ageGroup: item.bookId.ageGroup,
-        position: item.position,
-        addedAt: item.addedAt,
-      })),
+      itemCount: list.items.filter((item: any) => item.bookId !== null).length, // Count only visible books
+      items: list.items
+        .filter((item: any) => item.bookId !== null) // Filter out books from deleted users
+        .map((item: any) => ({
+          bookId: item.bookId._id.toString(),
+          isbn: item.bookId.isbn,
+          title: item.bookId.bookData.title,
+          authors: item.bookId.bookData.authors,
+          cover: item.bookId.bookData.cover,
+          genre: item.bookId.genre,
+          tone: item.bookId.tone,
+          ageGroup: item.bookId.ageGroup,
+          position: item.position,
+          addedAt: item.addedAt,
+        })),
       owner: list.ownerUserId,
       storeId: list.storeId,
       assignedTo: list.assignedTo || [],

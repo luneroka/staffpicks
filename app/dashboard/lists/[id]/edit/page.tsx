@@ -1,5 +1,9 @@
 import ListForm from '@/app/components/forms/ListForm';
 import { requireAuth } from '@/app/lib/auth/helpers';
+import {
+  buildRoleBasedQuery,
+  getDeletedUserIds,
+} from '@/app/lib/auth/queryBuilders';
 import connectDB from '@/app/lib/mongodb';
 import { ListModel } from '@/app/lib/models/List';
 import { Types } from 'mongoose';
@@ -26,15 +30,21 @@ const EditListPage = async ({ params }: EditListPageProps) => {
   // Connect to database
   await connectDB();
 
-  // Fetch the list by ID and company
-  const list = await ListModel.findOne({
+  // Build query based on user role (automatically excludes deleted users' lists)
+  const query = await buildRoleBasedQuery(session, {
     _id: new Types.ObjectId(id),
-    companyId: new Types.ObjectId(session.companyId!),
     deletedAt: { $exists: false },
-  })
+  });
+
+  // Get deleted user IDs to filter books in populate
+  const deletedUserIds = await getDeletedUserIds(session.companyId!);
+
+  // Fetch the list with role-based filtering
+  const list = await ListModel.findOne(query)
     .populate({
       path: 'items.bookId',
-      select: 'isbn bookData genre tone ageGroup',
+      select: 'isbn bookData genre tone ageGroup createdBy',
+      match: { createdBy: { $nin: deletedUserIds } }, // Exclude books from deleted users
     })
     .lean();
 
@@ -54,17 +64,19 @@ const EditListPage = async ({ params }: EditListPageProps) => {
     publishAt: list.publishAt
       ? new Date(list.publishAt).toISOString().split('T')[0]
       : '',
-    items: list.items.map((item: any) => ({
-      bookId: item.bookId._id.toString(),
-      isbn: item.bookId.isbn,
-      title: item.bookId.bookData.title,
-      authors: item.bookId.bookData.authors,
-      cover: item.bookId.bookData.cover,
-      genre: item.bookId.genre,
-      tone: item.bookId.tone,
-      ageGroup: item.bookId.ageGroup,
-      position: item.position,
-    })),
+    items: list.items
+      .filter((item: any) => item.bookId !== null) // Filter out books that couldn't be populated (not visible to user)
+      .map((item: any) => ({
+        bookId: item.bookId._id.toString(),
+        isbn: item.bookId.isbn,
+        title: item.bookId.bookData.title,
+        authors: item.bookId.bookData.authors,
+        cover: item.bookId.bookData.cover,
+        genre: item.bookId.genre,
+        tone: item.bookId.tone,
+        ageGroup: item.bookId.ageGroup,
+        position: item.position,
+      })),
     // Include assignment fields
     assignedTo: list.assignedTo?.map((id: any) => id.toString()) || [],
     sections: list.sections || [],

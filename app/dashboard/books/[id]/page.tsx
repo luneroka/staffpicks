@@ -28,8 +28,8 @@ const BookPage = async ({ params }: BookPageProps) => {
   // Connect to database
   await connectDB();
 
-  // Build query based on user role
-  const query = buildRoleBasedQuery(session, {
+  // Build query based on user role (automatically excludes deleted users' content)
+  const query = await buildRoleBasedQuery(session, {
     _id: new Types.ObjectId(id),
   });
 

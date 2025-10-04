@@ -3,7 +3,10 @@ import List from '../components/lists/List';
 import Book from '../components/books/Book';
 import Link from 'next/link';
 import { isCompanyAdmin, requireAuth } from '../lib/auth/helpers';
-import { buildRoleBasedQuery } from '../lib/auth/queryBuilders';
+import {
+  buildRoleBasedQuery,
+  getDeletedUserIds,
+} from '../lib/auth/queryBuilders';
 import connectDB from '../lib/mongodb';
 import { BookModel } from '../lib/models/Book';
 import { ListModel, ListVisibility } from '../lib/models/List';
@@ -25,10 +28,20 @@ const Dashboard = async () => {
     // Fetch statistics for the company
     const companyId = new Types.ObjectId(session.companyId!);
 
+    // Get deleted user IDs to filter their content
+    const deletedUserIds = await getDeletedUserIds(session.companyId!);
+
     const [totalBooks, totalLists, totalStores, totalUsers] = await Promise.all(
       [
-        BookModel.countDocuments({ companyId }),
-        ListModel.countDocuments({ companyId, deletedAt: { $exists: false } }),
+        BookModel.countDocuments({
+          companyId,
+          createdBy: { $nin: deletedUserIds },
+        }),
+        ListModel.countDocuments({
+          companyId,
+          deletedAt: { $exists: false },
+          createdBy: { $nin: deletedUserIds },
+        }),
         StoreModel.countDocuments({ companyId }),
         UserModel.countDocuments({ companyId, deletedAt: { $exists: false } }),
       ]
@@ -38,12 +51,14 @@ const Dashboard = async () => {
       companyId,
       visibility: ListVisibility.Public,
       deletedAt: { $exists: false },
+      createdBy: { $nin: deletedUserIds },
     });
 
     const draftLists = await ListModel.countDocuments({
       companyId,
       visibility: ListVisibility.Draft,
       deletedAt: { $exists: false },
+      createdBy: { $nin: deletedUserIds },
     });
 
     return (
@@ -182,7 +197,7 @@ const Dashboard = async () => {
   /**
    * Build query based on user role for books
    **/
-  const booksQuery = buildRoleBasedQuery(session);
+  const booksQuery = await buildRoleBasedQuery(session);
 
   // Fetch books with role-based filtering
   const books = await BookModel.find(booksQuery)
@@ -199,7 +214,7 @@ const Dashboard = async () => {
   /**
    * Build query based on user role for lists
    **/
-  const listsQuery = buildRoleBasedQuery(session, {
+  const listsQuery = await buildRoleBasedQuery(session, {
     visibility: 'public',
     deletedAt: { $exists: false },
   });

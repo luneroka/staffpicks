@@ -66,7 +66,7 @@ export async function DELETE(
     };
 
     if (isStoreAdmin(session)) {
-      // StoreAdmin can only delete books from their store
+      // StoreAdmin can only delete books from their store AND that they created
       if (!session.storeId) {
         return NextResponse.json(
           { error: 'StoreAdmin must be assigned to a store' },
@@ -74,13 +74,10 @@ export async function DELETE(
         );
       }
       deleteQuery.storeId = new Types.ObjectId(session.storeId);
+      deleteQuery.createdBy = new Types.ObjectId(session.userId); // StoreAdmin can only delete books they created
     } else if (isLibrarian(session)) {
-      // Librarian can only delete books they created or are assigned to
-      deleteQuery.$or = [
-        { ownerUserId: new Types.ObjectId(session.userId) },
-        { createdBy: new Types.ObjectId(session.userId) },
-        { assignedTo: new Types.ObjectId(session.userId) },
-      ];
+      // Librarian can only delete books they are currently assigned to
+      deleteQuery.assignedTo = new Types.ObjectId(session.userId);
     }
 
     // 6. Find and delete the book
@@ -88,10 +85,19 @@ export async function DELETE(
 
     // 7. Check if book was found and deleted
     if (!deletedBook) {
-      return NextResponse.json(
-        { error: 'Book not found or you do not have permission to delete it' },
-        { status: 404 }
-      );
+      // Provide more specific error message based on user role
+      let errorMessage =
+        'Book not found or you do not have permission to delete it';
+
+      if (isStoreAdmin(session)) {
+        errorMessage =
+          'Book not found or you can only delete books you created yourself';
+      } else if (isLibrarian(session)) {
+        errorMessage =
+          'Book not found or you can only delete books currently assigned to you';
+      }
+
+      return NextResponse.json({ error: errorMessage }, { status: 404 });
     }
 
     // 8. Return success response
@@ -172,18 +178,14 @@ export async function GET(
       }
       query.storeId = new Types.ObjectId(session.storeId);
     } else if (isLibrarian(session)) {
-      // Librarian can only see books they created or are assigned to
+      // Librarian can only see books they are currently assigned to
       if (!session.userId) {
         return NextResponse.json(
           { error: 'User ID not found in session' },
           { status: 403 }
         );
       }
-      query.$or = [
-        { ownerUserId: new Types.ObjectId(session.userId) },
-        { createdBy: new Types.ObjectId(session.userId) },
-        { assignedTo: new Types.ObjectId(session.userId) },
-      ];
+      query.assignedTo = new Types.ObjectId(session.userId);
     }
 
     // Exclude content from deleted users (keep content from inactive/suspended users visible)
@@ -346,31 +348,45 @@ export async function PUT(
     // 6. Connect to database
     await connectDB();
 
-    // 7. Build query based on role
-    const updateQuery: any = {
+    // 7. Build query to find the book (StoreAdmin can edit any book in their store)
+    const findQuery: any = {
       _id: new Types.ObjectId(id),
       companyId: new Types.ObjectId(session.companyId),
     };
 
     if (isStoreAdmin(session)) {
-      // StoreAdmin can only edit books from their store
+      // StoreAdmin can edit any book from their store
       if (!session.storeId) {
         return NextResponse.json(
           { error: 'StoreAdmin must be assigned to a store' },
           { status: 403 }
         );
       }
-      updateQuery.storeId = new Types.ObjectId(session.storeId);
+      findQuery.storeId = new Types.ObjectId(session.storeId);
     } else if (isLibrarian(session)) {
-      // Librarian can only edit books they created or are assigned to
-      updateQuery.$or = [
-        { ownerUserId: new Types.ObjectId(session.userId) },
-        { createdBy: new Types.ObjectId(session.userId) },
-        { assignedTo: new Types.ObjectId(session.userId) },
-      ];
+      // Librarian can only edit books they are currently assigned to
+      findQuery.assignedTo = new Types.ObjectId(session.userId);
     }
 
-    // 8. Find and update the book
+    // 7.1 First, find the book to check ownership
+    const existingBook = await BookModel.findOne(findQuery);
+
+    if (!existingBook) {
+      // Provide more specific error message based on user role
+      let errorMessage =
+        'Book not found or you do not have permission to update it';
+
+      if (isStoreAdmin(session)) {
+        errorMessage = 'Book not found in your store';
+      } else if (isLibrarian(session)) {
+        errorMessage =
+          'Book not found or you can only edit books currently assigned to you';
+      }
+
+      return NextResponse.json({ error: errorMessage }, { status: 404 });
+    }
+
+    // 8. Build update data
     const updateData: any = {
       bookData: {
         title: title.trim(),
@@ -389,15 +405,53 @@ export async function PUT(
       updatedBy: new Types.ObjectId(session.userId),
     };
 
-    // Only StoreAdmin can update assignedTo and sections
+    // Handle assignedTo and sections based on role and ownership
     if (isStoreAdmin(session)) {
-      if (assignedTo !== undefined) {
-        updateData.assignedTo = assignedTo.map(
-          (id: string) => new Types.ObjectId(id)
-        );
-      }
-      if (sections !== undefined) {
-        updateData.sections = sections;
+      // Check if StoreAdmin created this book
+      const isCreator = existingBook.createdBy.toString() === session.userId;
+
+      if (isCreator) {
+        // Creator can update assignedTo and sections
+        if (assignedTo !== undefined) {
+          updateData.assignedTo = assignedTo.map(
+            (id: string) => new Types.ObjectId(id)
+          );
+        }
+        if (sections !== undefined) {
+          updateData.sections = sections;
+        }
+      } else {
+        // Non-creator cannot update assignedTo
+        // Check if they're actually trying to CHANGE the assignedTo field
+        if (assignedTo !== undefined) {
+          // Compare the new assignedTo with the existing one
+          const existingAssignedTo = existingBook.assignedTo
+            .map((id: any) => id.toString())
+            .sort();
+          const newAssignedTo = assignedTo.slice().sort();
+
+          // Check if the arrays are different
+          const isChanged =
+            existingAssignedTo.length !== newAssignedTo.length ||
+            existingAssignedTo.some(
+              (id: string, index: number) => id !== newAssignedTo[index]
+            );
+
+          if (isChanged) {
+            return NextResponse.json(
+              {
+                error:
+                  'Vous ne pouvez réassigner que les livres que vous avez créés vous-même. Les autres détails du livre peuvent être modifiés.',
+              },
+              { status: 403 }
+            );
+          }
+          // If not changed, don't include it in the update (keep existing value)
+        }
+        // Sections can be updated by any StoreAdmin
+        if (sections !== undefined) {
+          updateData.sections = sections;
+        }
       }
     } else if (isLibrarian(session)) {
       // Librarian: ensure they remain in assignedTo when editing
@@ -419,19 +473,12 @@ export async function PUT(
       }
     }
 
+    // 9. Update the book
     const updatedBook = await BookModel.findOneAndUpdate(
-      updateQuery,
+      findQuery,
       { $set: updateData },
       { new: true, runValidators: true }
     );
-
-    // 9. Check if book was found and updated
-    if (!updatedBook) {
-      return NextResponse.json(
-        { error: 'Book not found or you do not have permission to update it' },
-        { status: 404 }
-      );
-    }
 
     // 10. Return updated book
     return NextResponse.json(

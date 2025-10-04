@@ -275,18 +275,14 @@ export async function GET(request: NextRequest) {
       }
       query.storeId = new Types.ObjectId(session.storeId);
     } else if (isLibrarian(session)) {
-      // Librarian sees only books they created or are assigned to
+      // Librarian sees only books they are currently assigned to
       if (!session.userId) {
         return NextResponse.json(
           { error: 'User ID not found in session' },
           { status: 403 }
         );
       }
-      query.$or = [
-        { ownerUserId: new Types.ObjectId(session.userId) },
-        { createdBy: new Types.ObjectId(session.userId) },
-        { assignedTo: new Types.ObjectId(session.userId) },
-      ];
+      query.assignedTo = new Types.ObjectId(session.userId);
     }
 
     // Exclude content from deleted users (keep content from inactive/suspended users visible)

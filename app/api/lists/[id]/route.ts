@@ -65,14 +65,12 @@ export async function DELETE(
     };
 
     if (isStoreAdmin(session)) {
-      // StoreAdmin can only delete lists from their store
+      // StoreAdmin can only delete lists from their store AND that they created
       query.storeId = new Types.ObjectId(session.storeId!);
+      query.createdBy = new Types.ObjectId(session.userId); // StoreAdmin can only delete lists they created
     } else if (isLibrarian(session)) {
-      // Librarian can only delete lists they created or are assigned to
-      query.$or = [
-        { createdBy: new Types.ObjectId(session.userId) },
-        { assignedTo: new Types.ObjectId(session.userId) },
-      ];
+      // Librarian can only delete lists they are currently assigned to
+      query.assignedTo = new Types.ObjectId(session.userId);
     }
 
     // 6. Soft delete the list (set deletedAt timestamp)
@@ -89,10 +87,19 @@ export async function DELETE(
 
     // 5. Check if list was found and deleted
     if (!deletedList) {
-      return NextResponse.json(
-        { error: 'List not found or you do not have permission to delete it' },
-        { status: 404 }
-      );
+      // Provide more specific error message based on user role
+      let errorMessage =
+        'List not found or you do not have permission to delete it';
+
+      if (isStoreAdmin(session)) {
+        errorMessage =
+          'List not found or you can only delete lists you created yourself';
+      } else if (isLibrarian(session)) {
+        errorMessage =
+          'List not found or you can only delete lists currently assigned to you';
+      }
+
+      return NextResponse.json({ error: errorMessage }, { status: 404 });
     }
 
     // 6. Return success response
@@ -167,11 +174,8 @@ export async function GET(
       // StoreAdmin can only see lists from their store
       query.storeId = new Types.ObjectId(session.storeId!);
     } else if (isLibrarian(session)) {
-      // Librarian can only see lists they created or are assigned to
-      query.$or = [
-        { createdBy: new Types.ObjectId(session.userId!) },
-        { assignedTo: new Types.ObjectId(session.userId!) },
-      ];
+      // Librarian can only see lists they are currently assigned to
+      query.assignedTo = new Types.ObjectId(session.userId!);
     }
 
     // 5. Find the list
@@ -301,22 +305,37 @@ export async function PUT(
     // 5. Connect to database
     await connectDB();
 
-    // 6. Build role-based query and update fields
-    let query: any = {
+    // 6. Build query to find the list (StoreAdmin can edit any list in their store)
+    let findQuery: any = {
       _id: new Types.ObjectId(id),
       companyId: new Types.ObjectId(session.companyId),
       deletedAt: { $exists: false },
     };
 
     if (isStoreAdmin(session)) {
-      // StoreAdmin can only update lists from their store
-      query.storeId = new Types.ObjectId(session.storeId!);
+      // StoreAdmin can edit any list from their store
+      findQuery.storeId = new Types.ObjectId(session.storeId!);
     } else if (isLibrarian(session)) {
-      // Librarian can only update lists they created or are assigned to
-      query.$or = [
-        { createdBy: new Types.ObjectId(session.userId) },
-        { assignedTo: new Types.ObjectId(session.userId) },
-      ];
+      // Librarian can only update lists they are currently assigned to
+      findQuery.assignedTo = new Types.ObjectId(session.userId);
+    }
+
+    // 6.1 First, find the list to check ownership
+    const existingList = await ListModel.findOne(findQuery);
+
+    if (!existingList) {
+      // Provide more specific error message based on user role
+      let errorMessage =
+        'List not found or you do not have permission to update it';
+
+      if (isStoreAdmin(session)) {
+        errorMessage = 'List not found in your store';
+      } else if (isLibrarian(session)) {
+        errorMessage =
+          'List not found or you can only edit lists currently assigned to you';
+      }
+
+      return NextResponse.json({ error: errorMessage }, { status: 404 });
     }
 
     // Build update object
@@ -331,15 +350,53 @@ export async function PUT(
       updatedBy: new Types.ObjectId(session.userId),
     };
 
-    // Only StoreAdmin can update assignedTo and sections
+    // Handle assignedTo and sections based on role and ownership
     if (isStoreAdmin(session)) {
-      if (assignedTo !== undefined) {
-        updateFields.assignedTo = assignedTo.map(
-          (id: string) => new Types.ObjectId(id)
-        );
-      }
-      if (sections !== undefined) {
-        updateFields.sections = sections;
+      // Check if StoreAdmin created this list
+      const isCreator = existingList.createdBy.toString() === session.userId;
+
+      if (isCreator) {
+        // Creator can update assignedTo and sections
+        if (assignedTo !== undefined) {
+          updateFields.assignedTo = assignedTo.map(
+            (id: string) => new Types.ObjectId(id)
+          );
+        }
+        if (sections !== undefined) {
+          updateFields.sections = sections;
+        }
+      } else {
+        // Non-creator cannot update assignedTo
+        // Check if they're actually trying to CHANGE the assignedTo field
+        if (assignedTo !== undefined) {
+          // Compare the new assignedTo with the existing one
+          const existingAssignedTo = existingList.assignedTo
+            .map((id: any) => id.toString())
+            .sort();
+          const newAssignedTo = assignedTo.slice().sort();
+
+          // Check if the arrays are different
+          const isChanged =
+            existingAssignedTo.length !== newAssignedTo.length ||
+            existingAssignedTo.some(
+              (id: string, index: number) => id !== newAssignedTo[index]
+            );
+
+          if (isChanged) {
+            return NextResponse.json(
+              {
+                error:
+                  'Vous ne pouvez réassigner que les listes que vous avez créées vous-même. Les autres détails de la liste peuvent être modifiés.',
+              },
+              { status: 403 }
+            );
+          }
+          // If not changed, don't include it in the update (keep existing value)
+        }
+        // Sections can be updated by any StoreAdmin
+        if (sections !== undefined) {
+          updateFields.sections = sections;
+        }
       }
     } else if (isLibrarian(session)) {
       // Librarian: ensure they remain in assignedTo when editing
@@ -363,7 +420,7 @@ export async function PUT(
 
     // 7. Find and update the list
     const updatedList = await ListModel.findOneAndUpdate(
-      query,
+      findQuery,
       { $set: updateFields },
       { new: true, runValidators: true }
     )
@@ -374,14 +431,6 @@ export async function PUT(
       .populate('ownerUserId', 'name email')
       .populate('storeId', 'name code')
       .lean();
-
-    // 7. Check if list was found and updated
-    if (!updatedList) {
-      return NextResponse.json(
-        { error: 'List not found or you do not have permission to update it' },
-        { status: 404 }
-      );
-    }
 
     // 8. Return updated list
     return NextResponse.json(

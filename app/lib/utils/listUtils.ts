@@ -22,33 +22,37 @@ export function transformListForClient(list: any) {
     publishAt: list.publishAt,
     unpublishAt: list.unpublishAt,
     // Items - handles both populated (with bookData) and unpopulated (just ID)
-    items: (list.items || []).map((item: any) => {
-      const bookId =
-        item.bookId?._id?.toString() || item.bookId?.toString() || item.bookId;
+    items: (list.items || [])
+      .filter((item: any) => item.bookId !== null) // Filter out books that couldn't be populated
+      .map((item: any) => {
+        const bookId =
+          item.bookId?._id?.toString() ||
+          item.bookId?.toString() ||
+          item.bookId;
 
-      // If items are populated with book data, include all book fields
-      if (item.bookId?.bookData) {
+        // If items are populated with book data, include all book fields
+        if (item.bookId?.bookData) {
+          return {
+            bookId,
+            isbn: item.bookId.isbn,
+            title: item.bookId.bookData.title,
+            authors: item.bookId.bookData.authors,
+            cover: item.bookId.bookData.cover,
+            genre: item.bookId.genre,
+            tone: item.bookId.tone,
+            ageGroup: item.bookId.ageGroup,
+            position: item.position,
+            addedAt: item.addedAt,
+          };
+        }
+
+        // Otherwise just return minimal item data
         return {
           bookId,
-          isbn: item.bookId.isbn,
-          title: item.bookId.bookData.title,
-          authors: item.bookId.bookData.authors,
-          cover: item.bookId.bookData.cover,
-          genre: item.bookId.genre,
-          tone: item.bookId.tone,
-          ageGroup: item.bookId.ageGroup,
           position: item.position,
           addedAt: item.addedAt,
         };
-      }
-
-      // Otherwise just return minimal item data
-      return {
-        bookId,
-        position: item.position,
-        addedAt: item.addedAt,
-      };
-    }),
+      }),
     // Assignment and sections
     assignedTo: (list.assignedTo || []).map((id: any) =>
       typeof id === 'string' ? id : id.toString()
