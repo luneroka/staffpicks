@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import {
+  FaCheckCircle,
+  FaPauseCircle,
+  FaBan,
+  FaPlayCircle,
+} from 'react-icons/fa';
 
 interface UserStatusToggleProps {
   userId: string;
@@ -28,25 +34,25 @@ const UserStatusToggle = ({
         return {
           label: 'Actif',
           badgeClass: 'badge-success',
-          icon: '✓',
+          icon: <FaCheckCircle className='text-sm' />,
         };
       case 'inactive':
         return {
           label: 'Inactif',
           badgeClass: 'badge-warning',
-          icon: '⏸',
+          icon: <FaPauseCircle className='text-sm' />,
         };
       case 'suspended':
         return {
           label: 'Suspendu',
           badgeClass: 'badge-error',
-          icon: '⛔',
+          icon: <FaBan className='text-sm' />,
         };
       default:
         return {
           label: 'Inconnu',
           badgeClass: 'badge-ghost',
-          icon: '?',
+          icon: <FaBan className='text-sm' />,
         };
     }
   };
@@ -147,7 +153,7 @@ const UserStatusToggle = ({
               onClick={() => handleActionClick('activate')}
               disabled={isChanging}
             >
-              ✓ Activer
+              <FaPlayCircle /> Activer
             </button>
           )}
           {currentStatus !== 'inactive' && (
@@ -157,7 +163,7 @@ const UserStatusToggle = ({
               onClick={() => handleActionClick('deactivate')}
               disabled={isChanging}
             >
-              ⏸ Désactiver
+              <FaPauseCircle /> Désactiver
             </button>
           )}
           {currentStatus !== 'suspended' && (
@@ -167,7 +173,7 @@ const UserStatusToggle = ({
               onClick={() => handleActionClick('suspend')}
               disabled={isChanging}
             >
-              ⛔ Suspendre
+              <FaBan /> Suspendre
             </button>
           )}
         </div>

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
-import { FaUserSlash, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
+import { FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 import { HiExclamationCircle } from 'react-icons/hi';
 import { toast } from 'sonner';
 
@@ -15,8 +15,6 @@ interface DeleteUserButtonProps {
   currentUserId?: string;
 }
 
-type ActionType = 'deactivate' | 'delete';
-
 const DeleteUserButton = ({
   userId,
   userName,
@@ -26,23 +24,8 @@ const DeleteUserButton = ({
 }: DeleteUserButtonProps) => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
-  const [actionType, setActionType] = useState<ActionType>('deactivate');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
-
-  // Determine if current user can deactivate this user
-  const canDeactivate = () => {
-    if (userId === currentUserId) return false;
-    if (currentUserRole === 'librarian') return false;
-    if (currentUserRole === 'admin') return true;
-    if (currentUserRole === 'companyAdmin') {
-      return userRole === 'storeAdmin' || userRole === 'librarian';
-    }
-    if (currentUserRole === 'storeAdmin') {
-      return userRole === 'librarian';
-    }
-    return false;
-  };
 
   // Determine if current user can permanently delete this user
   const canDelete = () => {
@@ -60,46 +43,33 @@ const DeleteUserButton = ({
     return false;
   };
 
-  const handleAction = async () => {
+  const handleDelete = async () => {
     try {
       setIsProcessing(true);
       setError('');
 
-      let response;
-      if (actionType === 'deactivate') {
-        response = await fetch(`/api/users/${userId}`, {
-          method: 'DELETE',
-        });
-      } else {
-        response = await fetch(`/api/users/${userId}/delete`, {
-          method: 'POST',
-        });
-      }
+      const response = await fetch(`/api/users/${userId}/delete`, {
+        method: 'POST',
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de l'opération");
+        throw new Error(data.error || 'Erreur lors de la suppression');
       }
 
-      // Show success message
-      const successMessage =
-        actionType === 'deactivate'
-          ? `Utilisateur "${userName}" désactivé avec succès`
-          : `Utilisateur "${userName}" supprimé avec succès`;
-
-      toast.success(successMessage);
+      toast.success(`Utilisateur "${userName}" supprimé avec succès`);
 
       // Wait a moment for user to see the success state
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Redirect to users list after successful action
+      // Redirect to users list after successful deletion
       router.push('/dashboard/settings/users');
       router.refresh();
     } catch (err) {
-      console.error('Error processing user action:', err);
+      console.error('Error deleting user:', err);
       setError(
-        err instanceof Error ? err.message : "Erreur lors de l'opération"
+        err instanceof Error ? err.message : 'Erreur lors de la suppression'
       );
       setIsProcessing(false);
     }
@@ -120,42 +90,22 @@ const DeleteUserButton = ({
     }
   };
 
-  const openModal = (type: ActionType) => {
-    setActionType(type);
-    setShowModal(true);
-    setError('');
-  };
-
-  // Don't show any buttons if user cannot do anything
-  if (!canDeactivate() && !canDelete()) {
+  // Don't show button if user cannot delete
+  if (!canDelete()) {
     return null;
   }
 
   return (
     <>
-      {/* Action Buttons */}
-      <div className='flex gap-2'>
-        {canDeactivate() && (
-          <button
-            type='button'
-            onClick={() => openModal('deactivate')}
-            className='btn btn-warning btn-outline btn-sm'
-            disabled={isProcessing}
-          >
-            <FaUserSlash /> Désactiver
-          </button>
-        )}
-        {canDelete() && (
-          <button
-            type='button'
-            onClick={() => openModal('delete')}
-            className='btn btn-error btn-outline btn-sm'
-            disabled={isProcessing}
-          >
-            <FaTrash /> Supprimer
-          </button>
-        )}
-      </div>
+      {/* Delete Button */}
+      <button
+        type='button'
+        onClick={() => setShowModal(true)}
+        className='btn btn-error btn-outline btn-sm'
+        disabled={isProcessing}
+      >
+        <FaTrash /> Supprimer définitivement
+      </button>
 
       {/* Confirmation Modal - Rendered via Portal outside the form */}
       {showModal &&
@@ -164,57 +114,27 @@ const DeleteUserButton = ({
           <div className='modal modal-open'>
             <div className='modal-box'>
               <div className='flex items-start gap-4 mb-4'>
-                <div
-                  className={`p-3 rounded-full ${
-                    actionType === 'delete' ? 'bg-error/20' : 'bg-warning/20'
-                  }`}
-                >
-                  <FaExclamationTriangle
-                    className={`text-3xl ${
-                      actionType === 'delete' ? 'text-error' : 'text-warning'
-                    }`}
-                  />
+                <div className='p-3 rounded-full bg-error/20'>
+                  <FaExclamationTriangle className='text-3xl text-error' />
                 </div>
                 <div className='flex-1'>
                   <h3 className='font-bold text-lg mb-2'>
-                    {actionType === 'delete'
-                      ? "Supprimer l'utilisateur"
-                      : "Désactiver l'utilisateur"}
+                    Supprimer l&apos;utilisateur
                   </h3>
                   <p className='text-base-content/80'>
-                    {actionType === 'delete' ? (
-                      <>
-                        Êtes-vous sûr de vouloir{' '}
-                        <span className='font-semibold text-error'>
-                          supprimer définitivement
-                        </span>{' '}
-                        <span className='font-semibold'>{userName}</span> (
-                        {getRoleLabel(userRole)}) ?
-                      </>
-                    ) : (
-                      <>
-                        Êtes-vous sûr de vouloir désactiver{' '}
-                        <span className='font-semibold'>{userName}</span> (
-                        {getRoleLabel(userRole)}) ?
-                      </>
-                    )}
+                    Êtes-vous sûr de vouloir{' '}
+                    <span className='font-semibold text-error'>
+                      supprimer définitivement
+                    </span>{' '}
+                    <span className='font-semibold'>{userName}</span> (
+                    {getRoleLabel(userRole)}) ?
                   </p>
                   <p className='text-sm text-base-content/60 mt-2'>
-                    {actionType === 'delete' ? (
-                      <>
-                        Cette action est{' '}
-                        <span className='font-semibold'>définitive</span>.
-                        L&apos;utilisateur sera marqué comme supprimé et ne
-                        pourra plus se connecter. Les données seront conservées
-                        mais l&apos;utilisateur sera invisible dans le système.
-                      </>
-                    ) : (
-                      <>
-                        Le compte sera désactivé et l&apos;utilisateur ne pourra
-                        plus se connecter. Vous pourrez réactiver ce compte
-                        ultérieurement si nécessaire.
-                      </>
-                    )}
+                    Cette action est{' '}
+                    <span className='font-semibold'>définitive</span>.
+                    L&apos;utilisateur sera marqué comme supprimé et ne pourra
+                    plus se connecter. Les données seront conservées mais
+                    l&apos;utilisateur sera invisible dans le système.
                   </p>
                 </div>
               </div>
@@ -241,30 +161,18 @@ const DeleteUserButton = ({
                 </button>
                 <button
                   type='button'
-                  onClick={handleAction}
-                  className={`btn ${
-                    actionType === 'delete' ? 'btn-error' : 'btn-warning'
-                  }`}
+                  onClick={handleDelete}
+                  className='btn btn-error'
                   disabled={isProcessing}
                 >
                   {isProcessing ? (
                     <>
                       <span className='loading loading-spinner loading-sm'></span>
-                      {actionType === 'delete'
-                        ? 'Suppression...'
-                        : 'Désactivation...'}
+                      Suppression...
                     </>
                   ) : (
                     <>
-                      {actionType === 'delete' ? (
-                        <>
-                          <FaTrash /> Confirmer la suppression
-                        </>
-                      ) : (
-                        <>
-                          <FaUserSlash /> Confirmer la désactivation
-                        </>
-                      )}
+                      <FaTrash /> Confirmer la suppression
                     </>
                   )}
                 </button>
