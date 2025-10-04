@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaUser, FaUpload } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
 import { toast } from 'sonner';
+import { useFormState } from '@/app/lib/hooks';
 import Image from 'next/image';
 
 interface UserData {
@@ -39,6 +40,8 @@ const UserSettingsForm = ({
   deleteButtons,
 }: UserSettingsFormProps) => {
   const router = useRouter();
+  const { error, success, setError, setSuccess } = useFormState();
+
   const [userData, setUserData] = useState<UserData>(
     initialData || {
       firstName: '',
@@ -54,8 +57,6 @@ const UserSettingsForm = ({
   const [isEditing, setIsEditing] = useState(mode === 'create');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
   const [stores, setStores] = useState<any[]>([]);
   const [loadingStores, setLoadingStores] = useState(false);
   const [currentStoreName, setCurrentStoreName] = useState<string>('');
@@ -111,14 +112,6 @@ const UserSettingsForm = ({
       fetchStores();
     }
   }, [isEditing, editedData.role, currentUserRole]);
-
-  // Auto-dismiss success message
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(''), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const fetchStores = async () => {
     try {

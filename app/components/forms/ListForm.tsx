@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 import Book from '../books/Book';
 import { ListFormData, ListItem } from '@/app/lib/types';
+import { useFormState } from '@/app/lib/hooks';
 import AssignmentFields from './AssignmentFields';
 
 interface BookSearchResult {
@@ -33,6 +34,16 @@ interface ListFormProps {
 
 const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
   const router = useRouter();
+  const {
+    error,
+    success,
+    isLoading,
+    setError,
+    setSuccess,
+    setIsLoading,
+    clearMessages,
+  } = useFormState();
+
   const [listData, setListData] = useState<ListFormData>({
     title: '',
     slug: '',
@@ -45,10 +56,7 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
     sections: [],
   });
 
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -139,17 +147,6 @@ const ListForm = ({ id, initialData, userRole, storeId }: ListFormProps) => {
       fetchLibrarians();
     }
   }, [userRole, storeId]);
-
-  // Auto-dismiss success message after 3 seconds
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
-        setSuccess('');
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const handleInputChange = (
     e: React.ChangeEvent<

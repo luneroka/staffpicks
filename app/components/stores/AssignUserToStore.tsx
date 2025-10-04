@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaPlus, FaCheck, FaSearch, FaTimes } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
 import { useRouter } from 'next/navigation';
+import { useFormState } from '@/app/lib/hooks';
 
 interface User {
   _id: string;
@@ -24,14 +25,14 @@ const AssignUserToStore = ({
   assignedUserIds,
 }: AssignUserToStoreProps) => {
   const router = useRouter();
+  const { error, success, setError, setSuccess } = useFormState();
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [assigning, setAssigning] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch available users when dropdown opens
@@ -76,16 +77,6 @@ const AssignUserToStore = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-
-  // Auto-dismiss success message
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
-        setSuccess('');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const fetchUsers = async () => {
     try {

@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 import { BookFormData } from '@/app/lib/types';
+import { useFormState } from '@/app/lib/hooks';
 import AssignmentFields from './AssignmentFields';
 
 interface BookEditFormProps {
@@ -27,6 +28,16 @@ const BookForm = ({
   storeId,
 }: BookEditFormProps) => {
   const router = useRouter();
+  const {
+    error,
+    success,
+    isLoading,
+    setError,
+    setSuccess,
+    setIsLoading,
+    clearMessages,
+  } = useFormState();
+
   const [bookData, setBookData] = useState<BookFormData>({
     isbn: '',
     title: '',
@@ -46,10 +57,7 @@ const BookForm = ({
   });
 
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [librarians, setLibrarians] = useState<any[]>([]);
@@ -95,17 +103,6 @@ const BookForm = ({
       fetchLibrarians();
     }
   }, [userRole, storeId]);
-
-  // Auto-dismiss success message after 3 seconds
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => {
-        setSuccess('');
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const handleInputChange = (
     e: React.ChangeEvent<

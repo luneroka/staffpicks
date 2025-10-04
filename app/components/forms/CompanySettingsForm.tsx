@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPencilAlt, FaSave, FaTimes, FaUpload } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { useFormState } from '@/app/lib/hooks';
 import Image from 'next/image';
 
 interface CompanyData {
@@ -27,27 +28,19 @@ interface CompanyData {
 }
 
 const CompanySettingsForm = () => {
+  const { error, success, setError, setSuccess } = useFormState();
+
   const [companyData, setCompanyData] = useState<CompanyData | null>(null);
   const [editedData, setEditedData] = useState<CompanyData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
 
   // Fetch company data on mount
   useEffect(() => {
     fetchCompanyData();
   }, []);
-
-  // Auto-dismiss success message
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(''), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const fetchCompanyData = async () => {
     try {

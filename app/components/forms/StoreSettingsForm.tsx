@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaStore } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
 import { toast } from 'sonner';
+import { useFormState } from '@/app/lib/hooks';
 
 interface StoreData {
   _id?: string;
@@ -50,6 +51,8 @@ const StoreSettingsForm = ({
   deleteButton,
 }: StoreSettingsFormProps) => {
   const router = useRouter();
+  const { error, success, setError, setSuccess } = useFormState();
+
   const [storeData, setStoreData] = useState<StoreData>(
     initialData || {
       code: '',
@@ -71,8 +74,6 @@ const StoreSettingsForm = ({
   const [editedData, setEditedData] = useState<StoreData>(storeData);
   const [isEditing, setIsEditing] = useState(mode === 'create');
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
 
   useEffect(() => {
     if (initialData) {
@@ -80,14 +81,6 @@ const StoreSettingsForm = ({
       setEditedData(initialData);
     }
   }, [initialData]);
-
-  // Auto-dismiss success message
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(''), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const handleEdit = () => {
     setIsEditing(true);

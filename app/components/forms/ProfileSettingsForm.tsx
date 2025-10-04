@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaPencilAlt, FaSave, FaTimes, FaUpload, FaKey } from 'react-icons/fa';
 import { HiCheckCircle, HiExclamationCircle } from 'react-icons/hi';
+import { useFormState } from '@/app/lib/hooks';
 import Image from 'next/image';
 
 interface UserData {
@@ -17,14 +18,14 @@ interface UserData {
 
 const ProfileSettingsForm = () => {
   const router = useRouter();
+  const { error, success, setError, setSuccess } = useFormState();
+
   const [userData, setUserData] = useState<UserData | null>(null);
   const [editedData, setEditedData] = useState<UserData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
 
   // Password change states
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -36,14 +37,6 @@ const ProfileSettingsForm = () => {
   useEffect(() => {
     fetchUserData();
   }, []);
-
-  // Auto-dismiss success message
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(''), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
 
   const fetchUserData = async () => {
     try {
