@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 import { genres, tones, ageGroups } from '@/app/lib/facets';
 import { BookFormData } from '@/app/lib/types';
+import AssignmentFields from './AssignmentFields';
 
 interface BookEditFormProps {
   bookId?: string; // Optional book ID for editing existing books
@@ -53,7 +54,6 @@ const BookForm = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [librarians, setLibrarians] = useState<any[]>([]);
   const [loadingLibrarians, setLoadingLibrarians] = useState(false);
-  const [newSection, setNewSection] = useState('');
 
   // Load existing book data if bookId is provided (for editing)
   useEffect(() => {
@@ -680,126 +680,18 @@ const BookForm = ({
 
         {/* Assignment fields - Only visible for StoreAdmin */}
         {userRole === 'storeAdmin' && (
-          <>
-            <label className='label w-full max-w-md text-center mt-2'>
-              Assigner à des libraires
-            </label>
-            {loadingLibrarians ? (
-              <div className='flex justify-center w-full max-w-md'>
-                <span className='loading loading-spinner loading-md'></span>
-              </div>
-            ) : (
-              <select
-                multiple
-                value={bookData.assignedTo || []}
-                onChange={(e) => {
-                  const selectedOptions = Array.from(
-                    e.target.selectedOptions,
-                    (option) => option.value
-                  );
-                  setBookData({ ...bookData, assignedTo: selectedOptions });
-                }}
-                className='select select-multiple w-full max-w-md h-32'
-              >
-                {librarians.length === 0 ? (
-                  <option disabled>Aucun libraire disponible</option>
-                ) : (
-                  librarians.map((librarian: any) => (
-                    <option key={librarian._id} value={librarian._id}>
-                      {librarian.firstName} {librarian.lastName}
-                    </option>
-                  ))
-                )}
-              </select>
-            )}
-            <p className='text-xs text-base-content/60 max-w-md text-center mt-1'>
-              Maintenez Cmd (Mac) ou Ctrl (Windows) pour sélectionner plusieurs
-              bibliothécaires
-            </p>
-
-            <label className='label w-full max-w-md text-center mt-6'>
-              Sections / Rayons
-            </label>
-            <div className='w-full max-w-md'>
-              <div className='flex gap-2 mb-2'>
-                <input
-                  type='text'
-                  value={newSection}
-                  onChange={(e) => setNewSection(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      if (
-                        newSection.trim() &&
-                        !bookData.sections?.includes(newSection.trim())
-                      ) {
-                        setBookData({
-                          ...bookData,
-                          sections: [
-                            ...(bookData.sections || []),
-                            newSection.trim(),
-                          ],
-                        });
-                        setNewSection('');
-                      }
-                    }
-                  }}
-                  className='input flex-1'
-                  placeholder='Ajouter une section (ex: Fiction, Jeunesse...)'
-                />
-                <button
-                  type='button'
-                  onClick={() => {
-                    if (
-                      newSection.trim() &&
-                      !bookData.sections?.includes(newSection.trim())
-                    ) {
-                      setBookData({
-                        ...bookData,
-                        sections: [
-                          ...(bookData.sections || []),
-                          newSection.trim(),
-                        ],
-                      });
-                      setNewSection('');
-                    }
-                  }}
-                  className='btn btn-primary'
-                  disabled={!newSection.trim()}
-                >
-                  Ajouter
-                </button>
-              </div>
-
-              {/* Display sections as badges */}
-              {bookData.sections && bookData.sections.length > 0 && (
-                <div className='flex flex-wrap gap-2 mt-3'>
-                  {bookData.sections.map((section, index) => (
-                    <span
-                      key={index}
-                      className='badge badge-primary badge-lg gap-2'
-                    >
-                      {section}
-                      <button
-                        type='button'
-                        onClick={() => {
-                          setBookData({
-                            ...bookData,
-                            sections: bookData.sections?.filter(
-                              (_, i) => i !== index
-                            ),
-                          });
-                        }}
-                        className='btn btn-ghost btn-xs btn-circle'
-                      >
-                        ✕
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
+          <AssignmentFields
+            librarians={librarians}
+            loadingLibrarians={loadingLibrarians}
+            assignedTo={bookData.assignedTo}
+            onAssignedToChange={(ids) =>
+              setBookData({ ...bookData, assignedTo: ids })
+            }
+            sections={bookData.sections}
+            onSectionsChange={(sections) =>
+              setBookData({ ...bookData, sections })
+            }
+          />
         )}
 
         {validationErrors.length > 0 && (
